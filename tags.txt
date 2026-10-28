@@ -22,6 +22,7 @@ change: adapt, pivot, flexible, transition, impermanence
 prudence: caution, careful, precaution, prevention, safeguard, prudent
 freedom: independence, autonomy, surrender, submit, liberty
 brevity: reply, response, answer, message, wordy
+persistence: persist, persevere, perseverance, keep going, keep trying, give up, quit, grit, endurance, stamina
 
 [situation]
 negotiation: negotiate, deal, bargain, haggle, terms, offer, contract, settlement
@@ -46,3 +47,4 @@ weak_competition: no competition, weak competition, low bar, mediocre, nobody el
 hard_times: bad times, depression, grief, downturn, rough patch, good times, success
 competition: competitor, compete, rival, market share, contest, opponent
 prevention: prevent, maintenance, insurance, early warning, fix it now
+after_failure: failed, failure, mistake, setback, recover, bounce back, start over, aftermath, went wrong, lost the

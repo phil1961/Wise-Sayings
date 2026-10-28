@@ -1,0 +1,1201 @@
+[
+  {
+    "text": "Until he is dead, refrain from calling a man happy; call him fortunate.",
+    "variants": [
+      "Call no man happy until he is dead."
+    ],
+    "form": "apophthegm",
+    "attribution": "Solon of Athens",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Herodotus, Histories 1.32 (Solon to Croesus); Waterfield translation quoted on Wikiquote (Solon). Herodotus' dialogue is a literary reconstruction. Checked: https://en.wikiquote.org/wiki/Solon",
+    "lens": "Judge a run of success as a stretch of luck, not a verdict: the story is not finished while exposure remains. Ask what in the present good fortune could turn, and what would still hold if it did.",
+    "impact_score": 8,
+    "impact_rationale": "Tragic-wisdom classic about the fragility of success; reframes 'we are winning' as 'so far'.",
+    "subject_tags": [
+      "risk",
+      "adversity",
+      "change"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "hard_times"
+    ]
+  },
+  {
+    "text": "Smite, but hear me.",
+    "variants": [
+      "Strike, but hear me.",
+      "Strike, if you will, but hear."
+    ],
+    "form": "apophthegm",
+    "attribution": "Themistocles",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Themistocles 11.3 (Perrin translation), said to Eurybiades before Salamis when he raised his staff. Checked: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Themistocles*.html and https://en.wikiquote.org/wiki/Themistocles",
+    "lens": "When someone with power over you is angry, do not argue the anger; separate the blow from the hearing. Accept their right to be furious but get your information in front of them before they act.",
+    "impact_score": 7,
+    "impact_rationale": "Compact tactic for dealing with an angry superior; narrower than the top entries but highly usable.",
+    "subject_tags": [
+      "power",
+      "timing",
+      "brevity"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "hasty_decision",
+      "ultimatum"
+    ]
+  },
+  {
+    "text": "A city will be well fortified which is surrounded by brave men and not by bricks.",
+    "variants": [
+      "Sparta's walls are its men."
+    ],
+    "form": "apophthegm",
+    "attribution": "Lycurgus of Sparta",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Lycurgus 19.3 (Perrin translation), his answer when asked about fortifying the city. Checked: https://en.wikiquote.org/wiki/Lycurgus",
+    "lens": "Security is a property of people and their resolve, not of structures. Before buying more walls, ask whether the people behind them are capable and committed.",
+    "impact_score": 7,
+    "impact_rationale": "Long-lived reframe of defense; a useful counterweight to the gold-laden donkey, which shows people are also the weak point.",
+    "subject_tags": [
+      "power",
+      "war",
+      "prudence"
+    ],
+    "situation_tags": [
+      "security_weakness",
+      "overwhelming_opponent"
+    ],
+    "counter_sayings": [
+      "Any fortress can be taken if a donkey laden with gold can climb up to it."
+    ]
+  },
+  {
+    "text": "Pay attention to your enemies, for they are the first to discover your mistakes.",
+    "form": "apophthegm",
+    "attribution": "Antisthenes",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 6.12 (Antisthenes), as listed on Wikiquote. Checked: https://en.wikiquote.org/wiki/Antisthenes",
+    "lens": "Your critics have the strongest motive to look for your flaws, so their attacks are free audits. Read hostile feedback for what is true in it before you dismiss the source.",
+    "impact_score": 8,
+    "impact_rationale": "Practical, durable, and counterintuitive: converts opposition into information.",
+    "subject_tags": [
+      "human_nature",
+      "knowledge",
+      "truth"
+    ],
+    "situation_tags": [
+      "competition",
+      "acting_with_incomplete_info"
+    ]
+  },
+  {
+    "text": "I thought my wife ought not even to be under suspicion.",
+    "variants": [
+      "Caesar's wife must be above suspicion."
+    ],
+    "form": "apophthegm",
+    "attribution": "Julius Caesar",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Caesar 10 (Perrin translation, section 9), his reason for divorcing Pompeia after the Bona Dea scandal; the popular 'Caesar's wife must be above suspicion' is a later paraphrase. Checked: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Caesar*.html and https://en.wikiquote.org/wiki/Julius_Caesar",
+    "lens": "For people in positions of trust, appearance is part of the job: suspicion does damage whether or not it is justified. Ask not only 'did I do wrong?' but 'can I be doubted?', and remove the cause of doubt.",
+    "impact_score": 7,
+    "impact_rationale": "Names the standard for public trust; widely cited in governance and ethics.",
+    "subject_tags": [
+      "power",
+      "truth",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "Whatever is done well enough is done quickly enough.",
+    "variants": [
+      "Sat celeriter fieri quidquid fiat satis bene."
+    ],
+    "form": "maxim",
+    "attribution": "Augustus",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Suetonius, Life of Augustus 25, cited as a saying of Augustus (Latin as given on Wikiquote). Checked: https://en.wikiquote.org/wiki/Augustus",
+    "lens": "Speed is measured against sufficiency, not against the clock. When urged to hurry, ask what 'well enough' means here and whether the delay or the shortcut is the real cost.",
+    "impact_score": 7,
+    "impact_rationale": "Imperial-era counterweight to haste; a usable test against both rushing and perfectionism.",
+    "subject_tags": [
+      "timing",
+      "prudence",
+      "planning"
+    ],
+    "situation_tags": [
+      "hasty_decision",
+      "paralysis"
+    ],
+    "counter_sayings": [
+      "He who hesitates is lost."
+    ]
+  },
+  {
+    "text": "What is difficult? To know oneself. What is easy? To give advice to another.",
+    "variants": [
+      "The hardest thing of all is to know oneself, and the easiest to give advice to another."
+    ],
+    "form": "apophthegm",
+    "attribution": "Thales of Miletus",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 1.36 (Hicks translation: 'Being asked what is difficult, he replied, \"To know oneself.\" \"What is easy?\" \"To give advice to another.\"'). Checked: https://en.wikisource.org/wiki/Lives_of_the_Eminent_Philosophers/Book_I",
+    "lens": "You can usually see others' situations more clearly than your own, so be suspicious of how easy your counsel to them feels and how hard your own case is. Ask what you would advise a friend, then ask why you are not following it.",
+    "impact_score": 7,
+    "impact_rationale": "Old, well-attested, and widely repeated; a self-check on advice and self-deception.",
+    "subject_tags": [
+      "knowledge",
+      "human_nature",
+      "truth"
+    ],
+    "situation_tags": [
+      "unclear_goals",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "As for me, all I know is that I know nothing.",
+    "form": "aphorism",
+    "attribution": "Socrates",
+    "attribution_confidence": "misattributed",
+    "documented_in": "Wikiquote lists it under Misattributed for Socrates; the formula is a later summary of the Socratic stance in Plato's Apology (Wikiquote cross-references 21d; passage text not checked). Checked: https://en.wikiquote.org/wiki/Socrates",
+    "lens": "Awareness of the limits of your knowledge is a form of knowledge, and it protects you from acting on false certainty. Name what you do not know before deciding.",
+    "impact_score": 7,
+    "impact_rationale": "Among the most repeated ancient sayings; the real Socratic point is more modest than the slogan, hence a moderate score.",
+    "subject_tags": [
+      "knowledge",
+      "truth"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "acting_with_incomplete_info"
+    ]
+  },
+  {
+    "text": "In most cases men willingly believe what they wish.",
+    "variants": [
+      "Men willingly believe what they wish."
+    ],
+    "form": "aphorism",
+    "attribution": "Julius Caesar",
+    "attribution_confidence": "verified",
+    "documented_in": "Caesar, Gallic War 3.18 (Rice Holmes translation: 'in most cases men willingly believe what they wish'). Latin text not seen. Checked: https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0001:book=3:chapter=18",
+    "lens": "When a conclusion is welcome, give it extra scrutiny: wishing makes evidence look stronger than it is. Ask what you would have to see to believe the opposite.",
+    "impact_score": 8,
+    "impact_rationale": "First-hand statement of wishful thinking that has proven out repeatedly.",
+    "subject_tags": [
+      "truth",
+      "human_nature",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "acting_with_incomplete_info"
+    ]
+  },
+  {
+    "text": "This is the bitterest pain among men, to have much knowledge but no power.",
+    "variants": [
+      "Of all men's miseries the bitterest is this: to know so much and to have control over nothing."
+    ],
+    "form": "aphorism",
+    "attribution": "A Persian guest at Thebes, as told by Herodotus",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Herodotus, Histories 9.16 (a Persian's remark at a banquet, reported by Thersander of Orchomenus). Checked: https://en.wikiquote.org/wiki/Herodotus",
+    "lens": "Seeing the danger clearly is not the same as being able to act on it. If you are the one who knows and cannot persuade, look for who holds the power and what they would need to hear.",
+    "impact_score": 7,
+    "impact_rationale": "Names a common modern predicament, the informed but powerless; a lens on influence rather than information.",
+    "subject_tags": [
+      "knowledge",
+      "power"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "acting_with_incomplete_info"
+    ]
+  },
+  {
+    "text": "Money does not smell.",
+    "variants": [
+      "Pecunia non olet."
+    ],
+    "form": "apophthegm",
+    "attribution": "Vespasian",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Suetonius, Life of Vespasian 23.3 (Wikiquote notes the Latin tag is a paraphrase of the anecdote; parallel in Cassius Dio 65.14.5). Checked: https://en.wikiquote.org/wiki/Vespasian",
+    "lens": "Money carries no trace of its source, which makes it easy to justify taking it from anywhere. Ask whether the clean-looking gain is hiding where it came from.",
+    "impact_score": 6,
+    "impact_rationale": "Famous and still used, but it names a moral hazard more than it offers a strategy.",
+    "subject_tags": [
+      "money",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "temptation"
+    ]
+  },
+  {
+    "text": "Nobly to endure a change for the worse.",
+    "variants": [
+      "To bear nobly a change for the worse."
+    ],
+    "form": "apophthegm",
+    "attribution": "Bias of Priene",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 1.86 (Hicks translation: asked what is difficult, he replied 'Nobly to endure a change for the worse.'). Checked: https://en.wikisource.org/wiki/Lives_of_the_Eminent_Philosophers/Book_I",
+    "lens": "Failing is not the hardest test; losing what you had is, and the response you choose then is the part you control. Decide how you will carry the downturn before you catalogue what it took.",
+    "impact_score": 6,
+    "impact_rationale": "Short and humane, a lens on conduct in reversal; less distinctive than the strategic entries.",
+    "subject_tags": [
+      "adversity",
+      "change"
+    ],
+    "situation_tags": [
+      "hard_times",
+      "anxiety",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "The impediment to action advances action. What stands in the way becomes the way.",
+    "form": "aphorism",
+    "attribution": "Marcus Aurelius",
+    "attribution_confidence": "verified",
+    "documented_in": "Marcus Aurelius, Meditations 5.20 (Hays translation; wording varies by translator). Checked: https://en.wikiquote.org/wiki/Marcus_Aurelius",
+    "lens": "The obstacle is not a detour from your task but the material it is now made of. Ask what the blockage lets you do that a clear road would not.",
+    "impact_score": 8,
+    "impact_rationale": "Core Stoic reframe of setbacks into raw material; widely tested in practice, though easy to over-apply to avoidable obstacles.",
+    "subject_tags": [
+      "adversity",
+      "change",
+      "persistence"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "hard_times",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "Men are disturbed, not by things, but by the principles and notions which they form concerning things.",
+    "variants": [
+      "It is not things that disturb people but their judgments about things."
+    ],
+    "form": "maxim",
+    "attribution": "Epictetus",
+    "attribution_confidence": "verified",
+    "documented_in": "Epictetus, Enchiridion 5 (recorded by Arrian); translation wording varies. Checked: https://en.wikiquote.org/wiki/Epictetus",
+    "lens": "Separate the event from the story you attach to it; much of the distress is in the second part, which you can examine. Ask what judgment is doing the disturbing.",
+    "impact_score": 9,
+    "impact_rationale": "Foundation of Stoic practice and, two millennia later, of cognitive therapy; a direct lens on anxiety.",
+    "subject_tags": [
+      "truth",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "anxiety",
+      "hard_times"
+    ]
+  },
+  {
+    "text": "For it is impossible for anyone to begin to learn that which he thinks he already knows.",
+    "form": "maxim",
+    "attribution": "Epictetus",
+    "attribution_confidence": "verified",
+    "documented_in": "Epictetus, Discourses 2.17.1 (recorded by Arrian). Checked: https://en.wikiquote.org/wiki/Epictetus",
+    "lens": "Certainty closes the door to learning. When you are sure and things are going wrong anyway, suspect the thing you feel least need to check.",
+    "impact_score": 8,
+    "impact_rationale": "Names the mechanism by which overconfidence blocks correction; broadly applicable.",
+    "subject_tags": [
+      "knowledge",
+      "truth"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "plan_failing"
+    ]
+  },
+  {
+    "text": "Nothing, Lucilius, is ours, except time.",
+    "form": "aphorism",
+    "attribution": "Seneca the Younger",
+    "attribution_confidence": "verified",
+    "documented_in": "Seneca, Moral Letters to Lucilius (Epistulae Morales) 1.3 (Gummere translation). Checked: https://en.wikisource.org/wiki/Moral_letters_to_Lucilius/Letter_1",
+    "lens": "Every option has a time price that you can never get back, unlike money or reputation. Judge delays, grudges and drawn-out fights by the hours they consume.",
+    "impact_score": 8,
+    "impact_rationale": "Opening statement of Seneca's letters; simple resource lens that reprices many decisions.",
+    "subject_tags": [
+      "timing",
+      "planning"
+    ],
+    "situation_tags": [
+      "unclear_goals",
+      "paralysis"
+    ]
+  },
+  {
+    "text": "The willing soul Fate leads, but the unwilling drags along.",
+    "variants": [
+      "Fate leads the willing and drags the unwilling."
+    ],
+    "form": "maxim",
+    "attribution": "Seneca the Younger (translating Cleanthes)",
+    "attribution_confidence": "verified",
+    "documented_in": "Seneca, Moral Letters to Lucilius 107.11 (Gummere translation, verse rendering). Checked: https://en.wikisource.org/wiki/Moral_letters_to_Lucilius/Letter_107",
+    "lens": "Some things will happen whether you consent or not; the only choice left is whether you walk or are dragged. Spend your resistance where it can change something.",
+    "impact_score": 7,
+    "impact_rationale": "Compact Stoic acceptance principle; useful for irreversible change, risk of fatalism if misapplied.",
+    "subject_tags": [
+      "adversity",
+      "freedom",
+      "change"
+    ],
+    "situation_tags": [
+      "hard_times",
+      "anxiety"
+    ],
+    "counter_sayings": [
+      "Come and take them."
+    ]
+  },
+  {
+    "text": "More law, less justice.",
+    "variants": [
+      "Summum ius summa iniuria."
+    ],
+    "form": "maxim",
+    "attribution": "Cicero",
+    "attribution_confidence": "verified",
+    "documented_in": "Cicero, De Officiis 1.33 (Miller translation: 'More law, less justice'); Cicero cites it there as an already-current proverb. Checked: https://en.wikiquote.org/wiki/Cicero",
+    "lens": "Pressing your strict rights to the letter can produce a result nobody would call fair, and invite retaliation. Ask whether the contract wording or the rule is serving the purpose it was made for.",
+    "impact_score": 8,
+    "impact_rationale": "Names a real failure mode in negotiation, litigation and rule-following; two thousand years of use.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "costly_win"
+    ]
+  },
+  {
+    "text": "Any man is liable to a mistake; but no one but a downright fool will persist in error.",
+    "form": "maxim",
+    "attribution": "Cicero",
+    "attribution_confidence": "verified",
+    "documented_in": "Cicero, Philippics 12.5 (Yonge translation). The later 'errare humanum est, perseverare diabolicum' is a medieval/Augustinian echo, not Cicero. Checked: https://lexundria.com/cic_phil/12.5.1/y",
+    "lens": "Being wrong is normal; staying wrong after the evidence arrives is the fault. Ask what evidence would make you stop, and whether it already arrived.",
+    "impact_score": 8,
+    "impact_rationale": "Separates error from persistence in error; key to sunk-cost situations.",
+    "subject_tags": [
+      "truth",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "overconfidence",
+      "after_failure"
+    ],
+    "counter_sayings": [
+      "The die is cast."
+    ]
+  },
+  {
+    "text": "He doubly benefits the needy who gives quickly.",
+    "variants": [
+      "Inopi beneficium bis dat qui dat celeriter.",
+      "Bis dat qui cito dat.",
+      "He that gives quickly gives twice."
+    ],
+    "form": "maxim",
+    "attribution": "Publilius Syrus",
+    "attribution_confidence": "verified",
+    "documented_in": "Publilius Syrus, Sententiae, maxim 6; the short form 'Bis dat qui cito dat' is listed under Erasmus, Adagia (1508). Checked: https://en.wikiquote.org/wiki/Publilius_Syrus and https://en.wikiquote.org/wiki/Desiderius_Erasmus",
+    "lens": "Help or a decision that arrives late loses most of its value; speed is part of the gift. If you intend to act, doing it now is worth more than doing it better later.",
+    "impact_score": 7,
+    "impact_rationale": "Clear timing lens for generosity, aid, and replying to requests; narrower than top entries.",
+    "subject_tags": [
+      "timing",
+      "money"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "dealing_with_powerful"
+    ],
+    "counter_sayings": [
+      "Make haste slowly."
+    ]
+  },
+  {
+    "text": "Necessity gives the law without itself acknowledging one.",
+    "variants": [
+      "Necessitas dat legem non ipsa accipit."
+    ],
+    "form": "maxim",
+    "attribution": "Publilius Syrus",
+    "attribution_confidence": "verified",
+    "documented_in": "Publilius Syrus, Sententiae, maxim 444. Checked: https://en.wikiquote.org/wiki/Publilius_Syrus",
+    "lens": "Under real pressure, parties will break promises and rules they would honor at leisure. Do not rely on agreements that only work if the other side is not desperate, and expect the same of yourself.",
+    "impact_score": 7,
+    "impact_rationale": "Realistic lens on contract strength under stress; supports stress-testing deals.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "ultimatum"
+    ]
+  },
+  {
+    "text": "Quarrels would not last long if the fault were only on one side.",
+    "variants": [
+      "Les querelles ne dureraient pas longtemps, si le tort n'etait que d'un cote."
+    ],
+    "form": "maxim",
+    "attribution": "La Rochefoucauld",
+    "attribution_confidence": "verified",
+    "documented_in": "La Rochefoucauld, Maximes, no. 496. Checked: https://en.wikiquote.org/wiki/Fran%C3%A7ois_de_La_Rochefoucauld",
+    "lens": "If a dispute is dragging on, the other side is probably not the only one feeding it. Look for your own share of the fault; conceding it is often the quickest way to end the dispute.",
+    "impact_score": 8,
+    "impact_rationale": "Practical and repeatedly confirmed in conflict resolution; shifts you from blaming to finding your move.",
+    "subject_tags": [
+      "human_nature"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "costly_win"
+    ]
+  },
+  {
+    "text": "Hypocrisy is an homage that vice pays to virtue.",
+    "variants": [
+      "L'hypocrisie est un hommage que le vice rend a la vertu."
+    ],
+    "form": "maxim",
+    "attribution": "La Rochefoucauld",
+    "attribution_confidence": "verified",
+    "documented_in": "La Rochefoucauld, Maximes, no. 218. Checked: https://en.wikiquote.org/wiki/Fran%C3%A7ois_de_La_Rochefoucauld",
+    "lens": "When someone dresses a self-interested move in noble language, the disguise tells you which standard they feel they must claim. You can hold them to the standard they invoked.",
+    "impact_score": 7,
+    "impact_rationale": "Useful for reading motive and for leverage over stated principles; a lens more than a strategy.",
+    "subject_tags": [
+      "human_nature",
+      "deception",
+      "truth"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "negotiation"
+    ]
+  },
+  {
+    "text": "War is sweet to them that know it not.",
+    "variants": [
+      "Dulce bellum inexpertis.",
+      "War is sweet to those who have never experienced it."
+    ],
+    "form": "proverb",
+    "attribution": "Pindar (quoted by Erasmus)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Erasmus, Adagia (adage 'Dulce bellum inexpertis', elaborated in his essay Bellum). Wikiquote lists it under Misattributed for Erasmus and notes the line originates with a Greek line of Pindar. Checked: https://en.wikiquote.org/wiki/Desiderius_Erasmus",
+    "lens": "Those pushing for a fight are often the ones who will not pay for it. Ask who has experienced the costs of this conflict and listen to them.",
+    "impact_score": 8,
+    "impact_rationale": "Shifts weight to experience over enthusiasm; applies to wars, lawsuits and corporate battles.",
+    "subject_tags": [
+      "war",
+      "knowledge",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "hasty_decision"
+    ]
+  },
+  {
+    "text": "I would have written a shorter letter, but I did not have the time.",
+    "variants": [
+      "Je n'ai fait celle-ci plus longue que parce que je n'ai pas eu le loisir de la faire plus courte."
+    ],
+    "form": "aphorism",
+    "attribution": "Blaise Pascal",
+    "attribution_confidence": "verified",
+    "documented_in": "Pascal, Provincial Letters, Letter XVI (4 Dec 1656). Often misattributed to Twain, Cicero and others; Quote Investigator cited on Wikiquote as concluding Pascal is the likely origin. Checked: https://en.wikiquote.org/wiki/Blaise_Pascal",
+    "lens": "Brevity costs effort; length is often a sign the thinking is not finished. Before sending, spend the time to cut it to what matters.",
+    "impact_score": 7,
+    "impact_rationale": "Real insight on clarity as work; narrower application.",
+    "subject_tags": [
+      "brevity",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "All the unhappiness of men arises from one single fact, that they cannot stay quietly in their own chamber.",
+    "form": "aphorism",
+    "attribution": "Blaise Pascal",
+    "attribution_confidence": "verified",
+    "documented_in": "Pascal, Pensees, fragment on diversion (the common English wording is from older translations). The popular 'sit quietly in a room alone' adds 'alone', which is not in the French. Checked: https://en.wikiquote.org/wiki/Pens%C3%A9es",
+    "lens": "Constant activity can be a way of avoiding a decision or a feeling you do not want to face. Ask what you are busy avoiding, and whether stillness would show it.",
+    "impact_score": 8,
+    "impact_rationale": "Durable insight into avoidance and busyness; echoed by modern psychology experiments.",
+    "subject_tags": [
+      "human_nature",
+      "truth"
+    ],
+    "situation_tags": [
+      "anxiety",
+      "paralysis",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "If it is not right, do not do it; if it is not true, do not say it.",
+    "form": "maxim",
+    "attribution": "Marcus Aurelius",
+    "attribution_confidence": "verified",
+    "documented_in": "Marcus Aurelius, Meditations 12.17. Checked: https://en.wikiquote.org/wiki/Marcus_Aurelius",
+    "lens": "When a shortcut would need a small lie or a small wrong, the test is simple and comes before cost-benefit. Failing it costs more than the shortcut saves.",
+    "impact_score": 7,
+    "impact_rationale": "A clean decision rule; strong on temptation, less help on real ambiguity.",
+    "subject_tags": [
+      "truth",
+      "prudence"
+    ],
+    "situation_tags": [
+      "temptation"
+    ]
+  },
+  {
+    "text": "Those who would give up essential Liberty, to purchase a little temporary Safety, deserve neither Liberty nor Safety.",
+    "variants": [
+      "They who can give up essential Liberty to obtain a little temporary Safety, deserve neither Liberty nor Safety."
+    ],
+    "form": "aphorism",
+    "attribution": "Benjamin Franklin",
+    "attribution_confidence": "verified",
+    "documented_in": "Franklin, Pennsylvania Assembly, Reply to the Governor, 11 Nov 1755; variant in his 1775 Massachusetts Conference contribution (Objections to Barclay's Draft Articles). Checked: https://en.wikiquote.org/wiki/Benjamin_Franklin",
+    "lens": "When someone offers protection in exchange for a freedom, ask what is being surrendered for good and what is being bought only for now. Fear makes the trade look cheaper than it is.",
+    "impact_score": 8,
+    "impact_rationale": "Documented and repeatedly borne out; reframes security trades as a price paid in autonomy. Often quoted out of its original context.",
+    "subject_tags": [
+      "freedom",
+      "prudence",
+      "risk"
+    ],
+    "situation_tags": [
+      "temptation",
+      "anxiety",
+      "negotiation"
+    ]
+  },
+  {
+    "text": "There never was a good war or a bad peace.",
+    "form": "aphorism",
+    "attribution": "Benjamin Franklin",
+    "attribution_confidence": "verified",
+    "documented_in": "Franklin, letter to Josiah Quincy, 11 September 1783. Checked: https://en.wikiquote.org/wiki/Benjamin_Franklin",
+    "lens": "Before choosing the fight, price in what it destroys that a flawed settlement would keep. A mediocre deal often looks better in hindsight than a victory that cost everything.",
+    "impact_score": 7,
+    "impact_rationale": "Sound corrective to escalation from a negotiator who ended a war; overstated as an absolute, since some fights are unavoidable.",
+    "subject_tags": [
+      "war",
+      "adversity"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "costly_win",
+      "ultimatum"
+    ],
+    "counter_sayings": [
+      "Come and take them."
+    ]
+  },
+  {
+    "text": "Well done is better than well said.",
+    "form": "proverb",
+    "attribution": "Benjamin Franklin",
+    "attribution_confidence": "verified",
+    "documented_in": "Poor Richard's Almanack (1737). Checked: https://en.wikiquote.org/wiki/Benjamin_Franklin",
+    "lens": "Stop polishing the explanation and ship the result. Talk is cheap to produce and cheap to discount; finished work is the argument that holds.",
+    "impact_score": 6,
+    "impact_rationale": "Short, durable nudge against talking instead of doing; limited depth.",
+    "subject_tags": [
+      "planning",
+      "timing"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "In this world nothing can be said to be certain, except death and taxes.",
+    "form": "aphorism",
+    "attribution": "Benjamin Franklin",
+    "attribution_confidence": "verified",
+    "documented_in": "Franklin, letter to Jean-Baptiste Le Roy, 13 November 1789. Wikiquote notes the phrasing predates Franklin (Christopher Bullock, The Cobbler of Preston, 1716), so he is the famous user rather than the originator. Checked: https://en.wikiquote.org/wiki/Benjamin_Franklin",
+    "lens": "Plan around the few fixed facts and treat everything else as provisional. Certainty is rarer than it feels, so hold forecasts loosely.",
+    "impact_score": 6,
+    "impact_rationale": "Famous and true as a humility check; more witty than actionable.",
+    "subject_tags": [
+      "truth",
+      "risk"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Get your facts first, and then you can distort them as much as you please.",
+    "variants": [
+      "First get your facts, then you can distort them at your leisure."
+    ],
+    "form": "aphorism",
+    "attribution": "Mark Twain",
+    "attribution_confidence": "verified",
+    "documented_in": "Reported by Rudyard Kipling, From Sea to Sea (1899), Ch. 37, 'An Interview with Mark Twain'; a contemporary report of Twain's words, not his own text. Checked: https://en.wikiquote.org/wiki/Mark_Twain",
+    "lens": "Whoever controls the facts first controls the story. Establish the record yourself, and notice that a persuasive account may be true facts arranged to mislead.",
+    "impact_score": 6,
+    "impact_rationale": "Documented and sharp about spin, but narrower in lens than the top entries.",
+    "subject_tags": [
+      "truth",
+      "knowledge",
+      "deception"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "negotiation"
+    ]
+  },
+  {
+    "text": "It is easier to fool people than to convince them that they have been fooled.",
+    "form": "aphorism",
+    "attribution": "Mark Twain",
+    "attribution_confidence": "misattributed",
+    "documented_in": "Not found in Twain's writings. Quote Investigator (2020) finds no support; closest Twain line is a 1906 dictation, 'How easy it is to make people believe a lie, and how hard it is to undo that work again!'. The idea is traced to Keynes (1919) and Norman Angell (1927: easier to bamboozle than debamboozle). Checked: https://quoteinvestigator.com/2020/12/23/fooled/",
+    "lens": "Once people have committed to a belief, correcting it is harder than planting it. Prevent the false impression early; do not expect a late correction to undo it.",
+    "impact_score": 7,
+    "impact_rationale": "True of persuasion and sunk belief; a useful communication warning despite the false attribution.",
+    "subject_tags": [
+      "truth",
+      "deception",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "betrayal"
+    ]
+  },
+  {
+    "text": "If I had six hours to chop down a tree, I'd spend the first four sharpening the axe.",
+    "form": "maxim",
+    "attribution": "Abraham Lincoln",
+    "attribution_confidence": "misattributed",
+    "documented_in": "No Lincoln source exists. Quote Investigator: earliest similar line is 1944 (a five-minute / three-minute version); the first Lincoln link is a 1960 trade advertisement. Hour counts vary by version. Checked: https://quoteinvestigator.com/2014/03/29/sharp-axe/",
+    "lens": "Preparation often decides the result more than effort at the task. Ask whether time is better spent on the tool, method or plan before you start swinging.",
+    "impact_score": 7,
+    "impact_rationale": "Strong preparation lens; the risk is using it as an excuse to delay.",
+    "subject_tags": [
+      "planning",
+      "timing"
+    ],
+    "situation_tags": [
+      "prevention",
+      "hasty_decision"
+    ],
+    "counter_sayings": [
+      "He who hesitates is lost."
+    ]
+  },
+  {
+    "text": "You can fool all of the people some of the time, and some of the people all of the time, but you cannot fool all of the people all of the time.",
+    "form": "aphorism",
+    "attribution": "Abraham Lincoln",
+    "attribution_confidence": "misattributed",
+    "documented_in": "Quote Investigator: no solid evidence Lincoln said it; earliest Lincoln attribution is an 1886 interview. A possible ancestor is Jacques Abbadie (1684) via Diderot: one can fool some men, or all men in some places and times, but not all men in all places and ages. Checked: https://quoteinvestigator.com/2013/12/11/cannot-fool/",
+    "lens": "A deception has a shelf life: it can work on some audiences or for a while, but not on everyone indefinitely. If your plan depends on nobody ever noticing, it is borrowed time.",
+    "impact_score": 7,
+    "impact_rationale": "Durable lens on the limits of lying, true in business and politics; attribution is false but the idea is old.",
+    "subject_tags": [
+      "deception",
+      "truth",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "keeping_secrets",
+      "overconfidence",
+      "betrayal"
+    ]
+  },
+  {
+    "text": "Everything in war is very simple, but the simplest thing is difficult.",
+    "variants": [
+      "The simplest things become extremely difficult."
+    ],
+    "form": "aphorism",
+    "attribution": "Carl von Clausewitz",
+    "attribution_confidence": "verified",
+    "documented_in": "Clausewitz, On War, Book 1, Chapter 7 'Friction in War'; wording differs by translation (Graham 1873 vs Howard/Paret 1976). Checked: https://www.marxists.org/reference/archive/clausewitz/works/on-war/book1/ch07.htm and https://clausewitzstudies.org/readings/OnWar1873/BK1ch07.html",
+    "lens": "Budget for friction: small delays, errors and misunderstandings compound, so the clean plan will take longer and go worse than it looks. Do not mistake an easy-looking step for an easy one.",
+    "impact_score": 9,
+    "impact_rationale": "Friction explains why execution fails and carries over from war to projects and software; documented in the primary text.",
+    "subject_tags": [
+      "war",
+      "planning",
+      "adversity"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "There is nothing more difficult to take in hand, more perilous to conduct, or more uncertain in its success, than to take the lead in the introduction of a new order of things.",
+    "form": "maxim",
+    "attribution": "Niccolo Machiavelli",
+    "attribution_confidence": "verified",
+    "documented_in": "Machiavelli, The Prince, Chapter VI (W. K. Marriott translation, Project Gutenberg #1232); full sentence confirmed verbatim in the Gutenberg text. Wording differs in other translations. Checked: https://www.gutenberg.org/cache/epub/1232/pg1232.txt",
+    "lens": "Expect resistance to be sharp from those who lose and lukewarm from those who gain. Build your base before launching a change and do not count on grateful supporters.",
+    "impact_score": 9,
+    "impact_rationale": "Clear, documented, and it predicts why reforms stall; applies to organisations and politics alike.",
+    "subject_tags": [
+      "change",
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful",
+      "competition"
+    ]
+  },
+  {
+    "text": "When the enemy is making a false movement we must take good care not to interrupt him.",
+    "variants": [
+      "Never interfere with an enemy while he is in the process of destroying himself.",
+      "Never interrupt your enemy when he is making a mistake."
+    ],
+    "form": "maxim",
+    "attribution": "Napoleon Bonaparte",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Earliest Napoleon link found by Quote Investigator: Archibald Alison, History of Europe / French Revolution vol. 5 (Blackwood, 1836), p. 476, about an 1805 battle. Modern wording is later (1888 Bierbower; 1965 T. H. White calls it Napoleon's maxim). Not in his own writings. Checked: https://quoteinvestigator.com/2010/07/06/never-interfere/",
+    "lens": "When a rival is already erring, resist the urge to step in with corrections or attacks that might stop them. Let the mistake run, and be ready to profit from the result.",
+    "impact_score": 7,
+    "impact_rationale": "Counterintuitive restraint rule with wide use; attribution is weak, so wording is flagged.",
+    "subject_tags": [
+      "war",
+      "timing",
+      "deception"
+    ],
+    "situation_tags": [
+      "competition",
+      "weak_competition",
+      "paralysis"
+    ]
+  },
+  {
+    "text": "If you're going through hell, keep going.",
+    "form": "maxim",
+    "attribution": "Winston Churchill",
+    "attribution_confidence": "misattributed",
+    "documented_in": "No Churchill source. Quote Investigator: probably not Churchill; earliest close match is David Guy Powers, How to Say a Few Words (1953). Churchill scholar Richard Langworth also lists it as spurious. Checked: https://quoteinvestigator.com/2014/09/14/keep-going/",
+    "lens": "In the worst stretch, stopping is the one choice that guarantees you stay there. Keep moving, even slowly, and measure progress by distance from where you were.",
+    "impact_score": 6,
+    "impact_rationale": "Useful resilience nudge but generic; kept mainly as a flagged famous misattribution.",
+    "subject_tags": [
+      "adversity",
+      "persistence"
+    ],
+    "situation_tags": [
+      "hard_times",
+      "anxiety",
+      "leadership_crisis",
+      "after_failure"
+    ],
+    "counter_sayings": [
+      "This too shall pass."
+    ]
+  },
+  {
+    "text": "A journey of a thousand li starts with a single step.",
+    "variants": [
+      "千里之行始於足下",
+      "A thousand-mile journey starts from your feet down there."
+    ],
+    "form": "aphorism",
+    "attribution": "Laozi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Laozi (Lao Tzu), Daodejing (Tao Te Ching) ch. 64: Chinese 'Qian li zhi xing, shi yu zu xia'. Traditional authorship of the Daodejing is uncertain; the line is also often misattributed to Confucius. Checked: https://en.wikiquote.org/wiki/Laozi",
+    "lens": "When the task is so large you cannot start, the only real question is what the first step is. The distance is made of steps you can already take.",
+    "impact_score": 8,
+    "impact_rationale": "Classical, crosses cultures, and gives a practical way out of overwhelm; very familiar, so the lens is simple rather than surprising.",
+    "subject_tags": [
+      "planning",
+      "timing",
+      "persistence"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "anxiety",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "What you know, you know; what you don't know, you don't know. This is true knowledge.",
+    "variants": [
+      "To know what you know and what you do not know, that is true knowledge.",
+      "知之為知之，不知為不知，是知也"
+    ],
+    "form": "aphorism",
+    "attribution": "Confucius",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Analects (Lunyu) Book II (Wei Zheng), passage 2.17: 知之為知之，不知為不知，是知也. Recorded by Confucius's followers, not written by him. English wording varies by translator. Checked: https://en.wikiquote.org/wiki/Confucius",
+    "lens": "Draw an honest line between what you know and what you merely assume, and act on each differently. Most bad decisions blur the two.",
+    "impact_score": 8,
+    "impact_rationale": "Foundational epistemic discipline from the Analects; directly useful for decisions under uncertainty.",
+    "subject_tags": [
+      "knowledge",
+      "truth"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "The old man at the frontier lost his horse; how could one know it was not a blessing?",
+    "variants": [
+      "塞翁失馬，焉知非福",
+      "Blessing in disguise (Sai Weng loses his horse)"
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Chinese chengyu 塞翁失馬，焉知非福 (Sai weng shi ma, yan zhi fei fu). Story from the Huainanzi, ch. 18 (Renjian xun), 2nd century BC: a lost horse returns with another, the son breaks his leg riding it, and the lameness later spares him from conscription. The English line here is a paraphrase of the chengyu, not a fixed translation. Checked: https://en.wikipedia.org/wiki/The_old_man_lost_his_horse",
+    "lens": "You cannot yet tell whether this loss is a loss, so hold your verdict. Outcomes keep reversing, and a judgment made too early is usually wrong in one direction.",
+    "impact_score": 8,
+    "impact_rationale": "A durable lens on premature judgment of setbacks and windfalls alike, with a clearly documented source story.",
+    "subject_tags": [
+      "change",
+      "adversity",
+      "risk"
+    ],
+    "situation_tags": [
+      "hard_times",
+      "acting_with_incomplete_info",
+      "anxiety"
+    ]
+  },
+  {
+    "text": "Mend the pen after a sheep is lost; it is not too late.",
+    "variants": [
+      "亡羊而補牢，未為遲也",
+      "It is not too late to mend the fold after the sheep are lost."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Chinese chengyu 亡羊補牢 (wang yang bu lao), from Zhan Guo Ce (Strategies of the Warring States), Chu section: 見兔而顧犬，未為晚也；亡羊而補牢，未為遲也 (spoken by Zhuang Xin to the King of Chu, per a news article found by search; zdic gives only 'Chu ce'). English is a paraphrase. Checked: https://zdic.net/hant/亡羊補牢",
+    "lens": "After a failure the right move is to fix the cause now, not to dwell on being late. The next loss is still avoidable even though the last one is not.",
+    "impact_score": 7,
+    "impact_rationale": "Classical source and a useful corrective to blame and paralysis after a breach; it cuts against pure prevention, which is why it pairs well.",
+    "subject_tags": [
+      "prudence",
+      "change"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "prevention",
+      "after_failure"
+    ],
+    "counter_sayings": [
+      "An ounce of prevention is worth a pound of cure."
+    ]
+  },
+  {
+    "text": "The ruler is the boat and the people are the water; water can carry the boat, and water can overturn it.",
+    "variants": [
+      "水能載舟，亦能覆舟",
+      "Water can carry the boat and water can capsize it."
+    ],
+    "form": "maxim",
+    "attribution": "Xunzi (quoting an older saying)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Xunzi, Wang Zhi chapter: 君者，舟也；庶人者，水也；水則載舟，水則覆舟 (Xunzi introduces it as an older saying; a version also appears in the Ai Gong chapter as words of Confucius). Original text confirmed as quoted and cited to 荀子·王制 in Zhu Yan, 'Learning From Water', Yale Forum on Religion and Ecology (2026). Checked: https://fore.yale.edu/sites/default/files/20260420%20Blog%20Zhu%20Yan%20Learning%20From%20Water.pdf",
+    "lens": "Any authority rests on the consent of the people it governs, and that support is also what can bring it down. Judge your position by what carries you, not by your title.",
+    "impact_score": 7,
+    "impact_rationale": "A durable account of power's dependence on the governed; applies to managers, founders, and states.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "It is not wrong to go back for that which you have forgotten.",
+    "variants": [
+      "Se wo were fi na wosankofa a yenkyi"
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Akan (Twi) proverb: 'Se wo were fi na wosankofa a yenkyi.' Basis of the Sankofa symbol; cited to the Spirituals Project (University of Denver), 'African Tradition, Proverbs, and Sankofa', and DeMello, Inked (2014), per Wikipedia. Checked: https://en.wikipedia.org/wiki/Sankofa",
+    "lens": "Going back is not failure when what you need is behind you. Retrieve the lesson, the person, or the premise you dropped before pressing on.",
+    "impact_score": 6,
+    "impact_rationale": "Widely documented Akan proverb with a useful lens against sunk-cost momentum; sourcing is secondary (Wikipedia citing a university page).",
+    "subject_tags": [
+      "knowledge",
+      "change"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "hasty_decision",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "A mountain never meets a mountain, but a person meets a person.",
+    "variants": [
+      "Kuh be kuh nemirasad, adam be adam mirasad",
+      "A barg mit a barg kumt zikh nit tsunoyf, ober a mentsh mit a mentshn yo."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Persian proverb: کوه به کوه نمی‌رسد، آدم به آدم می‌رسد (Kuh be kuh nemirasad, adam be adam mirasad); cited from Paczolay, European Proverbs in 55 Languages (1997). The same proverb is recorded in Yiddish (Stutchkoff, 1950, p. 30). Checked: https://en.wikiquote.org/wiki/Persian_proverbs",
+    "lens": "Fixed positions never converge, but people cross paths again. Do not burn bridges with someone you will meet again, and do not assume the person you wrong is gone for good.",
+    "impact_score": 7,
+    "impact_rationale": "Cross-culturally attested (Persian and Yiddish); a lens on reciprocity and long memory.",
+    "subject_tags": [
+      "human_nature",
+      "power"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "competition",
+      "betrayal"
+    ]
+  },
+  {
+    "text": "The rope of a lie is short.",
+    "variants": [
+      "حبل الكذب قصير",
+      "A lie has short legs."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Arabic proverb: حبل الكذب قصير (habl al-kadhib qasir), cited from H. I. Katibah, The New Spirit in Arab Lands (1940), p. 121, per Wikiquote. Not checked in a dedicated Arabic proverb collection. Checked: https://en.wikiquote.org/wiki/Arabic_proverbs",
+    "lens": "A story built on a lie runs out of length, usually when you most need it. If your plan only works while a falsehood holds, price in the day it stops holding.",
+    "impact_score": 5,
+    "impact_rationale": "Sound and widely paralleled, but a well-worn point; Arabic-form sourcing is a single early-20th-century citation.",
+    "subject_tags": [
+      "truth",
+      "deception"
+    ],
+    "situation_tags": [
+      "keeping_secrets",
+      "temptation"
+    ]
+  },
+  {
+    "text": "The stake that sticks up gets hammered down.",
+    "variants": [
+      "出る杭は打たれる",
+      "The nail that sticks out gets hammered down."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Japanese proverb 出る杭は打たれる (Deru kui wa utareru), listed among Japanese proverbs with reference to Jon R. Stone, The Routledge Book of World Proverbs (2006). Checked: https://en.wikipedia.org/wiki/Japanese_proverbs",
+    "lens": "Standing out has a price set by the group, not by merit. Decide before you stick up whether the visibility is worth the pushback, and who will do the hammering.",
+    "impact_score": 7,
+    "impact_rationale": "A sharp lens on conformity pressure and visibility; widely applied in organizations, though specific to hierarchical settings.",
+    "subject_tags": [
+      "human_nature",
+      "power"
+    ],
+    "situation_tags": [
+      "competition",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "Fall seven times, get up eight.",
+    "variants": [
+      "七転び八起き",
+      "Nana korobi ya oki"
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Japanese proverb 七転び八起き (Nanakorobi yaoki), listed among Japanese proverbs with reference to Jon R. Stone, The Routledge Book of World Proverbs (2006). Checked: https://en.wikipedia.org/wiki/Japanese_proverbs",
+    "lens": "Count recoveries, not falls. The arithmetic of persistence is that you only need to be up one more time than you have been down.",
+    "impact_score": 6,
+    "impact_rationale": "Widely loved and practical, but closer to motivation than to a new lens.",
+    "subject_tags": [
+      "adversity",
+      "persistence"
+    ],
+    "situation_tags": [
+      "hard_times",
+      "plan_failing",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "Man plans, and God laughs.",
+    "variants": [
+      "Der mentsh trakht un Got lakht",
+      "Man proposes, God disposes."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Yiddish proverb: דער מענטש טראַכט און גאָט לאַכט (Der mentsh trakht un Got lakht), recorded in Israel Furman, Yidishe shprikhverter un rednsartn (1968), p. 248, per Wikiquote. Earlier origin not established. Checked: https://en.wikiquote.org/wiki/Yiddish_proverbs",
+    "lens": "Your plan is a hypothesis about a world you do not control. Hold it with humor, and leave margins for what you did not plan.",
+    "impact_score": 8,
+    "impact_rationale": "Memorable, widely cited, and an honest counterweight to overconfident planning; origin date unknown.",
+    "subject_tags": [
+      "planning",
+      "risk",
+      "change"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Don't change horses in midstream.",
+    "variants": [
+      "Коней на переправе не меняют",
+      "Never swap horses while crossing a stream."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Russian proverb: Коней на переправе не меняют (Koney na pereprave ne menyayut), recorded in V. Mokienko, Bolshoy slovar russkikh poslovits (2010), p. 26, per Wikiquote. Checked: https://en.wikiquote.org/wiki/Russian_proverbs",
+    "lens": "At the riskiest moment of a crossing, switching leaders or methods costs more than the flaw you are fleeing. Ask whether the change is worth the exposure of making it now.",
+    "impact_score": 7,
+    "impact_rationale": "A real counterweight to flexibility advice; useful during crises and transitions.",
+    "subject_tags": [
+      "change",
+      "timing",
+      "risk"
+    ],
+    "situation_tags": [
+      "commitment",
+      "leadership_crisis",
+      "plan_failing"
+    ],
+    "counter_sayings": [
+      "Bad is the plan that cannot be changed."
+    ]
+  },
+  {
+    "text": "Drop by drop the stone is hollowed.",
+    "variants": [
+      "A goccia a goccia s'incava la pietra",
+      "Dripping water hollows out stone."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Italian proverb: A goccia a goccia s'incava la pietra, cited to Giordano Bruno, Il Candelaio, and in Strauss, Concise Dictionary of European Proverbs (1998), p. 187, per Wikiquote. Checked: https://en.wikiquote.org/wiki/Italian_proverbs",
+    "lens": "Small, steady, repeated pressure beats one dramatic push. A smaller side can wear down a bigger one by outlasting it, not out-hitting it.",
+    "impact_score": 6,
+    "impact_rationale": "Old and widely paralleled; useful against overwhelming opponents, though a familiar thought.",
+    "subject_tags": [
+      "power",
+      "timing",
+      "persistence"
+    ],
+    "situation_tags": [
+      "overwhelming_opponent",
+      "paralysis"
+    ]
+  },
+  {
+    "text": "Guard me from still water; from rough water I will guard myself.",
+    "variants": [
+      "Cuidame del agua mansa, que de la brava yo solo me cuidare"
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Spanish proverb: Cuidame del agua mansa, que de la brava yo solo me cuidare, recorded in E. Strauss, Dictionary of European Proverbs (1994), vol. 2, p. 52, per Wikiquote. Checked: https://en.wikiquote.org/wiki/Spanish_proverbs",
+    "lens": "Visible threats get defended; the quiet, agreeable ones do not. The danger to watch is the calm party or channel you have stopped noticing.",
+    "impact_score": 7,
+    "impact_rationale": "A neat lens on hidden threats, complementing 'watch the loud danger' instincts.",
+    "subject_tags": [
+      "prudence",
+      "deception",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "security_weakness",
+      "betrayal",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Pride goeth before destruction, and an haughty spirit before a fall.",
+    "variants": [
+      "Pride goes before a fall."
+    ],
+    "form": "proverb",
+    "attribution": "Book of Proverbs (traditionally Solomon)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Proverbs 16:18 (King James Version). Traditional attribution to Solomon is uncertain; the book is a compiled collection. Checked: https://en.wikisource.org/wiki/Bible_(King_James)/Proverbs",
+    "lens": "The fall is often prepared by the confidence that precedes it. When you feel most certain of your position, check what you have stopped checking.",
+    "impact_score": 8,
+    "impact_rationale": "Ancient, quoted for millennia, and a real warning that overconfidence is itself a risk factor.",
+    "subject_tags": [
+      "human_nature",
+      "power"
+    ],
+    "situation_tags": [
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "The race is not to the swift, nor the battle to the strong ... but time and chance happeneth to them all.",
+    "variants": [
+      "The race is not to the swift, nor the battle to the strong"
+    ],
+    "form": "aphorism",
+    "attribution": "Qohelet (Ecclesiastes)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Ecclesiastes 9:11 (KJV): 'I returned, and saw under the sun, that the race is not to the swift, nor the battle to the strong, neither yet bread to the wise, nor yet riches to men of understanding, nor yet favour to men of skill; but time and chance happeneth to them all.' Only the opening was re-read on the page; the rest is from the standard KJV. Traditional attribution to Solomon is uncertain. Checked: https://en.wikisource.org/wiki/Bible_(King_James)/Ecclesiastes",
+    "lens": "Skill and strength improve your odds but never guarantee the outcome. Do not read a result as proof of merit, and do not bet everything on being the best.",
+    "impact_score": 8,
+    "impact_rationale": "Ancient and humane account of luck and merit; useful against both overconfidence and despair after a loss.",
+    "subject_tags": [
+      "risk",
+      "timing",
+      "power"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "hard_times",
+      "acting_with_incomplete_info"
+    ],
+    "counter_sayings": [
+      "The strong do what they can and the weak suffer what they must."
+    ]
+  }
+]
