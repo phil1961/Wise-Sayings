@@ -1,0 +1,48 @@
+# Tag vocabulary for the Sayings Compendium. Edit freely; it is re-read on every command.
+#
+# Two sections: [subject] (what a saying is about) and [situation] (when to reach for it).
+# One tag per line:   tag_name: alias, another alias, multi word alias
+# Aliases are words a situation description might use. They drive `consult` matching.
+# Imports may only use tags listed here. Removing a tag that sayings still use keeps it
+# in the database (with a warning) until you retag those sayings.
+
+[subject]
+power: powerful, authority, control, dominance, strength, strong, weak
+money: gold, bribe, bribery, wealth, cash, pay, price, cost, budget, funding, corruption
+war: battle, fight, enemy, military, army, conflict, combat, attack
+human_nature: people, motive, ego, envy, empathy, selfish, sympathy
+truth: honest, honesty, lie, facts, belief, certainty, assumption
+timing: delay, wait, speed, hurry, rush, deadline, moment
+risk: gamble, bet, danger, uncertain, uncertainty, odds
+planning: plan, strategy, prepare, preparation, roadmap, forecast
+knowledge: know, information, intelligence, data, research, ignorance
+deception: deceive, trick, bluff, mislead, feint, disguise, surprise
+adversity: hardship, setback, failure, loss, suffering, trouble
+change: adapt, pivot, flexible, transition, impermanence
+prudence: caution, careful, precaution, prevention, safeguard, prudent
+freedom: independence, autonomy, surrender, submit, liberty
+brevity: reply, response, answer, message, wordy
+
+[situation]
+negotiation: negotiate, deal, bargain, haggle, terms, offer, contract, settlement
+betrayal: betray, traitor, disloyal, backstab, insider, turncoat
+acting_with_incomplete_info: unknown, unclear, incomplete, guess, ambiguous, not sure, uncertain
+overwhelming_opponent: outnumbered, outmatched, bigger competitor, giant, incumbent, larger rival, much bigger
+temptation: tempted, tempting, shortcut, easy money, lure, offer
+leadership_crisis: leader, leadership, morale, mutiny, lead the team, crisis
+ultimatum: threat, threaten, demand, coercion, pressure, or else
+costly_win: win at any cost, victory, winning, war of attrition, lawsuit, litigation
+commitment: commit, irreversible, point of no return, burn the boats, all in, decide
+plan_failing: plan failed, off track, things changed, contingency, unexpected, derailed, fell apart, falling apart, broke down, went wrong
+keeping_secrets: secret, confidential, nda, discreet, leak, rumor
+anxiety: worry, fear, afraid, anxious, dread, nervous, stress, panic
+security_weakness: security, defense, vulnerable, breach, protect, fortress, guard
+unclear_goals: goal, direction, purpose, aimless, priorities, mission
+hasty_decision: quick decision, impulsive, snap decision, hurry, rush, jump
+paralysis: hesitate, hesitation, procrastinate, stuck, overthinking, waiting too long
+overconfidence: sure, certain, confident, arrogant, hubris, cocky, obvious
+dealing_with_powerful: boss, king, ceo, patron, powerful person, flattery, favor
+weak_competition: no competition, weak competition, low bar, mediocre, nobody else
+hard_times: bad times, depression, grief, downturn, rough patch, good times, success
+competition: competitor, compete, rival, market share, contest, opponent
+prevention: prevent, maintenance, insurance, early warning, fix it now
