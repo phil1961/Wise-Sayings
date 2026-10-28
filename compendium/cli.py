@@ -68,7 +68,7 @@ def cmd_show(conn, a):
 
 
 def cmd_consult(conn, a):
-    matcher = consult_mod.load_matcher(a.matcher)
+    matcher = consult_mod.load_matcher("compendium.llm_matcher:match" if a.smart else a.matcher)
     groups, tensions, matched = consult_mod.consult(conn, a.situation, a.limit, matcher)
     if not groups:
         print("No accepted sayings matched. Try different words, or see `python sayings.py tags`.")
@@ -180,6 +180,9 @@ def build_parser():
     s = sub.add_parser("consult", help="get relevant sayings for a situation")
     s.add_argument("situation")
     s.add_argument("--limit", type=int, default=12)
+    s.add_argument("--smart", action="store_true",
+                   help="let Claude pick the tags (needs `pip install anthropic` + ANTHROPIC_API_KEY; "
+                        "falls back to keywords)")
     s.add_argument("--matcher", help="module:function to replace the keyword matcher")
     s.set_defaults(func=cmd_consult)
 

@@ -21,7 +21,7 @@ Leave a line blank to skip that saying for now. Then run:
 - **Subject tags:** human_nature, money, power
 - **Situation tags:** betrayal, overwhelming_opponent, security_weakness
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -38,7 +38,7 @@ Decision:
 - **Situation tags:** negotiation, overwhelming_opponent, ultimatum
 - **Counter-sayings:** #22 "The strong do what they can and the weak suffer what they must."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -53,7 +53,7 @@ Decision:
 - **Subject tags:** brevity, power
 - **Situation tags:** negotiation, overwhelming_opponent, ultimatum
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -69,7 +69,7 @@ Decision:
 - **Subject tags:** risk, war
 - **Situation tags:** competition, costly_win
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -86,7 +86,7 @@ Decision:
 - **Situation tags:** commitment, plan_failing
 - **Counter-sayings:** #24 "The die is cast."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -102,7 +102,7 @@ Decision:
 - **Subject tags:** planning
 - **Situation tags:** acting_with_incomplete_info, unclear_goals
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -119,7 +119,7 @@ Decision:
 - **Situation tags:** acting_with_incomplete_info, anxiety
 - **Counter-sayings:** #10 "An ounce of prevention is worth a pound of cure."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -135,7 +135,7 @@ Decision:
 - **Subject tags:** human_nature
 - **Situation tags:** dealing_with_powerful, leadership_crisis
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -150,7 +150,7 @@ Decision:
 - **Subject tags:** human_nature, knowledge
 - **Situation tags:** betrayal, keeping_secrets
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -166,7 +166,7 @@ Decision:
 - **Situation tags:** prevention, security_weakness
 - **Counter-sayings:** #7 "We suffer more often in imagination than in reality."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -183,7 +183,7 @@ Decision:
 - **Situation tags:** commitment, hasty_decision
 - **Counter-sayings:** #12 "He who hesitates is lost."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -200,7 +200,7 @@ Decision:
 - **Situation tags:** commitment, paralysis
 - **Counter-sayings:** #11 "Look before you leap."; #20 "Make haste slowly."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -215,7 +215,7 @@ Decision:
 - **Subject tags:** knowledge, truth
 - **Situation tags:** acting_with_incomplete_info, overconfidence
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -230,7 +230,7 @@ Decision:
 - **Subject tags:** deception, war
 - **Situation tags:** competition, negotiation
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -245,7 +245,7 @@ Decision:
 - **Subject tags:** knowledge, war
 - **Situation tags:** acting_with_incomplete_info, competition, overwhelming_opponent
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -261,7 +261,7 @@ Decision:
 - **Subject tags:** prudence, risk
 - **Situation tags:** anxiety, prevention
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -277,7 +277,7 @@ Decision:
 - **Subject tags:** adversity, change
 - **Situation tags:** anxiety, hard_times
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -293,7 +293,7 @@ Decision:
 - **Subject tags:** change, planning, war
 - **Situation tags:** acting_with_incomplete_info, plan_failing
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -308,7 +308,7 @@ Decision:
 - **Subject tags:** planning
 - **Situation tags:** leadership_crisis, plan_failing
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -325,7 +325,7 @@ Decision:
 - **Situation tags:** hasty_decision, paralysis
 - **Counter-sayings:** #12 "He who hesitates is lost."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -341,7 +341,7 @@ Decision:
 - **Subject tags:** knowledge, power
 - **Situation tags:** competition, weak_competition
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -357,7 +357,7 @@ Decision:
 - **Situation tags:** negotiation, overwhelming_opponent, ultimatum
 - **Counter-sayings:** #2 "Come and take them."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -373,7 +373,7 @@ Decision:
 - **Subject tags:** freedom, power
 - **Situation tags:** dealing_with_powerful, temptation
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28
 
 ---
 
@@ -390,4 +390,4 @@ Decision:
 - **Situation tags:** commitment, paralysis
 - **Counter-sayings:** #5 "Bad is the plan that cannot be changed."
 
-Decision: 
+Decision: accept | reviewed in DB viewer 2026-10-28

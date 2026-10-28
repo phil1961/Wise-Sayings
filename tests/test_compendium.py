@@ -1,5 +1,6 @@
 """Run with:  python -m unittest discover tests"""
 
+import importlib.util
 import json
 import tempfile
 import unittest
@@ -169,6 +170,54 @@ class TestExportAndVocab(Base):
         orphans = db.sync_vocab(self.conn, vocab)
         self.assertEqual(orphans, ["situation:hasty_decision"])
         self.assertIsNone(self.conn.execute("SELECT 1 FROM tags WHERE name='commitment'").fetchone())
+
+
+class TestSmartMatcher(Base):
+    """The LLM matcher must map Claude's reply to tag weights and fall back safely."""
+
+    def setUp(self):
+        super().setUp()
+        records.import_records(self.conn, records.load_file(SEED))
+        self.accept_all()
+        self.tags = [dict(r, aliases=json.loads(r["aliases"])) for r in
+                     self.conn.execute("SELECT id, name, kind, aliases FROM tags")]
+
+    def tag_id(self, name):
+        return self.conn.execute("SELECT id FROM tags WHERE name=?", (name,)).fetchone()[0]
+
+    def test_reply_to_weights(self):
+        from compendium import llm_matcher
+        reply = {"tags": [{"id": "situation:betrayal", "relevance": 3},
+                          {"id": "subject:human_nature", "relevance": 3},
+                          {"id": "situation:not_real", "relevance": 3}]}
+        w = llm_matcher.weights_from_reply(reply, self.tags)
+        self.assertEqual(w, {self.tag_id("betrayal"): 3.0, self.tag_id("human_nature"): 2.0})
+
+    @unittest.skipUnless(importlib.util.find_spec("anthropic"), "anthropic not installed")
+    def test_fake_client_drives_consult(self):
+        from types import SimpleNamespace as NS
+        from compendium import llm_matcher
+
+        class FakeMessages:
+            def create(self, **kw):
+                self.kw = kw
+                text = json.dumps({"tags": [{"id": "situation:betrayal", "relevance": 3}]})
+                return NS(stop_reason="end_turn", content=[NS(type="text", text=text)])
+
+        fake = NS(beta=NS(messages=FakeMessages()))
+        matcher = lambda s, t: llm_matcher.match(s, t, client=fake)
+        groups, _, matched = consult.consult(self.conn, "my cofounder keeps meeting our rival", matcher=matcher)
+        self.assertEqual(matched, ["betrayal"])
+        self.assertEqual(groups[0][0], "betrayal")
+        self.assertEqual(fake.beta.messages.kw["fallbacks"], "default")
+
+    @unittest.skipUnless(importlib.util.find_spec("anthropic"), "anthropic not installed")
+    def test_real_sdk_request_falls_back_when_unreachable(self):
+        import anthropic
+        from compendium import llm_matcher
+        client = anthropic.Anthropic(api_key="test", base_url="http://127.0.0.1:9", max_retries=0, timeout=3)
+        w = llm_matcher.match("should I hesitate or commit now?", self.tags, client=client)
+        self.assertIn(self.tag_id("commitment"), w)  # keyword fallback result
 
 
 if __name__ == "__main__":
