@@ -234,6 +234,36 @@ In the page, drag to turn, use the wheel to zoom, and click a saying for its
 lens, its neighbours, and the sayings that pull the other way. Lines brighten
 with relatedness; orange dashes run through the globe between counter-sayings.
 
+**Controls** (button at bottom left, or press `C`). Every kind of element on
+the page has its own row: an on/off switch, a colour picker (double-click to
+reset), and a slider from 0% (invisible) to 200%. Below 100% the element dims,
+and above it brightens: more opaque, and gently toward white. The rows are:
+
+- Structure: globe shell, lattice marbles, triangle mesh, distance rings
+- Sayings: one row per form (apophthegms, aphorisms, maxims, proverbs, epigrams), labels
+- Relations: counter-saying chords, hidden connections, possible mis-tags
+- Situation: marker, label
+
+Only rows for things the page actually has are shown. Below them:
+
+- Filters:
+  - hide mesh links weaker than a threshold;
+  - on a situation sphere, hide sayings below a relevance threshold, and show
+    or hide the pulled-in counter-sayings;
+  - labels: all, front side only, or the selected saying and its neighbours;
+  - saying size;
+  - fade what isn't linked to the selected saying;
+  - slow spin;
+  - background colour.
+- Presets: Default, Sayings (quiet structure), Tensions (only sayings and the
+  lines between opposites), Structure (mesh and lattice up, labels off), Clean.
+
+Clicking a form in the legend toggles it. `L` toggles labels and `Esc` clears
+the selection. Settings are saved in the browser and carry over to every
+sphere page; the thresholds stay per page. A link can open the panel or apply a
+preset: `sphere-4.html#controls`, `sphere-4.html#preset=Tensions`. Comparison
+pages apply the settings to both globes.
+
 ### Stage two: meaning
 
 Relatedness is how close two sayings are in meaning: their insight, their

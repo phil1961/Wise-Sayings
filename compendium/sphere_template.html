@@ -6,7 +6,9 @@
 <!-- Drawing approach follows the Network Meaning sphere (D:\Projects\network-meaning\public\sphere.html):
      Three.js r128, a world group turned by dragging, instanced marbles for the frequency-10 lattice,
      HTML labels projected each frame and dimmed on the far side, the same palette.
-     One page shows one or more "views" (layouts of the same sayings) side by side, turning together. -->
+     One page shows one or more "views" (layouts of the same sayings) side by side, turning together.
+     Every drawn element carries a layer key; the Controls panel turns layers on and off, dims or
+     brightens them and recolours them, and applyLook() is the one place that applies those settings. -->
 <style>
   :root {
     --ground: #0e1116; --panel: #161b22e8; --line: #2a313b; --ink: #e6e1d6; --dim: #8b919a;
@@ -24,17 +26,17 @@
   .view .title { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center; font: italic 16px var(--display); color: var(--dim); pointer-events: none; }
   .lbl { position: absolute; transform: translate(-50%, -150%); font: 11px var(--body); white-space: nowrap; color: var(--ink);
          text-shadow: 0 0 4px var(--ground), 0 0 2px var(--ground); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-  .lbl.back { opacity: .25; }
   .lbl.sel { font-weight: 600; color: #fff; }
   .lbl.center { font: italic 15px var(--display); color: #fff; max-width: 320px; transform: translate(-50%, -160%); }
-  #info .rel { color: var(--ink); font-size: 12px; margin-top: 6px; }
   .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
   #head { top: 12px; left: 12px; max-width: 360px; }
   #head h1 { font: italic 20px var(--display); margin: 0 0 4px; }
   #head .meta { color: var(--dim); font-size: 12px; }
   #legend { margin-top: 8px; font-size: 12px; color: var(--dim); }
+  #legend .lg { cursor: pointer; white-space: nowrap; user-select: none; }
+  #legend .lg.off { opacity: .35; text-decoration: line-through; }
   #legend span.sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin: 0 4px 0 10px; }
-  #legend span.sw:first-child { margin-left: 0; }
+  #legend .lg:first-child span.sw { margin-left: 0; }
   #legend .ln { display: inline-block; width: 16px; height: 0; border-top: 2px solid; margin: 0 4px 3px 10px; vertical-align: middle; }
   #info { top: 12px; right: 12px; width: 360px; max-height: calc(100% - 60px); overflow: auto; }
   #info[hidden] { display: none; }
@@ -42,6 +44,7 @@
   #info .who { color: var(--dim); font-size: 12px; margin-bottom: 8px; }
   #info .lens { margin: 8px 0; }
   #info .tags { color: var(--dim); font-size: 12px; }
+  #info .rel { color: var(--ink); font-size: 12px; margin-top: 6px; }
   #info h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin: 12px 0 4px; }
   #info ul { margin: 0; padding-left: 18px; }
   #info li { margin: 2px 0; cursor: pointer; }
@@ -50,6 +53,26 @@
   #info .hidden { color: var(--hidden); }
   #info .mistag { color: var(--mistag); }
   #hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: var(--dim); font-size: 12px; white-space: nowrap; }
+  /* controls */
+  #ctlBtn { bottom: 12px; left: 12px; padding: 6px 12px; color: var(--ink); font: 13px var(--body); cursor: pointer; }
+  #ctlBtn:hover { color: #fff; }
+  #ctl { bottom: 52px; left: 12px; width: 340px; max-height: calc(100% - 220px); overflow: auto; font-size: 12px; box-sizing: border-box; }
+  #ctl[hidden] { display: none; }
+  #ctl h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 12px 0 6px; }
+  #ctl h3:first-child { margin-top: 0; }
+  #ctl .row { display: grid; grid-template-columns: 1fr 26px 92px 38px; align-items: center; gap: 6px; margin: 3px 0; }
+  #ctl .row label { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ctl .row.off label { color: var(--dim); }
+  #ctl .frow { display: grid; grid-template-columns: 1fr 120px 38px; align-items: center; gap: 6px; margin: 4px 0; }
+  #ctl .val { color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
+  #ctl input[type=range] { width: 100%; margin: 0; }
+  #ctl input[type=color] { width: 24px; height: 18px; padding: 0; border: 1px solid var(--line); background: none; cursor: pointer; }
+  #ctl select { background: #0e1116; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; font: 12px var(--body); }
+  #ctl .chk { display: flex; align-items: center; gap: 6px; margin: 4px 0; cursor: pointer; }
+  #ctl .presets { display: flex; flex-wrap: wrap; gap: 4px; }
+  #ctl button { background: #0e1116; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; font: 12px var(--body); cursor: pointer; }
+  #ctl button:hover { border-color: var(--dim); color: #fff; }
+  #ctl .note { color: var(--dim); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -60,33 +83,81 @@
   <div id="legend"></div>
 </div>
 <div class="panel" id="info" hidden></div>
+<button class="panel" id="ctlBtn" title="Controls (C)">◐ Controls</button>
+<div class="panel" id="ctl" hidden></div>
 <div id="hint">drag turns · wheel zooms · click a saying</div>
 <script>/*__THREE__*/</script>
 <script>
 const DATA = /*__DATA__*/;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const COL = { ink: css("--ink"), dim: "#4a515b", ground: css("--ground"), load: css("--load"), hidden: css("--hidden"), mistag: css("--mistag"), situation: "#ffffff",
+const COL = { ink: css("--ink"), dim: "#4a515b", ground: css("--ground"), load: css("--load"), hidden: css("--hidden"), mistag: css("--mistag"),
+  situation: "#ffffff", globe: "#161b22",
   apophthegm: css("--env"), aphorism: css("--said"), maxim: css("--moral"), proverb: css("--mind"), epigram: css("--bond") };
 const R = 10, $ = id => document.getElementById(id), V = (x, y, z) => new THREE.Vector3(x, y, z);
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const byId = {}; DATA.sayings.forEach(s => byId[s.id] = s);
 const HL = DATA.highlights || { hidden: [], mistag: [] };
+const relOf = id => DATA.center ? (DATA.center.relevance[String(id)] || 0) : null;
+const forms = ["apophthegm", "aphorism", "maxim", "proverb", "epigram"].filter(f => DATA.sayings.some(s => s.form === f));
 
-/* head panel */
+/* ---------- the layers: every kind of thing the page draws ---------- */
+const LAYERS = [];
+const addLayer = (key, label, group, color) => LAYERS.push({ key, label, group, color });
+addLayer("globe", "Globe shell", "Structure", COL.globe);
+addLayer("lattice", "Lattice marbles (1,002)", "Structure", COL.dim);
+addLayer("mesh", "Triangle mesh", "Structure", COL.ink);
+if (DATA.center) addLayer("rings", "Distance rings", "Structure", COL.situation);
+for (const f of forms) addLayer("form:" + f, f[0].toUpperCase() + f.slice(1) + "s", "Sayings", COL[f]);
+addLayer("labels", "Labels", "Sayings", COL.ink);
+if (DATA.counters.length) addLayer("counters", "Counter-saying chords", "Relations", COL.load);
+if (HL.hidden.length) addLayer("hidden", "Hidden connections", "Relations", COL.hidden);
+if (HL.mistag.length) addLayer("mistag", "Possible mis-tags", "Relations", COL.mistag);
+if (DATA.center) { addLayer("situation", "Situation marker", "Situation", COL.situation); addLayer("situationLabel", "Situation label", "Situation", COL.situation); }
+const layerOf = k => LAYERS.find(l => l.key === k);
+
+/* ---------- the look: settings, defaults, presets, persistence ---------- */
+const FILTER_DEFAULTS = { edgeMin: 0, relMin: 0, pulledIn: true, labelMode: "all", dotScale: 1, focus: true, spin: !reduce, bg: COL.ground };
+const defaultLook = () => ({ layers: Object.fromEntries(LAYERS.map(l => [l.key, { on: true, gain: 1, color: null }])), ...FILTER_DEFAULTS });
+const PRESETS = {
+  "Default": {},
+  "Sayings": { layers: { globe: { gain: 0.6 }, lattice: { on: false }, mesh: { gain: 0.5 }, rings: { gain: 0.6 } } },
+  "Tensions": { layers: { lattice: { on: false }, mesh: { on: false }, rings: { on: false }, counters: { gain: 2 }, hidden: { gain: 1.6 }, mistag: { gain: 1.6 } } },
+  "Structure": { layers: { mesh: { gain: 1.8 }, lattice: { gain: 1.6 }, labels: { on: false } } },
+  "Clean": { layers: { lattice: { on: false }, mesh: { gain: 0.4 }, rings: { on: false } }, labelMode: "front" },
+};
+const STORE = "sayings-sphere-look-v1";
+function withOverrides(base, over) {
+  const out = { ...base, layers: { ...base.layers } };
+  for (const [k, v] of Object.entries(over || {})) {
+    if (k === "layers") { for (const [lk, lv] of Object.entries(v)) if (out.layers[lk]) out.layers[lk] = { ...out.layers[lk], ...lv }; }
+    else if (k in FILTER_DEFAULTS) out[k] = v;
+  }
+  return out;
+}
+let look = defaultLook();
+try { look = withOverrides(look, JSON.parse(localStorage.getItem(STORE) || "{}")); } catch (e) { /* a bad saved look is ignored */ }
+/* Thresholds depend on each page's data, so they are not carried to other pages; the rest is. */
+const PER_PAGE = ["edgeMin", "relMin", "pulledIn"];
+const saveLook = () => {
+  const keep = { ...look }; PER_PAGE.forEach(k => delete keep[k]);
+  try { localStorage.setItem(STORE, JSON.stringify(keep)); } catch (e) { /* storage off: fine */ }
+};
+
+/* ---------- head panel and clickable legend ---------- */
 $("h1").textContent = DATA.title;
 $("meta").textContent = DATA.subtitle;
-const forms = ["apophthegm", "aphorism", "maxim", "proverb", "epigram"].filter(f => DATA.sayings.some(s => s.form === f));
-$("legend").innerHTML = forms.map(f => `<span class="sw" style="background:${COL[f]}"></span>${f}`).join("") + "<br>" +
-  (DATA.counters.length ? `<span class="ln" style="border-color:${COL.load};border-top-style:dashed"></span>counter-sayings` : "") +
-  (HL.hidden.length ? `<span class="ln" style="border-color:${COL.hidden}"></span>hidden connection` : "") +
-  (HL.mistag.length ? `<span class="ln" style="border-color:${COL.mistag}"></span>possible mis-tag` : "");
+function renderLegend() {
+  const ln = (key, color, dashed, text) => layerOf(key) ? `<span class="lg${look.layers[key].on ? "" : " off"}" data-k="${key}"><span class="ln" style="border-color:${look.layers[key].color || color}${dashed ? ";border-top-style:dashed" : ""}"></span>${text}</span>` : "";
+  $("legend").innerHTML = forms.map(f => `<span class="lg${look.layers["form:" + f].on ? "" : " off"}" data-k="form:${f}"><span class="sw" style="background:${look.layers["form:" + f].color || COL[f]}"></span>${f}</span>`).join("") + "<br>" +
+    ln("counters", COL.load, true, "counter-sayings") + ln("hidden", COL.hidden, false, "hidden connection") + ln("mistag", COL.mistag, false, "possible mis-tag");
+  $("legend").querySelectorAll(".lg").forEach(el => el.onclick = () => { const L = look.layers[el.dataset.k]; L.on = !L.on; applyLook(); });
+}
 
-/* shared state: every view turns and zooms together */
-const shared = { q: new THREE.Quaternion(), camDist: 30, spin: !reduce, targetQ: null, selected: null };
+/* ---------- drawing ---------- */
+const shared = { q: new THREE.Quaternion(), camDist: 30, spin: look.spin, targetQ: null, selected: null };
 const views = [];
-/* great-circle arc by spherical interpolation (straight lerp-and-normalize bends badly for far-apart points) */
-const arc = (a, b, lift) => {
+const arc = (a, b, lift) => { /* great-circle arc by spherical interpolation */
   const u = a.clone().normalize(), w = b.clone().normalize(), om = Math.acos(Math.min(1, Math.max(-1, u.dot(w)))), s = Math.sin(om), pts = [];
   const n = Math.max(8, Math.ceil(om / 0.05));
   for (let i = 0; i <= n; i++) {
@@ -96,6 +167,8 @@ const arc = (a, b, lift) => {
   return pts;
 };
 const short = t => t.length > 42 ? t.slice(0, 40).replace(/\s+\S*$/, "") + "…" : t;
+/* tag a drawn object with its layer, its own base opacity and colour, and the sayings it depends on */
+const tag = (obj, layer, base, color, extra) => { obj.userData = { ...obj.userData, layer, base, color, ...extra }; obj.material.transparent = true; return obj; };
 
 function makeView(spec) {
   const el = document.createElement("div"); el.className = "view";
@@ -103,142 +176,265 @@ function makeView(spec) {
   $("views").appendChild(el);
   const canvas = el.querySelector("canvas"), labelsEl = el.querySelector(".labels");
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setClearColor(COL.ground);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200), world = new THREE.Group();
   scene.add(world);
   /* globe (depthWrite off: dims what is behind it but never hides lines inside it) and its 1,002 marbles */
-  world.add(new THREE.Mesh(new THREE.SphereGeometry(R * 0.985, 48, 32),
-    new THREE.MeshBasicMaterial({ color: 0x161b22, transparent: true, opacity: 0.55, depthWrite: false })));
+  world.add(tag(new THREE.Mesh(new THREE.SphereGeometry(R * 0.985, 48, 32), new THREE.MeshBasicMaterial({ depthWrite: false })), "globe", 0.55, COL.globe));
   {
-    const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.06, 6, 4),
-      new THREE.MeshBasicMaterial({ color: COL.dim, transparent: true, opacity: 0.5 }), DATA.lattice.length), m4 = new THREE.Matrix4();
+    const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.06, 6, 4), new THREE.MeshBasicMaterial(), DATA.lattice.length), m4 = new THREE.Matrix4();
     DATA.lattice.forEach(([x, y, z], i) => { m4.makeTranslation(x * R, y * R, z * R); mesh.setMatrixAt(i, m4); });
-    world.add(mesh);
+    world.add(tag(mesh, "lattice", 0.5, COL.dim));
   }
   const pos = {}, dots = [];
   for (const p of spec.points) {
     const v = (p.vertex != null ? V(...DATA.lattice[p.vertex]) : V(p.x, p.y, p.z)).normalize().multiplyScalar(R);
     pos[p.saying_id] = v;
     const s = byId[p.saying_id], size = 0.22 + 0.03 * s.impact_score;
-    const dot = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 12), new THREE.MeshBasicMaterial({ color: COL[s.form] || COL.ink }));
-    dot.position.copy(v.clone().multiplyScalar(1 + size / R)); dot.userData.id = s.id; world.add(dot); dots.push(dot);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 12), new THREE.MeshBasicMaterial());
+    dot.position.copy(v.clone().multiplyScalar(1 + size / R));
+    world.add(tag(dot, "form:" + s.form, 1, COL[s.form] || COL.ink, { id: s.id, ids: [s.id], dot: true })); dots.push(dot);
   }
   /* a consult sphere: the situation is a fixed marker; faint rings mark 30, 60 and 90 degrees from it */
   if (DATA.center) {
-    const c = V(...DATA.center.pos).normalize(), v = c.clone().multiplyScalar(R);
-    pos[0] = v;
-    const marker = new THREE.Mesh(new THREE.OctahedronGeometry(0.75), new THREE.MeshBasicMaterial({ color: COL.situation }));
-    marker.position.copy(c.clone().multiplyScalar(R + 0.75)); marker.userData.id = 0; world.add(marker); dots.push(marker);
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.05, 8, 48), new THREE.MeshBasicMaterial({ color: COL.situation, transparent: true, opacity: 0.6 }));
-    halo.position.copy(marker.position); halo.lookAt(c.clone().multiplyScalar(2 * R)); world.add(halo);
+    const c = V(...DATA.center.pos).normalize();
+    pos[0] = c.clone().multiplyScalar(R);
+    const marker = new THREE.Mesh(new THREE.OctahedronGeometry(0.75), new THREE.MeshBasicMaterial());
+    marker.position.copy(c.clone().multiplyScalar(R + 0.75));
+    world.add(tag(marker, "situation", 1, COL.situation, { id: 0, ids: [0], dot: true })); dots.push(marker);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.05, 8, 48), new THREE.MeshBasicMaterial());
+    halo.position.copy(marker.position); halo.lookAt(c.clone().multiplyScalar(2 * R));
+    world.add(tag(halo, "situation", 0.6, COL.situation, { ids: [0] }));
     const u = Math.abs(c.x) < 0.9 ? V(1, 0, 0) : V(0, 0, 1), e1 = u.sub(c.clone().multiplyScalar(u.dot(c))).normalize(), e2 = c.clone().cross(e1);
     for (const deg of [30, 60, 90]) {
       const a = deg * Math.PI / 180, pts = [];
       for (let i = 0; i <= 96; i++) { const t = i / 96 * Math.PI * 2; pts.push(c.clone().multiplyScalar(Math.cos(a)).add(e1.clone().multiplyScalar(Math.sin(a) * Math.cos(t))).add(e2.clone().multiplyScalar(Math.sin(a) * Math.sin(t))).multiplyScalar(R * 1.002)); }
-      const ring = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: COL.situation, dashSize: 0.25, gapSize: 0.35, transparent: true, opacity: 0.35 }));
-      ring.computeLineDistances(); world.add(ring);
+      const ring = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ dashSize: 0.25, gapSize: 0.35 }));
+      ring.computeLineDistances(); world.add(tag(ring, "rings", 0.35, COL.situation));
     }
   }
   /* triangulation edges: great-circle arcs, brighter with relatedness */
-  const edgeLines = [];
   for (const [a, b, r] of spec.edges) {
-    const base = 0.12 + 0.6 * (r || 0);
-    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[a], pos[b], 1.004)),
-      new THREE.LineBasicMaterial({ color: COL.ink, transparent: true, opacity: base }));
-    line.userData = { a, b, base }; world.add(line); edgeLines.push(line);
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[a], pos[b], 1.004)), new THREE.LineBasicMaterial());
+    world.add(tag(line, "mesh", 0.12 + 0.6 * (r || 0), COL.ink, { ids: [a, b], r: r || 0, link: true }));
   }
   /* counter-sayings: dashed chord through the globe */
   for (const [a, b] of DATA.counters) {
     if (!pos[a] || !pos[b]) continue;
-    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([pos[a], pos[b]]),
-      new THREE.LineDashedMaterial({ color: COL.load, dashSize: 0.4, gapSize: 0.3, transparent: true, opacity: 0.7 }));
-    l.computeLineDistances(); world.add(l);
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([pos[a], pos[b]]), new THREE.LineDashedMaterial({ dashSize: 0.4, gapSize: 0.3 }));
+    l.computeLineDistances(); world.add(tag(l, "counters", 0.7, COL.load, { ids: [a, b], link: true }));
   }
   /* comparison highlights: arcs lifted a little higher so they read above the mesh */
   for (const [kind, list] of [["hidden", HL.hidden], ["mistag", HL.mistag]]) for (const h of list) {
     if (!pos[h.a] || !pos[h.b]) continue;
-    world.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[h.a], pos[h.b], 1.03)),
-      new THREE.LineBasicMaterial({ color: COL[kind], transparent: true, opacity: 0.9 })));
+    world.add(tag(new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[h.a], pos[h.b], 1.03)), new THREE.LineBasicMaterial()),
+      kind, 0.9, COL[kind], { ids: [h.a, h.b], link: true }));
   }
-  const view = { spec, canvas, labelsEl, renderer, scene, camera, world, pos, dots, edgeLines };
+  const view = { spec, canvas, labelsEl, renderer, scene, camera, world, pos, dots };
   hookPointer(view);
   views.push(view);
   return view;
 }
 
+/* ---------- applying the look ---------- */
+function sayingOn(id) {
+  if (id === 0) return !!DATA.center && look.layers.situation.on;
+  const s = byId[id];
+  if (!s || !look.layers["form:" + s.form].on) return false;
+  if (DATA.center) return relOf(id) > 0 ? relOf(id) >= look.relMin : look.pulledIn;
+  return true;
+}
+function focusSet() { /* the selected saying and everything linked to it, when focus is on */
+  const sel = shared.selected;
+  if (sel == null || !look.focus) return null;
+  const set = new Set([sel]);
+  const add = (a, b) => { if (a === sel) set.add(b); if (b === sel) set.add(a); };
+  for (const v of views) for (const [a, b] of v.spec.edges) add(a, b);
+  for (const [a, b] of DATA.counters) add(a, b);
+  for (const h of [...HL.hidden, ...HL.mistag]) add(h.a, h.b);
+  return set;
+}
+const WHITE = new THREE.Color("#ffffff");
+function shade(hex, gain) { /* above 100% a colour also moves toward white, so "brighter" reads as brighter */
+  const c = new THREE.Color(hex);
+  return gain > 1 ? c.lerp(WHITE, Math.min(1, (gain - 1) * 0.3)) : c;   /* gently, so a colour keeps its identity */
+}
+function applyLook() {
+  const F = focusSet();
+  for (const v of views) {
+    v.renderer.setClearColor(look.bg);
+    v.world.traverse(o => {
+      const u = o.userData;
+      if (!u.layer) return;
+      const L = look.layers[u.layer];
+      let vis = L.on && (!u.ids || u.ids.every(sayingOn));
+      if (vis && u.layer === "mesh" && u.r < look.edgeMin) vis = false;
+      o.visible = vis;
+      if (!vis) return;
+      let op = u.base * L.gain;
+      if (F && u.ids) {
+        if (u.link) op = u.ids.includes(shared.selected) ? Math.max(op, 0.95) : op * 0.3;
+        else if (!u.ids.every(i => F.has(i))) op *= 0.25;
+      }
+      o.material.color.copy(shade(L.color || u.color, L.gain));
+      o.material.opacity = Math.min(1, op);
+      if (u.dot) o.scale.setScalar(u.layer === "situation" ? 1 : look.dotScale);
+    });
+  }
+  document.body.style.background = look.bg;
+  shared.spin = look.spin && !shared.dragged;
+  renderLegend();
+  syncPanel();
+  saveLook();
+}
+
+/* ---------- labels ---------- */
+function labelStyle(el, key, back, faded) {
+  const L = look.layers[key];
+  if (L.color) el.style.color = L.color;
+  el.style.opacity = String(Math.min(1, L.gain) * (back ? 0.28 : 1) * (faded ? 0.3 : 1));
+  if (L.gain > 1.3) el.style.fontWeight = "600";
+}
 function renderLabels(v) {
   v.labelsEl.textContent = "";
-  const w = v.canvas.clientWidth, h = v.canvas.clientHeight, camPos = v.camera.position.clone();
-  for (const s of DATA.sayings) {
-    if (!v.pos[s.id]) continue;
+  const w = v.canvas.clientWidth, h = v.canvas.clientHeight, camPos = v.camera.position.clone(), F = focusSet();
+  const place = (el, sp) => { el.style.left = ((sp.x + 1) / 2 * w) + "px"; el.style.top = ((1 - sp.y) / 2 * h) + "px"; v.labelsEl.appendChild(el); };
+  if (look.layers.labels.on) for (const s of DATA.sayings) {
+    if (!v.pos[s.id] || !sayingOn(s.id)) continue;
+    const near = !F || F.has(s.id);
+    if (look.labelMode === "focus" && (!F || !F.has(s.id))) continue;
     const wp = v.pos[s.id].clone().applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
     if (sp.z > 1 || Math.abs(sp.x) > 1.05 || Math.abs(sp.y) > 1.05) continue;
+    const back = wp.distanceTo(camPos) > camPos.length();
+    if (back && look.labelMode === "front" && s.id !== shared.selected) continue;
     const el = document.createElement("div");
     el.className = "lbl" + (s.id === shared.selected ? " sel" : "");
     el.textContent = short(s.text);
-    el.style.left = ((sp.x + 1) / 2 * w) + "px"; el.style.top = ((1 - sp.y) / 2 * h) + "px";
-    if (wp.distanceTo(camPos) > camPos.length()) el.classList.add("back");
-    v.labelsEl.appendChild(el);
+    labelStyle(el, "labels", back, !near);
+    place(el, sp);
   }
-  if (DATA.center && v.pos[0]) {
+  if (DATA.center && v.pos[0] && look.layers.situationLabel.on && look.layers.situation.on) {
     const wp = v.pos[0].clone().multiplyScalar(1.12).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
     if (sp.z <= 1) {
       const el = document.createElement("div");
-      el.className = "lbl center" + (wp.distanceTo(camPos) > camPos.length() ? " back" : "");
+      el.className = "lbl center";
       el.textContent = short(DATA.center.text);
-      el.style.left = ((sp.x + 1) / 2 * w) + "px"; el.style.top = ((1 - sp.y) / 2 * h) + "px";
-      v.labelsEl.appendChild(el);
+      labelStyle(el, "situationLabel", wp.distanceTo(camPos) > camPos.length(), false);
+      place(el, sp);
     }
   }
 }
 
-/* info panel: one neighbour list per view, so a comparison shows both */
+/* ---------- the controls panel ---------- */
+const ctl = $("ctl");
+const pctTxt = g => Math.round(g * 100) + "%";
+function buildPanel() {
+  let html = "", group = null;
+  for (const l of LAYERS) {
+    if (l.group !== group) { group = l.group; html += `<h3>${group}</h3>`; }
+    html += `<div class="row" data-k="${l.key}"><label><input type="checkbox" data-f="on">${esc(l.label)}</label>` +
+      `<input type="color" data-f="color" title="Colour (double-click to reset)"><input type="range" min="0" max="200" step="5" data-f="gain" title="Dim or brighten">` +
+      `<span class="val"></span></div>`;
+  }
+  html += `<h3>Filters</h3>` +
+    `<div class="frow"><span>Hide mesh links weaker than</span><input type="range" min="0" max="100" step="5" data-g="edgeMin"><span class="val" data-v="edgeMin"></span></div>` +
+    (DATA.center ? `<div class="frow"><span>Hide sayings less relevant than</span><input type="range" min="0" max="100" step="5" data-g="relMin"><span class="val" data-v="relMin"></span></div>` +
+      `<label class="chk"><input type="checkbox" data-g="pulledIn">Show pulled-in counter-sayings</label>` : "") +
+    `<div class="frow"><span>Labels</span><select data-g="labelMode"><option value="all">all</option><option value="front">front side only</option><option value="focus">selected + neighbours</option></select><span></span></div>` +
+    `<div class="frow"><span>Saying size</span><input type="range" min="50" max="200" step="10" data-g="dotScale"><span class="val" data-v="dotScale"></span></div>` +
+    `<label class="chk"><input type="checkbox" data-g="focus">Fade what isn't linked to the selected saying</label>` +
+    `<label class="chk"><input type="checkbox" data-g="spin">Slow spin</label>` +
+    `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>` +
+    `<h3>Presets</h3><div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>` +
+    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · Esc deselect.</div>`;
+  ctl.innerHTML = html;
+  ctl.querySelectorAll(".row").forEach(row => {
+    const L = () => look.layers[row.dataset.k];
+    row.querySelector("[data-f=on]").onchange = e => { L().on = e.target.checked; applyLook(); };
+    const col = row.querySelector("[data-f=color]");
+    col.oninput = e => { L().color = e.target.value; applyLook(); };
+    col.ondblclick = e => { e.preventDefault(); L().color = null; applyLook(); };
+    row.querySelector("[data-f=gain]").oninput = e => { L().gain = +e.target.value / 100; applyLook(); };
+  });
+  ctl.querySelectorAll("[data-g]").forEach(inp => {
+    const k = inp.dataset.g;
+    const read = () => inp.type === "checkbox" ? inp.checked : inp.type === "range" ? +inp.value / 100 : inp.value;
+    inp.oninput = inp.onchange = () => { look[k] = read(); if (k === "spin") shared.dragged = false; applyLook(); };
+  });
+  ctl.querySelectorAll("[data-p]").forEach(b => b.onclick = () => {
+    const keepBg = look.bg;
+    look = withOverrides(defaultLook(), PRESETS[b.dataset.p]);
+    if (b.dataset.p !== "Default") look.bg = keepBg;
+    applyLook();
+  });
+}
+function syncPanel() {
+  if (!ctl.firstChild) return;
+  ctl.querySelectorAll(".row").forEach(row => {
+    const L = look.layers[row.dataset.k], l = layerOf(row.dataset.k);
+    row.classList.toggle("off", !L.on);
+    row.querySelector("[data-f=on]").checked = L.on;
+    row.querySelector("[data-f=color]").value = new THREE.Color(L.color || l.color).getHexString().replace(/^/, "#");
+    row.querySelector("[data-f=gain]").value = Math.round(L.gain * 100);
+    row.querySelector(".val").textContent = pctTxt(L.gain);
+  });
+  ctl.querySelectorAll("[data-g]").forEach(inp => {
+    const v = look[inp.dataset.g];
+    if (inp.type === "checkbox") inp.checked = v;
+    else if (inp.type === "range") inp.value = Math.round(v * 100);
+    else if (inp.type === "color") inp.value = new THREE.Color(v).getHexString().replace(/^/, "#");
+    else inp.value = v;
+  });
+  ctl.querySelectorAll("[data-v]").forEach(s => s.textContent = pctTxt(look[s.dataset.v]));
+}
+$("ctlBtn").onclick = () => { ctl.hidden = !ctl.hidden; };
+
+/* ---------- info panel: one neighbour list per view, so a comparison shows both ---------- */
 const info = $("info");
 const nameOf = id => id === 0 ? "◆ your situation" : byId[id].text;
 const item = (id, cls, extra) => `<li class="${cls || ""}" data-id="${id}">${esc(nameOf(id))}${extra || ""}</li>`;
-const relOf = id => DATA.center ? (DATA.center.relevance[String(id)] || 0) : null;
+const pct = r => r ? ` <span class="tags">(${Math.round(r * 100)}%)</span>` : "";
 function centerPanel() {
   const C = DATA.center, ranked = DATA.sayings.map(s => s.id).sort((a, b) => relOf(b) - relOf(a));
   return `<h2>${esc(C.text)}</h2><div class="who">your situation · ${DATA.sayings.length} sayings around it</div>` +
     (C.matched.length ? `<div class="tags">matched: ${esc(C.matched.join(", "))}</div>` : "") +
-    `<h3>By relevance (closest to the top of the globe)</h3><ul>${ranked.filter(id => relOf(id) > 0).map(id => item(id, "", pct(relOf(id)))).join("")}</ul>` +
+    `<h3>By relevance (closest to the situation)</h3><ul>${ranked.filter(id => relOf(id) > 0).map(id => item(id, "", pct(relOf(id)))).join("")}</ul>` +
     (C.pulled_in.length ? `<h3>Pulled in as counter-sayings</h3><ul>${C.pulled_in.map(id => item(id, "counter")).join("")}</ul>` : "");
 }
-const pct = r => r ? ` <span class="tags">(${Math.round(r * 100)}%)</span>` : "";
 function select(id) {
   shared.selected = id;
-  for (const v of views) for (const l of v.edgeLines)
-    l.material.opacity = id == null ? l.userData.base : (l.userData.a === id || l.userData.b === id ? 0.95 : l.userData.base * 0.35);
+  applyLook();
   if (id == null) { info.hidden = true; return; }
-  if (id === 0) {
-    info.innerHTML = centerPanel(); info.hidden = false;
-    info.querySelectorAll("li[data-id]").forEach(li => li.onclick = () => { const n = +li.dataset.id; select(n); turnTo(n); });
-    return;
+  let html;
+  if (id === 0) html = centerPanel();
+  else {
+    const s = byId[id];
+    html = `<h2>${esc(s.text)}</h2><div class="who">#${s.id} · ${esc(s.who)} · ${s.form} · impact ${s.impact_score}</div>` +
+      `<div class="lens">${esc(s.lens)}</div><div class="tags">${esc(s.tags.join(", "))}</div>`;
+    if (DATA.center) html += `<div class="rel">` + (relOf(id) > 0 ? `Relevance to your situation: ${Math.round(relOf(id) * 100)}%`
+      : `Not matched to your situation: here because it pulls against one that is.`) + `</div>`;
+    for (const v of views) {
+      const near = v.spec.edges.filter(([a, b]) => a === id || b === id).map(([a, b, r]) => [a === id ? b : a, r]).sort((x, y) => (y[1] || 0) - (x[1] || 0));
+      if (near.length) html += `<h3>Neighbours${views.length > 1 ? " · " + esc(v.spec.title) : ""}</h3><ul>${near.map(([n, r]) => item(n, "", pct(r))).join("")}</ul>`;
+    }
+    const other = (list, cls, label) => {
+      const xs = list.filter(h => h.a === id || h.b === id).map(h => [h.a === id ? h.b : h.a, h]);
+      return xs.length ? `<h3>${label}</h3><ul>${xs.map(([n, h]) => item(n, cls, ` <span class="tags">(meaning ${Math.round(h.meaning * 100)}%, tags ${Math.round(h.tags * 100)}%)</span>`)).join("")}</ul>` : "";
+    };
+    html += other(HL.hidden, "hidden", "Hidden connections") + other(HL.mistag, "mistag", "Possible mis-tags");
+    const opp = DATA.counters.filter(([a, b]) => a === id || b === id).map(([a, b]) => a === id ? b : a).filter(x => byId[x]);
+    if (opp.length) html += `<h3>Pulls the other way</h3><ul>${opp.map(n => item(n, "counter")).join("")}</ul>`;
   }
-  const s = byId[id];
-  let html = `<h2>${esc(s.text)}</h2><div class="who">#${s.id} · ${esc(s.who)} · ${s.form} · impact ${s.impact_score}</div>` +
-    `<div class="lens">${esc(s.lens)}</div><div class="tags">${esc(s.tags.join(", "))}</div>`;
-  if (DATA.center) html += `<div class="rel">` + (relOf(id) > 0 ? `Relevance to your situation: ${Math.round(relOf(id) * 100)}%`
-    : `Not matched to your situation: here because it pulls against one that is.`) + `</div>`;
-  for (const v of views) {
-    const near = v.spec.edges.filter(([a, b]) => a === id || b === id).map(([a, b, r]) => [a === id ? b : a, r]).sort((x, y) => (y[1] || 0) - (x[1] || 0));
-    if (near.length) html += `<h3>Neighbours${views.length > 1 ? " · " + esc(v.spec.title) : ""}</h3><ul>${near.map(([n, r]) => item(n, "", pct(r))).join("")}</ul>`;
-  }
-  const other = (list, cls, label) => {
-    const xs = list.filter(h => h.a === id || h.b === id).map(h => [h.a === id ? h.b : h.a, h]);
-    return xs.length ? `<h3>${label}</h3><ul>${xs.map(([n, h]) => item(n, cls, ` <span class="tags">(meaning ${Math.round(h.meaning * 100)}%, tags ${Math.round(h.tags * 100)}%)</span>`)).join("")}</ul>` : "";
-  };
-  html += other(HL.hidden, "hidden", "Hidden connections") + other(HL.mistag, "mistag", "Possible mis-tags");
-  const opp = DATA.counters.filter(([a, b]) => a === id || b === id).map(([a, b]) => a === id ? b : a).filter(x => byId[x]);
-  if (opp.length) html += `<h3>Pulls the other way</h3><ul>${opp.map(n => item(n, "counter")).join("")}</ul>`;
   info.innerHTML = html; info.hidden = false;
   info.querySelectorAll("li[data-id]").forEach(li => li.onclick = () => { const n = +li.dataset.id; select(n); turnTo(n); });
 }
 function turnTo(id) { /* bring a saying (as placed in the last view) round to face the camera */
   const v = views[views.length - 1];
-  shared.targetQ = new THREE.Quaternion().setFromUnitVectors(v.pos[id].clone().normalize(), V(0, 0, 1)); shared.spin = false;
+  shared.targetQ = new THREE.Quaternion().setFromUnitVectors(v.pos[id].clone().normalize(), V(0, 0, 1));
+  shared.spin = false; shared.dragged = true;   /* stay put once the reader has picked something */
 }
 
+/* ---------- pointer and keys ---------- */
 function hookPointer(v) {
   let dragging = false, moved = 0, last = [0, 0];
   const c = v.canvas, ray = new THREE.Raycaster();
@@ -248,25 +444,41 @@ function hookPointer(v) {
     const dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
     shared.targetQ = null;
     shared.q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), dx * 0.008)).premultiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), dy * 0.008));
-    if (moved > 4) shared.spin = false;
+    if (moved > 4) { shared.spin = false; shared.dragged = true; }
   });
   c.addEventListener("pointerup", e => {
     dragging = false; c.classList.remove("drag");
     if (moved > 4) return;
     const r = c.getBoundingClientRect();
     ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), v.camera);
-    const hit = ray.intersectObjects(v.dots)[0];
+    const hit = ray.intersectObjects(v.dots.filter(d => d.visible))[0];
     select(hit ? hit.object.userData.id : null);
   });
   c.addEventListener("wheel", e => { e.preventDefault(); shared.camDist = Math.min(70, Math.max(13, shared.camDist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
 }
+addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, select, textarea")) return;
+  if (e.key === "c" || e.key === "C") ctl.hidden = !ctl.hidden;
+  else if (e.key === "l" || e.key === "L") { look.layers.labels.on = !look.layers.labels.on; applyLook(); }
+  else if (e.key === "Escape") select(null);
+});
 
+/* ---------- start ---------- */
 DATA.views.forEach(makeView);
 if (DATA.views.length > 1) shared.camDist = 34;
 /* a consult sphere opens with the situation tilted toward you, and its slow spin turns about the situation */
 const spinAxis = DATA.center ? V(...DATA.center.pos).normalize() : null;
 if (DATA.center) shared.q.setFromUnitVectors(spinAxis, V(0, 0.3, 0.95).normalize());
-$("hint").textContent = "drag turns · wheel zooms · click a saying" + (DATA.views.length > 1 ? " · both globes turn together" : "");
+$("hint").textContent = "drag turns · wheel zooms · click a saying · C controls" + (DATA.views.length > 1 ? " · both globes turn together" : "");
+buildPanel();
+/* links can open the panel (#controls) or apply a preset (#preset=Tensions) */
+{
+  const h = decodeURIComponent(location.hash);
+  const p = (h.match(/preset=([A-Za-z]+)/) || [])[1];
+  if (p && PRESETS[p]) look = withOverrides(defaultLook(), PRESETS[p]);
+  if (h.includes("controls")) ctl.hidden = false;
+}
+applyLook();
 function resize() { for (const v of views) { const w = v.canvas.clientWidth, h = v.canvas.clientHeight; v.renderer.setSize(w, h, false); v.camera.aspect = w / h; v.camera.updateProjectionMatrix(); } }
 addEventListener("resize", resize); resize();
 function tick() {
