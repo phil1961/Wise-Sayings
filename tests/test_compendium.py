@@ -220,5 +220,110 @@ class TestSmartMatcher(Base):
         self.assertIn(self.tag_id("commitment"), w)  # keyword fallback result
 
 
+class TestStatusAndMigrations(Base):
+    def test_default_status_setting_applies_to_imports(self):
+        db.set_setting(self.conn, "default_status", "accepted")
+        res = records.import_records(self.conn, [base()])
+        self.assertEqual(records.get(self.conn, res["added"][0])["status"], "accepted")
+
+    def test_set_status_reports_missing(self):
+        records.import_records(self.conn, [base()])
+        self.assertEqual(records.set_status(self.conn, [1, 99], "rejected"), [99])
+        self.assertEqual(records.get(self.conn, 1)["status"], "rejected")
+
+    def test_old_database_is_migrated_without_losing_data(self):
+        import sqlite3
+        old = self.dir / "old.db"
+        raw = sqlite3.connect(old)
+        raw.executescript(db.SCHEMA)  # a pre-migration database: schema v1, user_version 0
+        raw.execute("INSERT INTO sayings (text, form, attribution, attribution_confidence, documented_in, lens, "
+                    "impact_score, impact_rationale) VALUES ('X.', 'proverb', NULL, 'anonymous', 'src', 'l', 5, 'r')")
+        raw.commit(); raw.close()
+        conn, _ = db.connect(old, db.DEFAULT_VOCAB)
+        self.assertEqual(conn.execute("PRAGMA user_version").fetchone()[0], max(db.MIGRATIONS))
+        self.assertEqual(conn.execute("SELECT text FROM sayings").fetchone()[0], "X.")
+        conn.execute("SELECT * FROM layout_runs")  # new table exists
+        conn.close()
+
+
+class TestGeodesic(unittest.TestCase):
+    def test_lattice_counts(self):
+        from compendium import geodesic
+        self.assertEqual(len(geodesic.lattice()), 1002)
+        self.assertEqual([len(geodesic.lattice(f)) for f in (1, 2, 3)], [12, 42, 92])  # 10f^2 + 2
+
+    def test_snap_gives_distinct_nearby_vertices(self):
+        from compendium import geodesic, sphere
+        import random as _r
+        rng = _r.Random(1)
+        pts = [sphere.random_point(rng) for _ in range(40)]
+        verts = geodesic.snap(pts)
+        self.assertEqual(len(set(verts)), 40)
+        lat = geodesic.vertices()
+        self.assertLess(max(sphere.angle(p, lat[v]) for p, v in zip(pts, verts)), 8)
+
+
+class TestHull(unittest.TestCase):
+    def test_octahedron(self):
+        from compendium import sphere
+        pts = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
+        faces = sphere.convex_hull(pts)
+        self.assertEqual((len(faces), len(sphere.hull_edges(faces))), (8, 12))
+
+    def test_euler_counts_for_random_points(self):
+        from compendium import sphere
+        import random as _r
+        rng = _r.Random(5)
+        for n in (4, 10, 30, 60):
+            pts = [sphere.random_point(rng) for _ in range(n)]
+            faces = sphere.convex_hull(pts)
+            self.assertEqual(len(faces), 2 * n - 4)
+            self.assertEqual(len(sphere.hull_edges(faces)), 3 * n - 6)
+
+
+class TestSphereLayout(Base):
+    def setUp(self):
+        super().setUp()
+        records.import_records(self.conn, records.load_file(SEED))
+        self.accept_all()
+
+    def test_tag_relatedness_is_jaccard(self):
+        from compendium import sphere
+        # 11 "Look before you leap" {prudence, risk, hasty_decision, commitment}
+        # 12 "He who hesitates"     {timing, risk, paralysis, commitment}: 2 shared of 6
+        r = sphere.tag_relatedness(self.conn, [11, 12])
+        self.assertAlmostEqual(r[(11, 12)], 2 / 6)
+
+    def test_run_is_saved_reproducible_and_does_its_job(self):
+        from compendium import sphere
+        ids = sphere.choose_sample(self.conn, 14, seed=3) 
+        ids = sorted(set(ids) | {11, 12})  # include a counter pair
+        a = sphere.load_run(self.conn, sphere.run_layout(self.conn, ids, seed=4, restarts=2))
+        b = sphere.load_run(self.conn, sphere.run_layout(self.conn, ids, seed=4, restarts=2))
+        self.assertEqual([(p["x"], p["vertex"]) for p in a["points"]], [(p["x"], p["vertex"]) for p in b["points"]])
+        self.assertEqual(len(a["edges"]), 3 * len(ids) - 6)
+        st = a["stats"]
+        self.assertLess(st["related_mean_angle"], st["unrelated_mean_angle"])
+        self.assertTrue(all(x > 150 for x in st["counter_angles"]), st["counter_angles"])
+        self.assertGreater(st["min_angle"], 10)
+
+    def test_sample_size_is_checked(self):
+        from compendium import sphere
+        with self.assertRaises(ValueError):
+            sphere.choose_sample(self.conn, 999, seed=1)
+        with self.assertRaises(ValueError):
+            sphere.run_layout(self.conn, [1, 2, 3])
+
+    def test_render_writes_self_contained_page(self):
+        from compendium import render, sphere
+        run_id = sphere.run_layout(self.conn, sphere.choose_sample(self.conn, 8, seed=1), seed=1, restarts=1)
+        html = render.write_page(self.conn, run_id, self.dir / "s.html").read_text(encoding="utf-8")
+        self.assertIn("Three.js Authors", html)
+        self.assertNotIn("/*__DATA__*/", html)
+        data = json.loads(html.split("const DATA = ", 1)[1].split(";\n", 1)[0])
+        self.assertEqual(len(data["sayings"]), 8)
+        self.assertEqual(len(data["lattice"]), 1002)
+
+
 if __name__ == "__main__":
     unittest.main()

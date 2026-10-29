@@ -1,7 +1,10 @@
 """Command-line interface. Run via `python sayings.py <command> ...`."""
 
 import argparse
+import json
+import random
 import sys
+import webbrowser
 from pathlib import Path
 
 from . import CONFIDENCES, FORMS, STATUSES, consult as consult_mod, db, records, report, review
@@ -13,17 +16,27 @@ def _print_import_result(res):
         for e in res["errors"]:
             print("  -", e)
         return 1
-    print(f"Added {len(res['added'])} saying(s) as candidates: "
+    statuses = sorted({s for (s,) in res.get("statuses", [])}) or ["?"]
+    print(f"Added {len(res['added'])} saying(s) as {'/'.join(statuses)}: "
           + ", ".join(f"#{i}" for i in res["added"]))
     for new, old, score in res["duplicates"]:
         print(f"  ⚠ #{new} looks like a near-duplicate of #{old} (similarity {score})")
-    if res["added"]:
+    if "candidate" in statuses:
         print("Next: python sayings.py review export")
     return 0
 
 
+def _import(conn, raws):
+    res = records.import_records(conn, raws)
+    if res["added"]:
+        res["statuses"] = conn.execute(
+            f"SELECT DISTINCT status FROM sayings WHERE id IN ({','.join('?' * len(res['added']))})",
+            res["added"]).fetchall()
+    return _print_import_result(res)
+
+
 def cmd_import(conn, a):
-    return _print_import_result(records.import_records(conn, records.load_file(a.file)))
+    return _import(conn, records.load_file(a.file))
 
 
 def cmd_add(conn, a):
@@ -34,7 +47,85 @@ def cmd_add(conn, a):
         "variants": a.variant, "subject_tags": a.subject, "situation_tags": a.situation,
         "counter_sayings": a.counter,
     }
-    return _print_import_result(records.import_records(conn, [raw]))
+    return _import(conn, [raw])
+
+
+def cmd_set_status(conn, a):
+    missing = records.set_status(conn, a.ids, a.status, a.note)
+    done = [i for i in a.ids if i not in missing]
+    if done:
+        print(f"Set {len(done)} saying(s) to {a.status}: " + ", ".join(f"#{i}" for i in done))
+    for i in missing:
+        print(f"  - no saying #{i}")
+    return 1 if missing else 0
+
+
+def cmd_settings(conn, a):
+    if a.key is None:
+        print(f"default_status = {records.default_status(conn)}  (status for new imports)")
+        for k, v in conn.execute("SELECT key, value FROM settings WHERE key != 'default_status' ORDER BY key"):
+            print(f"{k} = {v}")
+        return
+    if a.key != "default_status":
+        print("Known settings: default_status")
+        return 1
+    if a.value is None:
+        print(f"default_status = {records.default_status(conn)}")
+        return
+    if a.value not in STATUSES:
+        print(f"default_status must be one of {STATUSES}")
+        return 1
+    db.set_setting(conn, "default_status", a.value)
+    print(f"New imports will now be '{a.value}'.")
+
+
+def cmd_sphere(conn, a):
+    from . import render, sphere
+    if a.action == "list":
+        rows = conn.execute("SELECT id, stage, seed, sample, sample_how, stats, created_at FROM layout_runs ORDER BY id").fetchall()
+        if not rows:
+            print("No layout runs yet. Try: python sayings.py sphere run --n 15")
+        for r in rows:
+            st = json.loads(r["stats"])
+            print(f"#{r['id']}  {r['created_at']}  stage={r['stage']}  n={len(json.loads(r['sample']))}  "
+                  f"seed={r['seed']}  ({r['sample_how']})  relatedness~angle={st.get('relatedness_vs_angle')}")
+        return
+    if a.action == "render":
+        if a.run is None:
+            print("Give a run id: python sayings.py sphere render 3")
+            return 1
+        out = render.write_page(conn, a.run, a.out or Path("export") / f"sphere-{a.run}.html")
+        print(f"Wrote {out}")
+        return _maybe_open(out, a.open)
+
+    # run
+    seed = a.seed if a.seed is not None else random.randrange(1_000_000)
+    if a.ids:
+        ids = sorted({int(x) for x in a.ids.split(",")})
+        how = "ids"
+    else:
+        ids = sphere.choose_sample(conn, a.n, seed, a.include_candidates)
+        how = f"random {a.n}" + (" incl. candidates" if a.include_candidates else "")
+    print(f"Laying out {len(ids)} sayings (stage {a.stage}, seed {seed})...")
+    run_id = sphere.run_layout(conn, ids, stage=a.stage, seed=seed, sample_how=how, pull=a.pull,
+                               push_counters=a.push_counters, form_weight=a.form_weight,
+                               restarts=a.restarts, snap=not a.no_snap)
+    st = sphere.load_run(conn, run_id)["stats"]
+    print(f"Run #{run_id} saved.")
+    print(f"  related pairs sit {st['related_mean_angle']}° apart on average, unrelated {st['unrelated_mean_angle']}°"
+          f" (correlation {st['relatedness_vs_angle']})")
+    print(f"  closest pair {st['min_angle']}° apart" + (f"; snapping moved points up to {st['max_snap_shift']}°" if 'max_snap_shift' in st else ""))
+    if st["counter_angles"]:
+        print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
+    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
+    print(f"Wrote {out}")
+    return _maybe_open(out, a.open)
+
+
+def _maybe_open(path, do_open):
+    if do_open:
+        webbrowser.open(Path(path).resolve().as_uri())
+    return 0
 
 
 def cmd_review(conn, a):
@@ -132,6 +223,11 @@ def cmd_dedupe(conn, a):
         print(f'{score:.2f}  #{x} "{tx}"\n      #{y} "{ty}"\n')
 
 
+def sphere_defaults(key):
+    from .sphere import DEFAULTS
+    return DEFAULTS[key]
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="sayings.py", description="Sayings Compendium Engine")
     p.add_argument("--db", default=str(db.DEFAULT_DB), help="SQLite file (default: sayings.db)")
@@ -198,6 +294,37 @@ def build_parser():
 
     s = sub.add_parser("tags", help="list the tag vocabulary")
     s.set_defaults(func=cmd_tags)
+
+    s = sub.add_parser("set-status", help="accept, reject, or un-accept sayings by id")
+    s.add_argument("status", choices=STATUSES)
+    s.add_argument("ids", nargs="+", type=int)
+    s.add_argument("--note", help="optional review note")
+    s.set_defaults(func=cmd_set_status)
+
+    s = sub.add_parser("settings", help="show or change settings (default_status)")
+    s.add_argument("key", nargs="?")
+    s.add_argument("value", nargs="?")
+    s.set_defaults(func=cmd_settings)
+
+    s = sub.add_parser("sphere", help="lay sayings out on a sphere and draw it (see docs/sphere-layout-spec.md)")
+    s.add_argument("action", nargs="?", default="run", choices=("run", "list", "render"))
+    s.add_argument("run", nargs="?", type=int, help="run id (for render)")
+    s.add_argument("-n", "--n", type=int, default=15, help="how many sayings to place (default 15)")
+    s.add_argument("--ids", help="comma-separated saying ids instead of a random sample")
+    s.add_argument("--seed", type=int, help="random seed (default: new each time; printed so you can repeat it)")
+    s.add_argument("--stage", default="tags", choices=("tags",), help="relatedness measure (stage two comes later)")
+    s.add_argument("--pull", type=float, default=sphere_defaults("pull"),
+                   help="how strongly related sayings attract (higher = tighter clusters, less even)")
+    s.add_argument("--push-counters", type=float, default=sphere_defaults("push_counters"),
+                   help="how strongly counter-sayings are pushed to opposite sides")
+    s.add_argument("--form-weight", type=float, default=sphere_defaults("form_weight"),
+                   help="0-1: share of relatedness from having the same form")
+    s.add_argument("--restarts", type=int, default=sphere_defaults("restarts"), help="random starts; best is kept")
+    s.add_argument("--no-snap", action="store_true", help="don't snap to the 1,002-point lattice")
+    s.add_argument("--include-candidates", action="store_true", help="sample from candidates too")
+    s.add_argument("--out", help="HTML file to write (default export/sphere-<run>.html)")
+    s.add_argument("--open", action="store_true", help="open the page in your browser")
+    s.set_defaults(func=cmd_sphere)
 
     s = sub.add_parser("dedupe", help="list near-duplicate pairs")
     s.add_argument("--threshold", type=float, default=0.6)

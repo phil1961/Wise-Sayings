@@ -61,7 +61,7 @@ def validate(raw, conn):
         errors.append("anonymous sayings must have no attribution")
     if conf and conf != "anonymous" and not rec["attribution"]:
         errors.append(f"attribution required when confidence is {conf}")
-    rec["status"] = rec["status"] or "candidate"
+    rec["status"] = rec["status"] or default_status(conn)
     if rec["status"] not in STATUSES:
         errors.append(f"status must be one of {STATUSES}")
     try:
@@ -83,7 +83,27 @@ def validate(raw, conn):
     return rec, errors
 
 
+def default_status(conn):
+    """Status given to imports that don't set one (settings table; 'candidate' if unset)."""
+    from .db import get_setting
+    return get_setting(conn, "default_status", "candidate")
+
+
 # ---------------------------------------------------------------- writing
+
+def set_status(conn, ids, status, note=None):
+    """Change the status of existing sayings. Returns the ids that didn't exist."""
+    if status not in STATUSES:
+        raise ValueError(f"status must be one of {STATUSES}")
+    missing = []
+    for sid in ids:
+        cur = conn.execute("UPDATE sayings SET status=?, review_note=COALESCE(?, review_note) WHERE id=?",
+                           (status, note, sid))
+        if cur.rowcount == 0:
+            missing.append(sid)
+    conn.commit()
+    return missing
+
 
 def _insert(conn, rec):
     cur = conn.execute(

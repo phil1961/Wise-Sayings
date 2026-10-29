@@ -58,6 +58,77 @@ CREATE TABLE IF NOT EXISTS counter_pairs (
 """
 
 
+# Schema changes after the original schema, applied in order and tracked with
+# PRAGMA user_version. Never edit a shipped migration; add a new number instead.
+# Version 1 is SCHEMA above.
+MIGRATIONS = {
+    2: """
+    -- Key/value settings, e.g. default_status for new imports.
+    CREATE TABLE settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    );
+
+    -- One row per sphere layout run (docs/sphere-layout-spec.md).
+    CREATE TABLE layout_runs (
+        id         INTEGER PRIMARY KEY,
+        stage      TEXT NOT NULL,               -- 'tags' (stage one) or 'meaning' (stage two)
+        seed       INTEGER NOT NULL,
+        sample     TEXT NOT NULL,               -- JSON list of saying ids, in layout order
+        sample_how TEXT NOT NULL,               -- how the sample was chosen, e.g. 'random 15' or 'ids'
+        params     TEXT NOT NULL,               -- JSON: force weights, restarts, snap, etc.
+        energy     REAL NOT NULL,
+        stats      TEXT NOT NULL,               -- JSON quality measures (see sphere.layout_stats)
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    -- Where each saying ended up. x,y,z is the relaxed point on the unit sphere;
+    -- vertex is the index of the frequency-10 lattice point it snapped to (NULL if not snapped).
+    CREATE TABLE layout_points (
+        run_id    INTEGER NOT NULL REFERENCES layout_runs(id) ON DELETE CASCADE,
+        saying_id INTEGER NOT NULL REFERENCES sayings(id) ON DELETE CASCADE,
+        x REAL NOT NULL, y REAL NOT NULL, z REAL NOT NULL,
+        vertex    INTEGER,
+        PRIMARY KEY (run_id, saying_id)
+    );
+
+    -- Edges of the spherical Delaunay triangulation (convex hull) of a run.
+    CREATE TABLE layout_edges (
+        run_id INTEGER NOT NULL REFERENCES layout_runs(id) ON DELETE CASCADE,
+        a_id   INTEGER NOT NULL,
+        b_id   INTEGER NOT NULL,
+        PRIMARY KEY (run_id, a_id, b_id),
+        CHECK (a_id < b_id)
+    );
+    """,
+}
+
+
+def migrate(conn):
+    """Bring the DB up to the latest schema version, keeping existing data."""
+    version = conn.execute("PRAGMA user_version").fetchone()[0]
+    if version < 1:  # databases created before migrations existed already have SCHEMA
+        version = 1
+        conn.execute("PRAGMA user_version = 1")
+    for n in sorted(MIGRATIONS):
+        if n > version:
+            with conn:
+                conn.executescript(MIGRATIONS[n])
+                conn.execute(f"PRAGMA user_version = {n}")
+    return conn.execute("PRAGMA user_version").fetchone()[0]
+
+
+def get_setting(conn, key, default=None):
+    row = conn.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
+    return row[0] if row else default
+
+
+def set_setting(conn, key, value):
+    conn.execute("INSERT INTO settings (key, value) VALUES (?, ?) "
+                 "ON CONFLICT (key) DO UPDATE SET value = excluded.value", (key, value))
+    conn.commit()
+
+
 def parse_vocab(path):
     """Parse the tags vocabulary file into {(kind, name): [aliases]}."""
     vocab, kind = {}, None
@@ -117,5 +188,6 @@ def connect(db_path=DEFAULT_DB, vocab_path=DEFAULT_VOCAB):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(SCHEMA)
+    migrate(conn)
     orphans = sync_vocab(conn, vocab_path)
     return conn, orphans
