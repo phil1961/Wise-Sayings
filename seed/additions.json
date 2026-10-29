@@ -1,0 +1,16 @@
+[
+  {
+    "text": "The Pope! How many divisions has he got?",
+    "variants": ["How many divisions does the Pope have?"],
+    "form": "apophthegm",
+    "attribution": "Joseph Stalin",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Winston Churchill, The Second World War, vol. 1 (1948), ch. 8, p. 105: Stalin's sarcastic reply in 1935 when Pierre Laval asked him to ease the treatment of Russian Catholics to win the Pope's favour. A second report is in the diary of US Assistant Press Secretary Eban Ayers, 24 January 1946. Both are secondhand; Churchill was not present. Checked: https://en.wikiquote.org/wiki/Joseph_Stalin",
+    "lens": "Ask what force actually stands behind a claim of authority, and don't be moved by one that has none. But the line cuts both ways: the Church outlasted the Soviet Union, so check whether you are mistaking an absence of divisions for an absence of power.",
+    "impact_score": 8,
+    "impact_rationale": "The classic statement of hard-power realism, made sharper by history's answer to it; useful in any contest between force and legitimacy.",
+    "subject_tags": ["power", "war"],
+    "situation_tags": ["dealing_with_powerful", "overwhelming_opponent", "negotiation", "overconfidence"],
+    "counter_sayings": ["The ruler is the boat and the people are the water; water can carry the boat, and water can overturn it."]
+  }
+]
