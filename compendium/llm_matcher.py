@@ -1,9 +1,10 @@
 """Optional v2 matcher: ask Claude to map a free-text situation onto the tag vocabulary.
 
 Use with `consult --smart` (or SAYINGS_MATCHER=compendium.llm_matcher:match).
-Needs `pip install anthropic` and an ANTHROPIC_API_KEY. If either is missing, or
-the call fails, it warns and falls back to the offline keyword matcher, so
-consult always works.
+The call goes through claude_watcher (compendium/watcher.py) unless
+SAYINGS_TRANSPORT=api, which needs `pip install anthropic` and an ANTHROPIC_API_KEY.
+If the call can't be made, it warns and falls back to the offline keyword
+matcher, so consult always works.
 
 Claude only picks tags and weights; ranking still happens locally against the
 accepted sayings, so it can never invent or return a saying that isn't in the DB.
@@ -13,9 +14,10 @@ import json
 import os
 import sys
 
-from . import consult
+from . import consult, watcher
 
 MODEL = os.environ.get("SAYINGS_MODEL", "claude-opus-5-5")
+TRANSPORT = os.environ.get("SAYINGS_TRANSPORT", "watcher")
 KIND_FACTOR = {"situation": 1.0, "subject": 2 / 3}  # same 3:2 balance as the keyword matcher
 
 SYSTEM = """You help a decision-aid tool pick lenses for a person's situation.
@@ -80,6 +82,16 @@ def weights_from_reply(data, tags):
 
 
 def match(situation, tags, client=None):
+    if client is None and TRANSPORT != "api":
+        tag_ids = [f"{t['kind']}:{t['name']}" for t in tags]
+        prompt = f"{SYSTEM}\n\nTag vocabulary:\n{_tag_list(tags)}\n\nSituation:\n{situation}"
+        try:
+            raw, _ = watcher.ask(prompt, MODEL, schema=_schema(tag_ids))
+        except watcher.WatcherUnavailable as e:
+            return _fallback(str(e), situation, tags)
+        if not isinstance(raw, dict):
+            return _fallback("unreadable reply", situation, tags)
+        return weights_from_reply(raw, tags) or _fallback("no tags chosen", situation, tags)
     try:
         import anthropic
     except ImportError:

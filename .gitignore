@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 export/
 *.stackdump
+
+# secrets: never commit
+.env
+.env.*

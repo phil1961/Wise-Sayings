@@ -5,7 +5,8 @@ Scorers are pluggable. Each returns {(a_id, b_id): score in 0..1} for a_id < b_i
   claude  Claude reads the sayings (text + lens) and rates each pair 0-10. Scores are
           cached in relatedness_cache, keyed by model and a fingerprint of each saying,
           so layouts recompute offline and only new or edited sayings cost anything.
-          Needs `pip install anthropic` and an API key.
+          Calls go through claude_watcher (compendium/watcher.py, Phil's subscription)
+          unless SAYINGS_TRANSPORT=api, which uses the Anthropic SDK and an API key.
   words   Offline fallback: TF-IDF cosine over text, variants and lens. Crude (it sees
           shared words, not shared ideas), but free and always available.
 
@@ -19,10 +20,12 @@ import math
 import os
 import sys
 
-from . import consult, records
+from . import consult, records, watcher
 
 MODEL = os.environ.get("SAYINGS_MODEL", "claude-opus-5-5")
-PAIRS_PER_REQUEST = 200
+TRANSPORT = os.environ.get("SAYINGS_TRANSPORT", "watcher")   # 'watcher' (default) or 'api'
+PAIRS_PER_REQUEST = 100   # keeps one watcher run well inside its ~6-minute ceiling
+CALLS_WITHOUT_ASKING = 10  # the watcher's 200 calls a day are shared with other apps
 
 
 class ScorerUnavailable(Exception):
@@ -130,14 +133,42 @@ def _client():
         raise ScorerUnavailable(str(e))
 
 
-def _ask_claude(client, sayings, pairs):
-    """One request: score `pairs` (list of (a, b)). Returns {(a, b): 0..10} for the pairs it answered."""
+def _request_text(sayings, pairs):
+    listing = "\n".join(f"[{i}] {s['text']}\n     Lens: {s['lens']}" for i, s in sorted(sayings.items()))
+    asked = "\n".join(f"{a}-{b}" for a, b in pairs)
+    return f"Sayings:\n{listing}\n\nScore these {len(pairs)} pairs (a-b):\n{asked}"
+
+
+def _parse(items, pairs):
+    wanted, got = set(pairs), {}
+    for it in items or []:
+        if not isinstance(it, dict):
+            continue
+        p = tuple(sorted((it.get("a"), it.get("b")), key=lambda x: (x is None, x)))
+        if p in wanted and isinstance(it.get("score"), int) and 0 <= it["score"] <= 10:
+            got[p] = it["score"]
+    return got
+
+
+def _ask_claude(client, sayings, pairs, log=None):
+    """One request: score `pairs` (list of (a, b)). Returns {(a, b): 0..10} for the pairs it answered.
+
+    Goes through the watcher unless a client is passed in (tests) or SAYINGS_TRANSPORT=api.
+    """
+    if client is None and TRANSPORT != "api":
+        # The fixed instructions go first so the watcher's cache can reuse them across calls.
+        try:
+            raw, _ = watcher.ask(SYSTEM + "\n\n" + _request_text(sayings, pairs), MODEL, schema=_schema(), log=log)
+        except watcher.WatcherUnavailable as e:
+            raise ScorerUnavailable(str(e))
+        if not isinstance(raw, dict):
+            raise ScorerUnavailable("unreadable reply")
+        return _parse(raw.get("scores"), pairs)
+    client = client or _client()
     try:
         import anthropic
     except ImportError:
         anthropic = None
-    listing = "\n".join(f"[{i}] {s['text']}\n     Lens: {s['lens']}" for i, s in sorted(sayings.items()))
-    asked = "\n".join(f"{a}-{b}" for a, b in pairs)
     try:
         with client.beta.messages.stream(
             model=MODEL,
@@ -146,8 +177,7 @@ def _ask_claude(client, sayings, pairs):
             fallbacks="default",  # if the model declines, the API retries on a recommended fallback model
             output_config={"effort": "medium", "format": {"type": "json_schema", "schema": _schema()}},
             system=SYSTEM,
-            messages=[{"role": "user", "content":
-                       f"Sayings:\n{listing}\n\nScore these {len(pairs)} pairs (a-b):\n{asked}"}],
+            messages=[{"role": "user", "content": _request_text(sayings, pairs)}],
         ) as stream:
             response = stream.get_final_message()
     except ScorerUnavailable:
@@ -169,12 +199,7 @@ def _ask_claude(client, sayings, pairs):
         items = json.loads(text)["scores"]
     except (TypeError, ValueError, KeyError):
         raise ScorerUnavailable("unreadable reply")
-    wanted, got = set(pairs), {}
-    for it in items:
-        p = tuple(sorted((it.get("a"), it.get("b"))))
-        if p in wanted and isinstance(it.get("score"), int) and 0 <= it["score"] <= 10:
-            got[p] = it["score"]
-    return got
+    return _parse(items, pairs)
 
 
 def claude_scores(conn, ids, client=None, log=None):
@@ -192,15 +217,15 @@ def claude_scores(conn, ids, client=None, log=None):
             todo.append((a, b))
     if not todo:
         return scores
-    client = client or _client()
-    log(f"Asking {MODEL} to score {len(todo)} new pair(s) ({len(scores)} already cached)...")
+    route = "the API" if (client is not None or TRANSPORT == "api") else "claude_watcher"
+    log(f"Asking {MODEL} via {route} to score {len(todo)} new pair(s) ({len(scores)} already cached)...")
     for start in range(0, len(todo), PAIRS_PER_REQUEST):
         chunk = todo[start:start + PAIRS_PER_REQUEST]
         involved = {i: sayings[i] for p in chunk for i in p}
-        got = _ask_claude(client, involved, chunk)
+        got = _ask_claude(client, involved, chunk, log=log)
         missing = [p for p in chunk if p not in got]
         if missing:  # one retry for pairs the model skipped
-            got.update(_ask_claude(client, {i: sayings[i] for p in missing for i in p}, missing))
+            got.update(_ask_claude(client, {i: sayings[i] for p in missing for i in p}, missing, log=log))
         still = [p for p in chunk if p not in got]
         if still:
             raise ScorerUnavailable(f"{len(still)} pair(s) were never scored")

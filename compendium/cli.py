@@ -127,15 +127,17 @@ def _sphere_sample(conn, a):
 
 
 def _cost_ok(conn, ids, a):
-    """Meaning scores from Claude cost money; ask for --yes before scoring a lot of new pairs."""
+    """Claude calls go through claude_watcher, whose 200 calls a day (one at a time) are shared with
+    other apps; ask for --yes before a run that needs more than a handful of them."""
     from . import meaning
     if a.scorer != "claude":
         return True
     new = meaning.uncached_count(conn, ids)
-    if new > 1000 and not a.yes:
-        requests = -(-new // meaning.PAIRS_PER_REQUEST)
-        print(f"That needs {new} new pair scores from Claude (~{requests} requests). Re-run with --yes to go ahead, "
-              f"or use --scorer words for the free offline scorer.")
+    calls = -(-new // meaning.PAIRS_PER_REQUEST)
+    if calls > meaning.CALLS_WITHOUT_ASKING and not a.yes:
+        print(f"That needs {new} new pair scores, about {calls} Claude calls. They go through claude_watcher, which "
+              f"allows 200 calls a day shared with Network Meaning and runs one at a time, so this would hold it "
+              f"for a while. Re-run with --yes at a quiet time, use a smaller --n, or --scorer words (offline).")
         return False
     return True
 
@@ -377,8 +379,7 @@ def build_parser():
     s.add_argument("situation")
     s.add_argument("--limit", type=int, default=12)
     s.add_argument("--smart", action="store_true",
-                   help="let Claude pick the tags (needs `pip install anthropic` + ANTHROPIC_API_KEY; "
-                        "falls back to keywords)")
+                   help="let Claude pick the tags, via claude_watcher (one call; falls back to keywords)")
     s.add_argument("--matcher", help="module:function to replace the keyword matcher")
     s.set_defaults(func=cmd_consult)
 
@@ -417,7 +418,8 @@ def build_parser():
                    help="relatedness: shared tags (stage one) or meaning (stage two)")
     s.add_argument("--scorer", default="claude", choices=("claude", "words"),
                    help="meaning scorer: Claude (cached; falls back to words if unavailable) or offline word overlap")
-    s.add_argument("--yes", action="store_true", help="go ahead even if Claude must score more than 1,000 new pairs")
+    s.add_argument("--yes", action="store_true",
+                   help="go ahead even if scoring needs more than 10 Claude calls (the watcher's daily limit is shared)")
     s.add_argument("--pull", type=float, default=sphere_defaults("pull"),
                    help="how strongly related sayings attract (higher = tighter clusters, less even)")
     s.add_argument("--push-counters", type=float, default=sphere_defaults("push_counters"),

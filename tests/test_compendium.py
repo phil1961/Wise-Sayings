@@ -6,10 +6,20 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import os
+from unittest import mock
+
 from compendium import consult, db, records, report, review
+from compendium import watcher as _watcher
 
 ROOT = Path(__file__).resolve().parent.parent
 SEED = ROOT / "seed" / "starter.json"
+
+# Tests must never call the real claude_watcher: its one slot and 200 calls a day are
+# shared with other apps. Cut the client off from the project's .env and environment.
+_watcher.ENV_FILE = ROOT / "tests" / "no-such.env"
+for _k in ("WATCHER_TOKEN", "WATCHER_URL"):
+    os.environ.pop(_k, None)
 
 
 def base(**over):
@@ -437,6 +447,88 @@ class TestAlign(unittest.TestCase):
         moved, fit = sphere.align(pts, dst)
         self.assertTrue(fit["mirrored"])
         self.assertLess(fit["rms_angle"], 0.01)
+
+
+class TestWatcher(Base):
+    """The watcher client and the two callers that use it, with the network mocked out."""
+
+    def _http_error(self, code, body):
+        import io, urllib.error
+        return urllib.error.HTTPError("https://w/ask", code, "x", {}, io.BytesIO(json.dumps(body).encode()))
+
+    def _ok(self, raw):
+        class Resp:
+            def __enter__(s): return s
+            def __exit__(s, *a): return False
+            def read(s): return json.dumps({"ok": True, "raw": raw, "usage": {}}).encode()
+        return Resp()
+
+    def test_not_configured(self):
+        self.assertFalse(_watcher.configured())
+        with self.assertRaises(_watcher.WatcherUnavailable):
+            _watcher.ask("hi", "claude-opus-5-5")
+
+    def test_refuses_plain_http(self):
+        with mock.patch.dict(os.environ, {"WATCHER_TOKEN": "t", "WATCHER_URL": "http://w/ask"}):
+            with self.assertRaises(_watcher.WatcherUnavailable):
+                _watcher.ask("hi", "claude-opus-5-5")
+
+    def test_token_from_env_file_and_busy_retry(self):
+        env = self.dir / ".env"
+        env.write_text("OTHER=1\nWATCHER_TOKEN='secret'\n", encoding="utf-8")
+        sent = []
+        def fake_urlopen(req, timeout):
+            sent.append(req)
+            if len(sent) == 1:
+                raise self._http_error(503, {"ok": False, "code": "busy", "message": "busy"})
+            return self._ok({"reply": "OK"})
+        with mock.patch.object(_watcher, "ENV_FILE", env), mock.patch.object(_watcher, "BUSY_WAITS", (0,)), \
+                mock.patch("urllib.request.urlopen", fake_urlopen):
+            raw, _ = _watcher.ask("hi", "claude-opus-5-5", schema={"type": "object"})
+        self.assertEqual(raw, {"reply": "OK"})
+        self.assertEqual(len(sent), 2)
+        self.assertEqual(sent[0].get_header("X-watcher-token"), "secret")
+        body = json.loads(sent[0].data)
+        self.assertEqual((body["caller"], body["model"]), ("wise-sayings", "claude-opus-5-5"))
+
+    def test_daily_limit_is_reported(self):
+        def fake_urlopen(req, timeout):
+            raise self._http_error(429, {"ok": False, "code": "daily_limit", "message": "limit"})
+        with mock.patch.dict(os.environ, {"WATCHER_TOKEN": "t"}), mock.patch("urllib.request.urlopen", fake_urlopen):
+            with self.assertRaisesRegex(_watcher.WatcherUnavailable, "daily call limit"):
+                _watcher.ask("hi", "claude-opus-5-5")
+
+    def test_meaning_scores_go_through_watcher(self):
+        from compendium import meaning
+        records.import_records(self.conn, records.load_file(SEED))
+        prompts = []
+        def fake_ask(prompt, model, schema=None, log=None, **kw):
+            prompts.append(prompt)
+            import re
+            pairs = re.findall(r"^(\d+)-(\d+)$", prompt, re.M)
+            return {"scores": [{"a": int(a), "b": int(b), "score": 5} for a, b in pairs]}, {}
+        notes = []
+        with mock.patch.object(_watcher, "ask", fake_ask):
+            s = meaning.claude_scores(self.conn, [1, 2, 3, 4], log=notes.append)
+        self.assertEqual(len(s), 6)
+        self.assertTrue(prompts[0].startswith(meaning.SYSTEM))   # fixed part first, for the cache
+        self.assertIn("claude_watcher", notes[0])
+
+    def test_meaning_falls_back_when_watcher_unavailable(self):
+        from compendium import meaning
+        records.import_records(self.conn, records.load_file(SEED))
+        _, info = meaning.meaning_relatedness(self.conn, [1, 2, 3, 4], log=lambda m: None)
+        self.assertEqual(info, {"scorer": "words"})   # no token in tests -> offline scorer
+
+    def test_smart_matcher_goes_through_watcher(self):
+        from compendium import llm_matcher
+        records.import_records(self.conn, records.load_file(SEED))
+        tags = [dict(r, aliases=json.loads(r["aliases"])) for r in
+                self.conn.execute("SELECT id, name, kind, aliases FROM tags")]
+        with mock.patch.object(_watcher, "ask", lambda *a, **k: ({"tags": [{"id": "situation:betrayal", "relevance": 3}]}, {})):
+            w = llm_matcher.match("my cofounder meets our rival", tags)
+        betrayal = next(t["id"] for t in tags if t["name"] == "betrayal")
+        self.assertEqual(w, {betrayal: 3.0})
 
 
 if __name__ == "__main__":

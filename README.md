@@ -20,6 +20,29 @@ python sayings.py --help
 The database (`sayings.db`) is created on first use. The tag vocabulary is
 `tags.txt`; edit it freely, and it is re-read on every command.
 
+### AI calls go through claude_watcher
+
+The only features that call Claude are `consult --smart` and the sphere's
+meaning scores. They go through **claude_watcher**
+(`D:\Projects\claude_watcher`), Phil's HTTP service that runs headless Claude
+Code under his subscription, so calls aren't billed per token. The client is
+`compendium/watcher.py`, which uses only the standard library. It needs one setting,
+`WATCHER_TOKEN`, from the environment or from a `.env` file in this folder.
+`WATCHER_URL` is optional and must be https.
+
+- **`.env` holds secrets and is git-ignored. Never commit it.**
+- The watcher is shared with Network Meaning: it runs one call at a time and
+  allows 200 calls a day for all apps. Calls here are labelled
+  `caller: "wise-sayings"`. When the watcher is busy the client waits and
+  retries (20 s, 45 s, 90 s). Any run that would need more than 10 calls asks
+  for `--yes`.
+- The watcher runs Claude Code non-interactively with no tools, so a call can't
+  stall on a permission prompt; at worst it times out after about 5½ minutes.
+- If the watcher can't be reached, each feature falls back to its offline method
+  and says so.
+- `SAYINGS_TRANSPORT=api` switches to the Anthropic SDK and an
+  `ANTHROPIC_API_KEY` instead (`pip install anthropic`).
+
 ## The no-fabrication rule
 
 Every saying must demonstrably exist outside the model. Imports are refused
@@ -131,15 +154,12 @@ Ranking still happens locally against your accepted sayings, so Claude can't
 add or invent a saying.
 
 ```
-pip install anthropic
-set ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
 python sayings.py consult --smart "my cofounder keeps meeting with our biggest rival behind my back"
 ```
 
-It uses `claude-opus-5-5` at low effort (override with `SAYINGS_MODEL`), with
-the API's automatic fallback model turned on in case a request is declined. If
-the package, key or network is missing, it prints a note and uses keyword
-matching, so the tool still works offline.
+It makes one call through claude_watcher (see Setup) with `claude-opus-5-5`;
+override the model with `SAYINGS_MODEL`. If the watcher can't be reached, it
+prints a note and uses keyword matching, so the tool still works offline.
 
 You can also write your own matcher: a function
 `match(situation, tags) -> {tag_id: weight}`, where each tag is a dict with
@@ -195,16 +215,15 @@ mechanism, or the kind of situation they speak to, judged from text and lens and
 ignoring tags. Scorers are pluggable (`--scorer`):
 
 - **`claude`** (default): Claude (`claude-opus-5-5`; override with `SAYINGS_MODEL`)
-  reads the sayings and rates each pair 0–10, up to 200 pairs per request. The
-  API's automatic fallback model is on, in case a request is declined. Scores
-  are cached in `relatedness_cache`, keyed by model and a fingerprint of each
-  saying's text and lens. Repeat layouts are free and work offline, and editing
-  a saying re-scores only its own pairs. Needs `pip install anthropic` and
-  `ANTHROPIC_API_KEY`. A 20-saying sample is 190 pairs (one request). All 79
-  sayings are 3,081 pairs (16 requests). More than 1,000 new pairs needs `--yes`.
+  reads the sayings and rates each pair 0–10, up to 100 pairs per call, through
+  claude_watcher (see Setup). Scores are cached in `relatedness_cache`, keyed by
+  model and a fingerprint of each saying's text and lens. Repeat layouts are
+  free and work offline, and editing a saying re-scores only its own pairs.
+  A 15-saying sample is 105 pairs (2 calls); 20 sayings is 190 pairs (2 calls).
+  All 151 sayings are 11,325 pairs (114 calls, over half the watcher's shared
+  daily limit), so do that in stages at a quiet time. More than 10 calls needs `--yes`.
 - **`words`**: an offline TF-IDF word-overlap score. It needs nothing, and it is
-  what `claude` falls back to, with a note, when the package, key or network is
-  missing. It sees shared words, not shared ideas, so the page and report carry
+  what `claude` falls back to, with a note, when the watcher can't be reached. It sees shared words, not shared ideas, so the page and report carry
   a warning when it was used.
 
 Anthropic has no embeddings endpoint, so Claude scores pairs directly rather
