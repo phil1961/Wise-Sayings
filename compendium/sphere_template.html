@@ -246,10 +246,15 @@ function makeView(spec) {
   if (DATA.center) {
     const c = V(...DATA.center.pos).normalize();
     pos[0] = c.clone().multiplyScalar(R);
-    const marker = new THREE.Mesh(new THREE.OctahedronGeometry(0.75), new THREE.MeshBasicMaterial());
-    marker.position.copy(c.clone().multiplyScalar(R + 0.75));
-    world.add(tag(marker, "situation", 1, COL.situation, { id: 0, ids: [0], dot: true })); dots.push(marker);
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.05, 8, 48), new THREE.MeshBasicMaterial());
+    /* a third of its former size, to match the sayings (Phil, 2026-10-29); the old size stays as its click target */
+    const MARK = 0.25;
+    const marker = new THREE.Mesh(new THREE.OctahedronGeometry(MARK), new THREE.MeshBasicMaterial());
+    marker.position.copy(c.clone().multiplyScalar(R + MARK));
+    world.add(tag(marker, "situation", 1, COL.situation, { id: 0, ids: [0], dot: true }));
+    const markHit = new THREE.Mesh(new THREE.SphereGeometry(0.75, 8, 6), new THREE.MeshBasicMaterial({ visible: false }));
+    markHit.userData = { id: 0 };
+    marker.add(markHit); marker.userData.hit = markHit; dots.push(marker);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(MARK * 1.55, 0.02, 8, 48), new THREE.MeshBasicMaterial());
     halo.position.copy(marker.position); halo.lookAt(c.clone().multiplyScalar(2 * R));
     world.add(tag(halo, "situation", 0.6, COL.situation, { ids: [0] }));
     const u = Math.abs(c.x) < 0.9 ? V(1, 0, 0) : V(0, 0, 1), e1 = u.sub(c.clone().multiplyScalar(u.dot(c))).normalize(), e2 = c.clone().cross(e1);
@@ -413,7 +418,7 @@ function renderLabels(v) {
     place(el, sp);
   }
   if (DATA.center && v.pos[0] && look.layers.situationLabel.on && look.layers.situation.on) {
-    const wp = v.pos[0].clone().multiplyScalar(1.12).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
+    const wp = v.pos[0].clone().multiplyScalar(1.05).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
     const behind = wp.distanceTo(camPos) > camPos.length();
     if (sp.z <= 1 && !(behind && solidGlobe())) {
       const el = document.createElement("div");
