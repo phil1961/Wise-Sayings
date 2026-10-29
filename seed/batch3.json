@@ -1,0 +1,709 @@
+[
+  {
+    "text": "When a measure becomes a target, it ceases to be a good measure.",
+    "variants": [
+      "Any observed statistical regularity will tend to collapse once pressure is placed upon it for control purposes."
+    ],
+    "form": "aphorism",
+    "attribution": "Marilyn Strathern",
+    "attribution_confidence": "verified",
+    "documented_in": "Strathern, \"'Improving ratings': audit in the British University system,\" European Review 5(3), 1997, pp. 305-321 (she credits the formulation to Keith Hoskin). This is the popular restatement of Goodhart's law; Goodhart's own 1975 wording (\"Problems of Monetary Management: The UK Experience\") is: \"Any observed statistical regularity will tend to collapse once pressure is placed upon it for control purposes.\" Checked: https://en.wikipedia.org/wiki/Goodhart%27s_law",
+    "lens": "Once people are rewarded for hitting a number, they optimise the number rather than the thing it stood for. Before you set a target, ask how it could be hit without achieving the real goal, and keep a second, unannounced check on what you actually care about.",
+    "impact_score": 9,
+    "impact_rationale": "Widely proven across policy, education, finance and software; a precise lens on gaming incentives.",
+    "subject_tags": [
+      "human_nature",
+      "truth",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "unclear_goals",
+      "plan_failing"
+    ]
+  },
+  {
+    "text": "The more any quantitative social indicator is used for social decision-making, the more subject it will be to corruption pressures and the more apt it will be to distort and corrupt the social processes it is intended to monitor.",
+    "form": "aphorism",
+    "attribution": "Donald T. Campbell",
+    "attribution_confidence": "verified",
+    "documented_in": "Campbell, \"Assessing the impact of planned social change,\" Evaluation and Program Planning 2(1), 1979, pp. 67-90 (wording as quoted on Wikipedia; Campbell wrote on the topic from 1976). Checked: https://en.wikipedia.org/wiki/Campbell%27s_law",
+    "lens": "The act of watching a number changes the behaviour it measures: the higher the stakes riding on an indicator, the less it tells you. Treat high-stakes metrics as suspect and triangulate with measures nobody is paid to move.",
+    "impact_score": 7,
+    "impact_rationale": "Social-science companion to Goodhart; somewhat redundant but adds the high-stakes-corruption angle.",
+    "subject_tags": [
+      "human_nature",
+      "money",
+      "truth"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "Work expands so as to fill the time available for its completion.",
+    "form": "aphorism",
+    "attribution": "C. Northcote Parkinson",
+    "attribution_confidence": "verified",
+    "documented_in": "Parkinson, essay in The Economist, 19 November 1955, which opens by giving this as a 'commonplace observation' (later the book Parkinson's Law, 1957). Checked: https://en.wikipedia.org/wiki/Parkinson%27s_law",
+    "lens": "A generous deadline does not buy quality, it buys slack that gets consumed. If a task feels bloated, shrink the time or the scope on purpose and see what is actually required.",
+    "impact_score": 7,
+    "impact_rationale": "Durable, widely experienced truth about deadlines and effort; practical for scheduling.",
+    "subject_tags": [
+      "timing",
+      "planning",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "In a hierarchy, every employee tends to rise to his level of incompetence.",
+    "form": "aphorism",
+    "attribution": "Laurence J. Peter",
+    "attribution_confidence": "verified",
+    "documented_in": "Laurence J. Peter and Raymond Hull, The Peter Principle (William Morrow, 1969); wording as given on Wikipedia, which does not confirm it is verbatim from the book. Checked: https://en.wikipedia.org/wiki/Peter_principle",
+    "lens": "Promotion rewards performance in the old role, not fitness for the next one, so competent people get moved until they stall. Ask whether the person you are promoting (or you yourself) will be good at the new job, not just the last one.",
+    "impact_score": 7,
+    "impact_rationale": "Memorable and widely cited lens on promotion and organisational decay; partly satirical.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "A complex system that works is invariably found to have evolved from a simple system that worked.",
+    "form": "aphorism",
+    "attribution": "John Gall",
+    "attribution_confidence": "verified",
+    "documented_in": "John Gall, Systemantics (1975; originally General Systemantics), p. 71 per Wikipedia, with the follow-on: \"A complex system designed from scratch never works and cannot be patched up to make it work. You have to start over with a working simple system.\" Checked: https://en.wikipedia.org/wiki/John_Gall_(author)",
+    "lens": "Do not try to build the big thing in one go. Get a small version working, then grow it; if the big design fails, restart from something simple that works rather than patching.",
+    "impact_score": 8,
+    "impact_rationale": "Strong, proven guidance for building anything complex; counterweight to grand-plan thinking.",
+    "subject_tags": [
+      "planning",
+      "change",
+      "prudence"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "commitment",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "It always takes longer than you expect, even when you take into account Hofstadter's Law.",
+    "form": "aphorism",
+    "attribution": "Douglas Hofstadter",
+    "attribution_confidence": "verified",
+    "documented_in": "Douglas Hofstadter, Godel, Escher, Bach: An Eternal Golden Braid (1979); p. 152 of the 20th anniversary edition per Wikipedia (Wikipedia's rendering has lower-case \"law\"). Checked: https://en.wikipedia.org/wiki/Hofstadter%27s_law",
+    "lens": "Your estimate is biased low, and knowing that does not fix it. Add margin to schedules and budgets and expect the correction itself to fall short.",
+    "impact_score": 8,
+    "impact_rationale": "Captures planning fallacy with a self-referential twist; extremely practical for estimating.",
+    "subject_tags": [
+      "planning",
+      "timing",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "acting_with_incomplete_info",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Never attribute to malice that which is adequately explained by stupidity.",
+    "variants": [
+      "Never attribute to malice what can be adequately explained by stupidity."
+    ],
+    "form": "aphorism",
+    "attribution": "Robert J. Hanlon",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Named \"Hanlon's razor\" in Arthur Bloch, Murphy's Law Book Two (1980), the earliest close match found by Quote Investigator, which finds no support for the Napoleon attribution; Robert J. Hanlon is a programmer, with no known text of his own. Precursor: Heinlein, \"Logic of Empire\" (Astounding, 1941): \"You have attributed conditions to villainy that simply result from stupidity.\" Checked: https://quoteinvestigator.com/2016/12/30/not-malice/",
+    "lens": "Before reading a slight as betrayal, test the dull explanation: error, neglect, or someone not knowing. It lowers the heat and keeps you from retaliating against a plot that does not exist, though it should not blind you to real bad faith.",
+    "impact_score": 8,
+    "impact_rationale": "Widely used heuristic that defuses suspicion; a real lens in conflict and workplace disputes.",
+    "subject_tags": [
+      "human_nature",
+      "truth",
+      "prudence"
+    ],
+    "situation_tags": [
+      "betrayal",
+      "hasty_decision"
+    ]
+  },
+  {
+    "text": "If you don't see the use of it, I certainly won't let you clear it away.",
+    "form": "aphorism",
+    "attribution": "G. K. Chesterton",
+    "attribution_confidence": "verified",
+    "documented_in": "G. K. Chesterton, The Thing (1929), chapter \"The Drift from Domesticity\", the fence-across-the-road passage; continues \"Go away and think.\" Quoted on the American Chesterton Society page. The label \"Chesterton's fence\" is a later coinage. Checked: https://www.chesterton.org/taking-a-fence-down/",
+    "lens": "Do not remove a rule, process or institution until you know why it was put there. If you cannot explain its purpose, you are not yet entitled to scrap it; once you understand it, you can remove it with confidence.",
+    "impact_score": 9,
+    "impact_rationale": "Foundational rule for reform and change; guards against confident, ignorant demolition.",
+    "subject_tags": [
+      "knowledge",
+      "prudence",
+      "change"
+    ],
+    "situation_tags": [
+      "hasty_decision",
+      "overconfidence",
+      "security_weakness"
+    ]
+  },
+  {
+    "text": "The amount of energy needed to refute bullshit is an order of magnitude bigger than to produce it.",
+    "form": "aphorism",
+    "attribution": "Alberto Brandolini",
+    "attribution_confidence": "verified",
+    "documented_in": "Alberto Brandolini, tweet of 11 January 2013: 'Bullshit Asymmetry Principle: the amount of energy needed to refute bullshit is an order of magnitude bigger than to produce it', as quoted on Wikipedia. Checked: https://en.wikipedia.org/wiki/Brandolini%27s_law",
+    "lens": "Falsehood is cheap to make and expensive to correct, so you will not win by answering every claim. Choose which claims to rebut, and invest in making true things easy to check.",
+    "impact_score": 6,
+    "impact_rationale": "Useful modern rule for disinformation and disputes; less proven over time but sharply stated.",
+    "subject_tags": [
+      "truth",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "competition",
+      "costly_win"
+    ]
+  },
+  {
+    "text": "A map is not the territory it represents.",
+    "variants": [
+      "The map is not the territory."
+    ],
+    "form": "aphorism",
+    "attribution": "Alfred Korzybski",
+    "attribution_confidence": "verified",
+    "documented_in": "Korzybski, \"A Non-Aristotelian System and Its Necessity for Rigour in Mathematics and Physics\" (1931 paper, AAAS), reprinted in Science and Sanity (1933); Wikipedia cites p. 58 of Science and Sanity for the statement \"A map is not the territory it represents\" (italics on \"is not\"). Checked: https://en.wikipedia.org/wiki/Map%E2%80%93territory_relation",
+    "lens": "Your model, forecast or report is a simplification of reality, and the decision hinges on what it left out. When the plan and the facts disagree, go look at the ground.",
+    "impact_score": 9,
+    "impact_rationale": "Core epistemic lens; applies to models, metrics, plans and briefings.",
+    "subject_tags": [
+      "truth",
+      "knowledge",
+      "planning"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "acting_with_incomplete_info",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Invert, always invert.",
+    "variants": [
+      "Man muss immer umkehren."
+    ],
+    "form": "maxim",
+    "attribution": "Carl Gustav Jacob Jacobi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "German original given as \"man muss immer umkehren\", attributed to Jacobi as advice to students seeking research topics; popularised in English by Charlie Munger. Wikipedia reports it but I found no primary Jacobi source, so the attribution is secondhand. Checked: https://en.wikipedia.org/wiki/Carl_Gustav_Jacob_Jacobi",
+    "lens": "When a problem is stuck, flip it: ask what would guarantee failure and avoid that, or what the opposite of your assumption implies. Avoiding the sure mistakes is often easier than finding the clever win.",
+    "impact_score": 8,
+    "impact_rationale": "Practical problem-solving lens widely adopted by investors and engineers; attribution weaker than usage.",
+    "subject_tags": [
+      "planning",
+      "risk",
+      "prudence"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "unclear_goals",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "In theory, there is no difference between theory and practice; but in practice, there is.",
+    "variants": [
+      "in theory there is no difference between theory and practice, while in practice there is"
+    ],
+    "form": "aphorism",
+    "attribution": "Yogi Berra",
+    "attribution_confidence": "misattributed",
+    "documented_in": "Popularly credited to Yogi Berra (also Einstein and Feynman); Quote Investigator finds no substance for any of them and traces it to Benjamin Brewster, The Yale Literary Magazine, February 1882 ('in theory there is no difference between theory and practice, while in practice there is'). The wording used here is from Walter Savitch, Pascal: An Introduction to the Art and Science of Programming (1984). Checked: https://quoteinvestigator.com/2018/04/14/theory/",
+    "lens": "A plan that is sound on paper still meets friction, delay and people. Test it small in the real world before betting on it.",
+    "impact_score": 6,
+    "impact_rationale": "Good short reminder on theory vs. practice; the lens overlaps with Moltke and the map-territory entry.",
+    "subject_tags": [
+      "knowledge",
+      "planning",
+      "truth"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "A bird in the hand is worth two in the bush.",
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "English calque of Latin \"plus valet in manibus avis unica quam dupla silvis\"; earliest English citation found: John Capgrave, Life of St Katherine (15th c.); also Fielding, Pasquin (1737). Checked: https://en.wiktionary.org/wiki/a_bird_in_the_hand_is_worth_two_in_the_bush",
+    "lens": "A certain gain beats a larger uncertain one when you can ill afford to lose. Ask whether the extra upside is worth the risk of ending with nothing.",
+    "impact_score": 7,
+    "impact_rationale": "Classic risk-aversion rule with centuries of use; useful when weighing a firm offer against a better maybe.",
+    "subject_tags": [
+      "risk",
+      "money",
+      "prudence"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "temptation"
+    ]
+  },
+  {
+    "text": "Penny wise and pound foolish.",
+    "variants": [
+      "Penny wise, pound foolish."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "Earliest citation found: Francis Meres's translation of Luis de Granada's Sinners Guyde (1598): \"Least he (as it is wont to be sayd) be penny wise and pound foolish\". Checked: https://www.phrases.org.uk/meanings/penny-wise-and-pound-foolish.html",
+    "lens": "Saving on small items can cost you large ones: the cheap tool, skipped maintenance, the unpaid expert. Compare the small saving against the size of what it puts at risk.",
+    "impact_score": 7,
+    "impact_rationale": "Very practical money-and-prevention lens, in use over four centuries.",
+    "subject_tags": [
+      "money",
+      "prudence",
+      "planning"
+    ],
+    "situation_tags": [
+      "prevention",
+      "temptation"
+    ]
+  },
+  {
+    "text": "The road to hell is paved with good intentions.",
+    "variants": [
+      "Hell is paved with good intentions.",
+      "Sir, hell is paved with good intentions."
+    ],
+    "form": "proverb",
+    "attribution": null,
+    "attribution_confidence": "anonymous",
+    "documented_in": "English proverb. 'Hell is paved with good intentions' is in John Ray, A Collection of English Proverbs (1670); Samuel Johnson's 'Sir, hell is paved with good intentions' (1775) is recorded in Boswell, Life of Johnson (1791); the full 'road to hell' form first prints in Bohn's Hand-book of Proverbs (1855). Attributions to St Bernard are unsupported. Checked: https://www.phrases.org.uk/meanings/the-road-to-hell-is-paved-with-good-intentions.html",
+    "lens": "Meaning well is not a plan: results follow actions and incentives, not intent. Check what a good intention will actually do, and whether anyone is carrying it out.",
+    "impact_score": 7,
+    "impact_rationale": "Enduring warning that intent does not equal outcome; useful for self-deception and reforms.",
+    "subject_tags": [
+      "human_nature",
+      "planning",
+      "truth"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "after_failure"
+    ]
+  },
+  {
+    "text": "If I am not for myself, then who will be for me? But when I am for myself, then what am \"I\"? And if not now, when?",
+    "form": "apophthegm",
+    "attribution": "Hillel the Elder",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Mishnah, Pirkei Avot 1:14 (saying of Hillel); wording as given on Wikiquote (Pirkei Avot section). Hillel's sayings are recorded in the Mishnah about two centuries after his lifetime. Checked: https://en.wikiquote.org/wiki/Hillel_the_Elder",
+    "lens": "Three questions that hold a balance: you must look after your own interests, self-interest alone empties you, and postponement is itself a decision. Use it when you are either overgiving, overtaking, or stalling.",
+    "impact_score": 8,
+    "impact_rationale": "Compact, enduring three-part check on self-interest, obligation and delay; lens value high and non-redundant.",
+    "subject_tags": [
+      "human_nature",
+      "timing"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "unclear_goals",
+      "commitment"
+    ],
+    "counter_sayings": [
+      "Look before you leap."
+    ]
+  },
+  {
+    "text": "That which is hateful to you do not do to another; that is the entire Torah, and the rest is its interpretation.",
+    "form": "apophthegm",
+    "attribution": "Hillel the Elder",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Babylonian Talmud, Shabbat 31a (Hillel's answer to the would-be convert who asked to be taught the Torah on one foot); recorded centuries after Hillel. Wording as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Hillel_the_Elder",
+    "lens": "In a dispute or negotiation, test your move by reversing the seats: would you accept it if done to you? It also reframes rules as commentary on one principle, so when the rules run out, return to the principle.",
+    "impact_score": 8,
+    "impact_rationale": "Negative-form golden rule with a famous, documented setting; practical test for fairness in dealings.",
+    "subject_tags": [
+      "human_nature",
+      "truth"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "temptation"
+    ]
+  },
+  {
+    "text": "For hatred does not cease by hatred at any time: hatred ceases by love, this is an old rule.",
+    "variants": [
+      "Hostilities are stilled through non-hostility: this, an unending truth."
+    ],
+    "form": "aphorism",
+    "attribution": "The Buddha (Dhammapada)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Dhammapada, verse 5 (Yamakavagga), F. Max Mueller translation, as given on Wikiquote. Traditionally the Buddha's words; the compiled text is later. Checked: https://en.wikiquote.org/wiki/Dhammapada",
+    "lens": "Retaliation feeds the fight it answers; in a feud, whoever keeps score keeps the feud alive. Ask what move would end the cycle rather than win the next round.",
+    "impact_score": 8,
+    "impact_rationale": "Enduring, widely tested claim about escalation; strong lens for feuds and betrayal, though demanding in practice.",
+    "subject_tags": [
+      "human_nature",
+      "war",
+      "change"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "betrayal"
+    ],
+    "counter_sayings": [
+      "The strong do what they can and the weak suffer what they must."
+    ]
+  },
+  {
+    "text": "Greater in battle than the man who would conquer a thousand-thousand men, is he who would conquer just one - himself.",
+    "form": "aphorism",
+    "attribution": "The Buddha (Dhammapada)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Dhammapada, verse 103 (Thanissaro Bhikkhu translation; verses 103-105 are given together there). Checked: https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.08.than.html and https://en.wikiquote.org/wiki/Dhammapada",
+    "lens": "In a conflict, the opponent you can actually change is yourself: your temper, impulse and appetite. If you are losing to your own reactions, outside victories will not hold.",
+    "impact_score": 7,
+    "impact_rationale": "Reframes the hardest contest as internal; widely endured, somewhat general.",
+    "subject_tags": [
+      "power",
+      "human_nature",
+      "persistence"
+    ],
+    "situation_tags": [
+      "temptation",
+      "hasty_decision"
+    ]
+  },
+  {
+    "text": "All men know the utility of useful things; but they do not know the utility of futility.",
+    "form": "aphorism",
+    "attribution": "Zhuangzi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Zhuangzi, ch. 4 (Human World), Lin Yutang translation (1942) as given on Wikiquote. Authorship of the Zhuangzi is composite; ch. 4 is among the Inner Chapters usually credited to Zhuang Zhou. Checked: https://en.wikiquote.org/wiki/Zhuangzi",
+    "lens": "What looks useless, unproductive or unambitious may be what keeps something safe: the gnarled tree is never cut down. Before optimising everything for visible usefulness, ask what you would lose by being too obviously valuable.",
+    "impact_score": 7,
+    "impact_rationale": "Distinctive inversion with real strategic value (survival through unobtrusiveness); not redundant with the existing list.",
+    "subject_tags": [
+      "power",
+      "prudence",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "weak_competition"
+    ],
+    "counter_sayings": [
+      "The stake that sticks up gets hammered down."
+    ]
+  },
+  {
+    "text": "Most precious are the people; next come the spirits of land and grain; and last, the kings.",
+    "form": "aphorism",
+    "attribution": "Mencius",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Mencius 7B:14, as given on Wikiquote (Mencius); translator not named there. Checked: https://en.wikiquote.org/wiki/Mencius The Mencius was compiled by his disciples.",
+    "lens": "Authority rests on those it governs: a leader who treats followers as the least important party has the order of things backwards. In a crisis, ask whose consent the whole structure actually depends on.",
+    "impact_score": 7,
+    "impact_rationale": "Foundational statement of legitimacy; close cousin of the Xunzi boat saying but with a distinct ranking claim.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "Governing a large country is like frying a small fish.",
+    "form": "aphorism",
+    "attribution": "Laozi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Tao Te Ching, ch. 60, as given on Wikiquote (Laozi); translator not named there. Laozi's historical authorship is uncertain. Checked: https://en.wikiquote.org/wiki/Laozi",
+    "lens": "Small fish fall apart if you keep turning them. Complex systems and large organisations are often damaged more by constant meddling than by benign neglect; ask whether your next intervention is needed.",
+    "impact_score": 8,
+    "impact_rationale": "Memorable, practical case against over-management; applies well beyond politics.",
+    "subject_tags": [
+      "power",
+      "prudence",
+      "change"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "hasty_decision"
+    ]
+  },
+  {
+    "text": "He who knows others is learned; he who knows himself is wise.",
+    "variants": [
+      "Knowing others is intelligence; knowing yourself is true wisdom."
+    ],
+    "form": "aphorism",
+    "attribution": "Laozi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Tao Te Ching, ch. 33, Lin Yutang translation as given on Wikiquote (Laozi). Checked: https://en.wikiquote.org/wiki/Laozi",
+    "lens": "Skill at reading others is cheap compared to seeing your own motives and limits. Before judging the other side, ask what you are blind to about yourself.",
+    "impact_score": 6,
+    "impact_rationale": "Enduring, but near neighbours exist (Thales, Sun Tzu 'know yourself'); retained for its learned/wise distinction.",
+    "subject_tags": [
+      "knowledge",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "He who knows that enough is enough will always have enough.",
+    "form": "aphorism",
+    "attribution": "Laozi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Tao Te Ching, ch. 46, as given on Wikiquote (Laozi); translator not named there. Checked: https://en.wikiquote.org/wiki/Laozi",
+    "lens": "Wanting more with no ceiling guarantees permanent shortfall. Decide in advance what is enough, or each success just raises the bar for feeling secure.",
+    "impact_score": 7,
+    "impact_rationale": "Clear lens on greed and ambition; relevant to money and temptation.",
+    "subject_tags": [
+      "money",
+      "human_nature",
+      "prudence"
+    ],
+    "situation_tags": [
+      "temptation",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "Hence to fight and conquer in all your battles is not supreme excellence; supreme excellence consists in breaking the enemy's resistance without fighting.",
+    "variants": [
+      "To subdue the enemy without fighting is the acme of skill."
+    ],
+    "form": "maxim",
+    "attribution": "Sun Tzu",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sun Tzu, The Art of War, ch. III (Attack by Stratagem), para. 2, Lionel Giles translation. Authorship traditional; the text is composite and later than the legendary Sun Wu. Checked: https://www.gutenberg.org/cache/epub/132/pg132.txt",
+    "lens": "Winning a fight is a cost, not the goal. Look for the move that makes the opponent give up, concede or comply before the contest is joined.",
+    "impact_score": 9,
+    "impact_rationale": "Core strategic insight; counters the instinct to prove strength; distinct from 'all warfare is based on deception'.",
+    "subject_tags": [
+      "war",
+      "power",
+      "planning"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "overwhelming_opponent"
+    ]
+  },
+  {
+    "text": "Thus it is that in war the victorious strategist only seeks battle after the victory has been won, whereas he who is destined to defeat first fights and afterwards looks for victory.",
+    "form": "maxim",
+    "attribution": "Sun Tzu",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sun Tzu, The Art of War, ch. IV (Tactical Dispositions), para. 15, Lionel Giles translation. Checked: https://www.gutenberg.org/cache/epub/132/pg132.txt",
+    "lens": "Decide the outcome by preparation, positioning and leverage before any confrontation; the fight should confirm a result you have already arranged. If you are fighting to see what happens, you are late.",
+    "impact_score": 9,
+    "impact_rationale": "Sharp test of preparation versus improvisation; widely applied in negotiation and litigation.",
+    "subject_tags": [
+      "planning",
+      "war",
+      "timing"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "competition",
+      "plan_failing"
+    ]
+  },
+  {
+    "text": "There is no instance of a country having benefited from prolonged warfare.",
+    "form": "maxim",
+    "attribution": "Sun Tzu",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sun Tzu, The Art of War, ch. II (Waging War), para. 6, Lionel Giles translation. Checked: https://www.gutenberg.org/cache/epub/132/pg132.txt",
+    "lens": "A drawn-out contest drains the one waging it whether or not it wins. Set a budget of time and resources, and ask whether the dispute is still worth what it has already cost.",
+    "impact_score": 8,
+    "impact_rationale": "Directly bears on attrition and sunk-cost dilemmas; extends Pyrrhus in the existing set.",
+    "subject_tags": [
+      "war",
+      "money",
+      "timing"
+    ],
+    "situation_tags": [
+      "costly_win"
+    ]
+  },
+  {
+    "text": "When you surround an army, leave an outlet free.",
+    "form": "maxim",
+    "attribution": "Sun Tzu",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sun Tzu, The Art of War, ch. VII (Manoeuvring), para. 36, Lionel Giles translation; Giles' note (citing Tu Mu) explains the aim is to prevent the enemy fighting with the courage of despair. Often misquoted as 'build your enemy a golden bridge to retreat across', which is not in the text. Checked: https://www.gutenberg.org/cache/epub/132/pg132.txt",
+    "lens": "A cornered party fights hardest. When you hold the upper hand in a dispute, give the other side a face-saving way out so that conceding costs them less than resisting.",
+    "impact_score": 9,
+    "impact_rationale": "High-value, counterintuitive negotiation tactic with a real source; avoids a common misquote.",
+    "subject_tags": [
+      "war",
+      "human_nature",
+      "deception"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "ultimatum",
+      "overwhelming_opponent"
+    ]
+  },
+  {
+    "text": "Fixedness means a dead hand. Pliability is a living hand. You must bear this in mind.",
+    "form": "maxim",
+    "attribution": "Miyamoto Musashi",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Musashi, Go Rin no Sho (Book of Five Rings), Water Book, as given on Wikiquote (Miyamoto Musashi); translator not named there. Checked: https://en.wikiquote.org/wiki/Miyamoto_Musashi",
+    "lens": "A rigid grip, whether on a plan, a position or a procedure, cannot respond to what the other side does. Keep your stance firm enough to act and loose enough to adjust.",
+    "impact_score": 7,
+    "impact_rationale": "Concise lens on adaptability in conflict; complements 'Bad is the plan that cannot be changed.'",
+    "subject_tags": [
+      "change",
+      "war",
+      "planning"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "competition"
+    ],
+    "counter_sayings": [
+      "Don't change horses in midstream."
+    ]
+  },
+  {
+    "text": "Thinking about things previously and then handling them lightly when the time comes is what this is all about.",
+    "form": "maxim",
+    "attribution": "Yamamoto Tsunetomo (Hagakure)",
+    "attribution_confidence": "verified",
+    "documented_in": "Hagakure (recorded by Tashiro Tsuramoto from Yamamoto Tsunetomo, c. 1710-1716), as listed under Preparation on Wikiquote (Hagakure); translator not named there. Checked: https://en.wikiquote.org/wiki/Hagakure",
+    "lens": "Calm under pressure is manufactured earlier: rehearse the bad scenarios ahead of time so that in the moment you are handling a case you have already met.",
+    "impact_score": 7,
+    "impact_rationale": "Practical account of preparation producing composure; useful in crises.",
+    "subject_tags": [
+      "planning",
+      "prudence",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "anxiety",
+      "acting_with_incomplete_info"
+    ]
+  },
+  {
+    "text": "Who despises an insignificant enemy resembles him who is careless about fire.",
+    "form": "maxim",
+    "attribution": "Saadi",
+    "attribution_confidence": "verified",
+    "documented_in": "Saadi, Gulistan, ch. 8, story 12, Sir Richard Burton translation (1928) as given on Wikiquote (Saadi). Checked: https://en.wikiquote.org/wiki/Saadi",
+    "lens": "Small rivals and small problems are cheap to extinguish early and ruinous once they spread. Do not size a threat by its present scale but by what it can ignite.",
+    "impact_score": 7,
+    "impact_rationale": "Vivid warning against underestimating small threats; fits prevention and competition.",
+    "subject_tags": [
+      "war",
+      "prudence",
+      "risk"
+    ],
+    "situation_tags": [
+      "prevention",
+      "competition",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "The wound that's made by fire will heal, but the wound that's made by tongue will never heal.",
+    "form": "maxim",
+    "attribution": "Thiruvalluvar",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Thirukkural (Tamil, c. 1st-5th c. CE), couplet on restraint of speech, as listed on Wikiquote (Thiruvalluvar); translator not named there and the verse numbers on that page do not follow standard kural numbering, so no kural number is given. Checked: https://en.wikiquote.org/wiki/Thiruvalluvar",
+    "lens": "Words said in anger or contempt remain after any physical damage has repaired. Before a hard conversation or a public rebuke, weigh what the other person will still be carrying years from now.",
+    "impact_score": 7,
+    "impact_rationale": "Strong, simple lens for conflict and discipline of speech; endured in Tamil tradition.",
+    "subject_tags": [
+      "human_nature",
+      "brevity",
+      "adversity"
+    ],
+    "situation_tags": [
+      "hasty_decision",
+      "betrayal"
+    ]
+  },
+  {
+    "text": "See but do not appear to see; listen but do not seem to listen; know but do not let it be known that you know.",
+    "form": "maxim",
+    "attribution": "Han Feizi",
+    "attribution_confidence": "verified",
+    "documented_in": "Han Feizi, ch. 'The Way of the Ruler', in Han Feizi: Basic Writings (Burton Watson, 2003), as given on Wikiquote (Han Feizi). Checked: https://en.wikiquote.org/wiki/Han_Feizi",
+    "lens": "Showing what you know hands others a chance to hide, adapt or flatter. In dealings with subordinates or rivals, withholding your knowledge keeps their behaviour honest.",
+    "impact_score": 7,
+    "impact_rationale": "Classic Legalist advice on information control; distinct from the existing deception entries.",
+    "subject_tags": [
+      "knowledge",
+      "deception",
+      "power"
+    ],
+    "situation_tags": [
+      "keeping_secrets",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "Whoever enters the Way without a guide will take a hundred years to travel a two-day journey.",
+    "form": "aphorism",
+    "attribution": "Rumi",
+    "attribution_confidence": "verified",
+    "documented_in": "Rumi, Masnavi III, line 588, W. C. Chittick translation (1983) as given on Wikiquote (Rumi). Checked: https://en.wikiquote.org/wiki/Rumi",
+    "lens": "Experience that others already have is the cheapest route. If you are repeating a mistake that someone nearby has solved, find the guide.",
+    "impact_score": 7,
+    "impact_rationale": "Sourced Rumi line with practical bearing on mentorship; avoids the many misattributed Rumi quotes.",
+    "subject_tags": [
+      "knowledge",
+      "timing"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "If a king is energetic, his subjects will be equally energetic.",
+    "form": "maxim",
+    "attribution": "Kautilya (Arthashastra)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Arthashastra, Book I, ch. 19 (The Duties of a King), as given on Wikiquote (Chanakya); translator not named there. Authorship by Kautilya/Chanakya is traditional and the text is composite. Checked: https://en.wikiquote.org/wiki/Chanakya",
+    "lens": "A team copies the pace and effort of its head. When morale or output sags, begin by examining your own conduct before blaming the group.",
+    "impact_score": 6,
+    "impact_rationale": "Direct sourced leadership principle; narrower and less striking than top entries.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis"
+    ]
+  }
+]
