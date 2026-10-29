@@ -117,7 +117,10 @@ if (DATA.center) { addLayer("situation", "Situation marker", "Situation", COL.si
 const layerOf = k => LAYERS.find(l => l.key === k);
 
 /* ---------- the look: settings, defaults, presets, persistence ---------- */
-const FILTER_DEFAULTS = { edgeMin: 0, relMin: 0, pulledIn: true, labelMode: "all", dotScale: 1, focus: true, spin: !reduce, bg: COL.ground };
+/* surface: the globe's opacity, 0 (clear glass) to 1 (solid: hides the far side and whatever is inside). */
+const FILTER_DEFAULTS = { edgeMin: 0, relMin: 0, pulledIn: true, labelMode: "all", dotScale: 1, focus: true, spin: !reduce, bg: COL.ground,
+  surface: 0.55, lastSeeThrough: 0.55 };
+const SOLID = 0.995;
 const defaultLook = () => ({ layers: Object.fromEntries(LAYERS.map(l => [l.key, { on: true, gain: 1, color: null }])), ...FILTER_DEFAULTS });
 const PRESETS = {
   "Default": {},
@@ -125,6 +128,8 @@ const PRESETS = {
   "Tensions": { layers: { lattice: { on: false }, mesh: { on: false }, rings: { on: false }, counters: { gain: 2 }, hidden: { gain: 1.6 }, mistag: { gain: 1.6 } } },
   "Structure": { layers: { mesh: { gain: 1.8 }, lattice: { gain: 1.6 }, labels: { on: false } } },
   "Clean": { layers: { lattice: { on: false }, mesh: { gain: 0.4 }, rings: { on: false } }, labelMode: "front" },
+  "Solid": { surface: 1, layers: { mesh: { gain: 1.3 } } },
+  "Glass": { surface: 0.12, layers: { lattice: { gain: 0.6 } } },
 };
 const STORE = "sayings-sphere-look-v1";
 function withOverrides(base, over) {
@@ -180,7 +185,8 @@ function makeView(spec) {
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200), world = new THREE.Group();
   scene.add(world);
   /* globe (depthWrite off: dims what is behind it but never hides lines inside it) and its 1,002 marbles */
-  world.add(tag(new THREE.Mesh(new THREE.SphereGeometry(R * 0.985, 48, 32), new THREE.MeshBasicMaterial({ depthWrite: false })), "globe", 0.55, COL.globe));
+  const globe = tag(new THREE.Mesh(new THREE.SphereGeometry(R * 0.985, 48, 32), new THREE.MeshBasicMaterial({ depthWrite: false })), "globe", 0.55, COL.globe);
+  world.add(globe);
   {
     const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.06, 6, 4), new THREE.MeshBasicMaterial(), DATA.lattice.length), m4 = new THREE.Matrix4();
     DATA.lattice.forEach(([x, y, z], i) => { m4.makeTranslation(x * R, y * R, z * R); mesh.setMatrixAt(i, m4); });
@@ -230,7 +236,7 @@ function makeView(spec) {
     world.add(tag(new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[h.a], pos[h.b], 1.03)), new THREE.LineBasicMaterial()),
       kind, 0.9, COL[kind], { ids: [h.a, h.b], link: true }));
   }
-  const view = { spec, canvas, labelsEl, renderer, scene, camera, world, pos, dots };
+  const view = { spec, canvas, labelsEl, renderer, scene, camera, world, pos, dots, globe };
   hookPointer(view);
   views.push(view);
   return view;
@@ -271,6 +277,16 @@ function applyLook() {
       if (vis && u.layer === "mesh" && u.r < look.edgeMin) vis = false;
       o.visible = vis;
       if (!vis) return;
+      if (u.layer === "globe") {
+        /* the surface: its slider is opacity. Solid means really solid: it writes depth, so the far side
+           and whatever is inside the globe (counter chords) are hidden, and only the near side shows. */
+        const solid = look.surface >= SOLID, m = o.material;
+        if (m.transparent === solid || m.depthWrite !== solid) { m.transparent = !solid; m.depthWrite = solid; m.needsUpdate = true; }
+        m.opacity = solid ? 1 : look.surface;
+        m.color.set(L.color || u.color);
+        o.visible = L.on && look.surface > 0.005;
+        return;
+      }
       let op = u.base * L.gain;
       if (F && u.ids) {
         if (u.link) op = u.ids.includes(shared.selected) ? Math.max(op, 0.95) : op * 0.3;
@@ -289,10 +305,13 @@ function applyLook() {
 }
 
 /* ---------- labels ---------- */
+/* how visible a far-side label is: it fades as the surface gets more opaque, and is gone when solid */
+const backFactor = () => look.layers.globe.on ? Math.max(0, 1 - look.surface) * 0.62 : 0.62;
+const solidGlobe = () => look.layers.globe.on && look.surface >= SOLID;
 function labelStyle(el, key, back, faded) {
   const L = look.layers[key];
   if (L.color) el.style.color = L.color;
-  el.style.opacity = String(Math.min(1, L.gain) * (back ? 0.28 : 1) * (faded ? 0.3 : 1));
+  el.style.opacity = String(Math.min(1, L.gain) * (back ? backFactor() : 1) * (faded ? 0.3 : 1));
   if (L.gain > 1.3) el.style.fontWeight = "600";
 }
 function renderLabels(v) {
@@ -306,7 +325,7 @@ function renderLabels(v) {
     const wp = v.pos[s.id].clone().applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
     if (sp.z > 1 || Math.abs(sp.x) > 1.05 || Math.abs(sp.y) > 1.05) continue;
     const back = wp.distanceTo(camPos) > camPos.length();
-    if (back && look.labelMode === "front" && s.id !== shared.selected) continue;
+    if (back && (solidGlobe() || look.labelMode === "front") && s.id !== shared.selected) continue;
     const el = document.createElement("div");
     el.className = "lbl" + (s.id === shared.selected ? " sel" : "");
     el.textContent = short(s.text);
@@ -315,11 +334,12 @@ function renderLabels(v) {
   }
   if (DATA.center && v.pos[0] && look.layers.situationLabel.on && look.layers.situation.on) {
     const wp = v.pos[0].clone().multiplyScalar(1.12).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
-    if (sp.z <= 1) {
+    const behind = wp.distanceTo(camPos) > camPos.length();
+    if (sp.z <= 1 && !(behind && solidGlobe())) {
       const el = document.createElement("div");
       el.className = "lbl center";
       el.textContent = short(DATA.center.text);
-      labelStyle(el, "situationLabel", wp.distanceTo(camPos) > camPos.length(), false);
+      labelStyle(el, "situationLabel", behind, false);
       place(el, sp);
     }
   }
@@ -332,10 +352,14 @@ function buildPanel() {
   let html = "", group = null;
   for (const l of LAYERS) {
     if (l.group !== group) { group = l.group; html += `<h3>${group}</h3>`; }
-    html += `<div class="row" data-k="${l.key}"><label><input type="checkbox" data-f="on">${esc(l.label)}</label>` +
-      `<input type="color" data-f="color" title="Colour (double-click to reset)"><input type="range" min="0" max="200" step="5" data-f="gain" title="Dim or brighten">` +
-      `<span class="val"></span></div>`;
+    /* the globe's slider is opacity (0 = clear glass, 100% = solid); every other slider dims or brightens */
+    const slider = l.key === "globe"
+      ? `<input type="range" min="0" max="100" step="5" data-f="surface" title="Opacity: 0% clear glass, 100% solid (hides the far side). Key O toggles solid.">`
+      : `<input type="range" min="0" max="200" step="5" data-f="gain" title="Dim or brighten">`;
+    html += `<div class="row" data-k="${l.key}"><label><input type="checkbox" data-f="on">${esc(l.key === "globe" ? "Globe surface" : l.label)}</label>` +
+      `<input type="color" data-f="color" title="Colour (double-click to reset)">${slider}<span class="val"></span></div>`;
   }
+  html += `<div class="note" style="margin-top:2px">Globe at 100% is solid: you see only the near side, with nothing behind it showing through (counter chords run inside, so they're hidden too).</div>`;
   html += `<h3>Filters</h3>` +
     `<div class="frow"><span>Hide mesh links weaker than</span><input type="range" min="0" max="100" step="5" data-g="edgeMin"><span class="val" data-v="edgeMin"></span></div>` +
     (DATA.center ? `<div class="frow"><span>Hide sayings less relevant than</span><input type="range" min="0" max="100" step="5" data-g="relMin"><span class="val" data-v="relMin"></span></div>` +
@@ -346,7 +370,7 @@ function buildPanel() {
     `<label class="chk"><input type="checkbox" data-g="spin">Slow spin</label>` +
     `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>` +
     `<h3>Presets</h3><div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>` +
-    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · Esc deselect.</div>`;
+    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · Esc deselect.</div>`;
   ctl.innerHTML = html;
   ctl.querySelectorAll(".row").forEach(row => {
     const L = () => look.layers[row.dataset.k];
@@ -354,7 +378,10 @@ function buildPanel() {
     const col = row.querySelector("[data-f=color]");
     col.oninput = e => { L().color = e.target.value; applyLook(); };
     col.ondblclick = e => { e.preventDefault(); L().color = null; applyLook(); };
-    row.querySelector("[data-f=gain]").oninput = e => { L().gain = +e.target.value / 100; applyLook(); };
+    const gain = row.querySelector("[data-f=gain]");
+    if (gain) gain.oninput = e => { L().gain = +e.target.value / 100; applyLook(); };
+    const surf = row.querySelector("[data-f=surface]");
+    if (surf) surf.oninput = e => { setSurface(+e.target.value / 100); };
   });
   ctl.querySelectorAll("[data-g]").forEach(inp => {
     const k = inp.dataset.g;
@@ -368,6 +395,12 @@ function buildPanel() {
     applyLook();
   });
 }
+function setSurface(v) {
+  look.surface = v;
+  if (v < SOLID) look.lastSeeThrough = v;
+  if (v > 0.005) look.layers.globe.on = true;
+  applyLook();
+}
 function syncPanel() {
   if (!ctl.firstChild) return;
   ctl.querySelectorAll(".row").forEach(row => {
@@ -375,8 +408,9 @@ function syncPanel() {
     row.classList.toggle("off", !L.on);
     row.querySelector("[data-f=on]").checked = L.on;
     row.querySelector("[data-f=color]").value = new THREE.Color(L.color || l.color).getHexString().replace(/^/, "#");
-    row.querySelector("[data-f=gain]").value = Math.round(L.gain * 100);
-    row.querySelector(".val").textContent = pctTxt(L.gain);
+    const gain = row.querySelector("[data-f=gain]"), surf = row.querySelector("[data-f=surface]");
+    if (gain) { gain.value = Math.round(L.gain * 100); row.querySelector(".val").textContent = pctTxt(L.gain); }
+    if (surf) { surf.value = Math.round(look.surface * 100); row.querySelector(".val").textContent = look.surface >= SOLID ? "solid" : pctTxt(look.surface); }
   });
   ctl.querySelectorAll("[data-g]").forEach(inp => {
     const v = look[inp.dataset.g];
@@ -451,8 +485,10 @@ function hookPointer(v) {
     if (moved > 4) return;
     const r = c.getBoundingClientRect();
     ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), v.camera);
-    const hit = ray.intersectObjects(v.dots.filter(d => d.visible))[0];
-    select(hit ? hit.object.userData.id : null);
+    /* on a solid globe the surface is in the way of anything behind it */
+    const targets = v.dots.filter(d => d.visible).concat(solidGlobe() && v.globe.visible ? [v.globe] : []);
+    const hit = ray.intersectObjects(targets)[0];
+    select(hit && hit.object !== v.globe ? hit.object.userData.id : null);
   });
   c.addEventListener("wheel", e => { e.preventDefault(); shared.camDist = Math.min(70, Math.max(13, shared.camDist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
 }
@@ -460,6 +496,7 @@ addEventListener("keydown", e => {
   if (e.target.closest && e.target.closest("input, select, textarea")) return;
   if (e.key === "c" || e.key === "C") ctl.hidden = !ctl.hidden;
   else if (e.key === "l" || e.key === "L") { look.layers.labels.on = !look.layers.labels.on; applyLook(); }
+  else if (e.key === "o" || e.key === "O") setSurface(look.surface >= SOLID ? (look.lastSeeThrough || 0.55) : 1);
   else if (e.key === "Escape") select(null);
 });
 
@@ -469,7 +506,7 @@ if (DATA.views.length > 1) shared.camDist = 34;
 /* a consult sphere opens with the situation tilted toward you, and its slow spin turns about the situation */
 const spinAxis = DATA.center ? V(...DATA.center.pos).normalize() : null;
 if (DATA.center) shared.q.setFromUnitVectors(spinAxis, V(0, 0.3, 0.95).normalize());
-$("hint").textContent = "drag turns · wheel zooms · click a saying · C controls" + (DATA.views.length > 1 ? " · both globes turn together" : "");
+$("hint").textContent = "drag turns · wheel zooms · click a saying · C controls · O solid" + (DATA.views.length > 1 ? " · both globes turn together" : "");
 buildPanel();
 /* links can open the panel (#controls) or apply a preset (#preset=Tensions) */
 {

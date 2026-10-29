@@ -244,7 +244,17 @@ and above it brightens: more opaque, and gently toward white. The rows are:
 - Relations: counter-saying chords, hidden connections, possible mis-tags
 - Situation: marker, label
 
-Only rows for things the page actually has are shown. Below them:
+Only rows for things the page actually has are shown.
+
+The **globe surface** row's slider is opacity instead of brightness: 0% is clear
+glass and 100% is solid. Solid really is solid: you see only the near side,
+with the sayings, mesh and labels sitting on top of the surface, and nothing
+behind showing through. The counter-saying chords run through the inside, so
+they're hidden too. Clicks on the surface don't reach sayings behind it.
+Between 0% and 100%, far-side labels fade in step. `O` toggles between solid and
+your last see-through setting, and the Solid and Glass presets set it.
+
+Below the rows:
 
 - Filters:
   - hide mesh links weaker than a threshold;
@@ -256,10 +266,10 @@ Only rows for things the page actually has are shown. Below them:
   - slow spin;
   - background colour.
 - Presets: Default, Sayings (quiet structure), Tensions (only sayings and the
-  lines between opposites), Structure (mesh and lattice up, labels off), Clean.
+  lines between opposites), Structure (mesh and lattice up, labels off), Clean, Solid, Glass.
 
-Clicking a form in the legend toggles it. `L` toggles labels and `Esc` clears
-the selection. Settings are saved in the browser and carry over to every
+Clicking a form in the legend toggles it. `L` toggles labels, `O` toggles a
+solid globe, and `Esc` clears the selection. Settings are saved in the browser and carry over to every
 sphere page; the thresholds stay per page. A link can open the panel or apply a
 preset: `sphere-4.html#controls`, `sphere-4.html#preset=Tensions`. Comparison
 pages apply the settings to both globes.
