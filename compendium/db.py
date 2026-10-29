@@ -135,6 +135,21 @@ MIGRATIONS = {
     -- vertex). NULL for ordinary runs. Triangulation edges to the situation use saying id 0.
     ALTER TABLE layout_runs ADD COLUMN center TEXT;
     """,
+    5: """
+    -- Meaning axes (axes.txt): how strongly each saying embodies an axis's thesis (+1, +2) or its
+    -- antithesis (-1, -2); 0 = not about this axis. Rated by Claude, cached per model. axis_hash
+    -- fingerprints the axis wording and saying_hash the saying's text+lens, so editing either re-rates.
+    CREATE TABLE axis_scores (
+        axis_key    TEXT NOT NULL,
+        axis_hash   TEXT NOT NULL,
+        saying_id   INTEGER NOT NULL REFERENCES sayings(id) ON DELETE CASCADE,
+        saying_hash TEXT NOT NULL,
+        model       TEXT NOT NULL,
+        score       INTEGER NOT NULL CHECK (score BETWEEN -2 AND 2),
+        created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (axis_key, saying_id, model)
+    );
+    """,
 }
 
 

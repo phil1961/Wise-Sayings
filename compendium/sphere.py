@@ -81,7 +81,7 @@ def _dot(a, b): return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 def _norm(a): return math.sqrt(_dot(a, a))
 
 
-def energy_and_grad(pts, related, counters, pull, push_counters):
+def energy_and_grad(pts, related, counters, pull, push_counters, no_repel=frozenset()):
     """Total energy and its gradient for points on the unit sphere.
 
     pts: list of (x,y,z). related: {(i,j): r} by index. counters: set of (i,j) by index.
@@ -90,6 +90,7 @@ def energy_and_grad(pts, related, counters, pull, push_counters):
         attraction pull * r * d^2
         counter    push_counters * N * (pi - theta)^2   (theta = angle apart; zero when antipodal)
     The counter term is scaled by N so it holds up against N-1 repulsions.
+    Points in `no_repel` (meaning-axis poles) only attract: they take no part in the repulsion.
     """
     n = len(pts)
     grad = [[0.0, 0.0, 0.0] for _ in range(n)]
@@ -99,7 +100,7 @@ def energy_and_grad(pts, related, counters, pull, push_counters):
             diff = _sub(pts[i], pts[j])
             d = max(_norm(diff), 1e-9)
             # dE/dd for this pair
-            e, de = 1 / d, -1 / d ** 2
+            e, de = (0.0, 0.0) if (i in no_repel or j in no_repel) else (1 / d, -1 / d ** 2)
             # Counter-sayings often share tags (both are about the same decision), but they
             # pull opposite ways, so their tag attraction is switched off.
             r = 0.0 if (i, j) in counters else related.get((i, j), 0.0)
@@ -122,7 +123,7 @@ def energy_and_grad(pts, related, counters, pull, push_counters):
     return total, grad
 
 
-def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10, fixed=()):
+def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10, fixed=(), no_repel=frozenset()):
     """Gradient descent kept on the sphere: step along the tangent part of -grad, renormalize.
 
     The step shrinks when energy rises and grows a little when it falls. Stops when
@@ -131,7 +132,7 @@ def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10,
     """
     pts = [geodesic.normalize(p) for p in pts]
     fixed = set(fixed)
-    e, grad = energy_and_grad(pts, related, counters, pull, push_counters)
+    e, grad = energy_and_grad(pts, related, counters, pull, push_counters, no_repel)
     step = 0.01
     for _ in range(max_iter):
         moved = []
@@ -143,7 +144,7 @@ def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10,
             tangent = (g[0] - radial * p[0], g[1] - radial * p[1], g[2] - radial * p[2])
             moved.append(geodesic.normalize((p[0] - step * tangent[0], p[1] - step * tangent[1],
                                              p[2] - step * tangent[2])))
-        e2, grad2 = energy_and_grad(moved, related, counters, pull, push_counters)
+        e2, grad2 = energy_and_grad(moved, related, counters, pull, push_counters, no_repel)
         if e2 < e:
             done = (e - e2) / max(abs(e), 1e-12) < tol
             pts, e, grad, step = moved, e2, grad2, step * 1.2
@@ -270,7 +271,7 @@ NORTH = (0.0, 1.0, 0.0)
 
 
 def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, stage_info=None,
-               center=None, **params):
+               center=None, axes=None, **params):
     """Lay out the given sayings, save the run, and return its id.
 
     `related` ({(a_id, b_id): 0..1}) can be passed in; otherwise it is computed for
@@ -280,8 +281,13 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
     "matched": [tags]}. The situation is held fixed at the lattice vertex nearest the
     north pole, and each saying is pulled toward it with strength
     pull * center_pull * relevance, so the most relevant sayings gather around it.
+
+    `axes` adds meaning axes (compendium.axes.for_layout): for each axis a fixed thesis pole at
+    `dir` and an antithesis pole opposite it. A saying rated s (-2..2) on an axis is pulled toward
+    the thesis pole (s > 0) or the antithesis pole (s < 0) with strength pull * axis_pull * |s| / 2.
+    Poles only attract; they don't push sayings away.
     """
-    p = {**DEFAULTS, "center_pull": 2.0, **params}
+    p = {**DEFAULTS, "center_pull": 2.0, "axis_pull": 1.5, **params}
     if len(ids) < 4:
         raise ValueError("need at least 4 sayings for a sphere layout")
     ids = list(ids)
@@ -304,18 +310,34 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
                 related[(index[sid], n)] = p["center_pull"] * rel
         fixed = (n,)
 
+    anchors, pole_vertices = [], []
+    if axes:
+        base = n + (1 if center is not None else 0)
+        for k, ax in enumerate(axes):
+            d = geodesic.normalize(ax["dir"])
+            thesis, anti = base + 2 * k, base + 2 * k + 1
+            anchors += [d, (-d[0], -d[1], -d[2])]
+            pole_vertices += [geodesic.nearest(d), geodesic.nearest((-d[0], -d[1], -d[2]))]
+            for sid, s in ax["scores"].items():
+                sid = int(sid)
+                if sid in index and s:
+                    related[(index[sid], thesis if s > 0 else anti)] = p["axis_pull"] * abs(s) / 2
+        fixed = tuple(fixed) + tuple(range(base, base + len(anchors)))
+    no_repel = frozenset(range(len(ids) + (1 if center is not None else 0), len(ids) + (1 if center is not None else 0) + len(anchors)))
+
     rng = random.Random(seed)
     best = None
     for _ in range(p["restarts"]):
-        start = [random_point(rng) for _ in ids] + ([center_pos] if center else [])
-        pts, e = relax(start, related, counters, p["pull"], p["push_counters"], fixed=fixed)
+        start = [random_point(rng) for _ in ids] + ([center_pos] if center else []) + anchors
+        pts, e = relax(start, related, counters, p["pull"], p["push_counters"], fixed=fixed, no_repel=no_repel)
         if best is None or e < best[1]:
             best = (pts, e)
     pts, energy = best
 
-    edges = hull_edges(convex_hull(pts))          # includes the situation, when there is one
+    edges = hull_edges(convex_hull(pts[:n + (1 if center is not None else 0)]))  # sayings (+ situation), not the poles
     saying_pts = pts[:n]
-    verts = geodesic.snap(saying_pts, taken=[center_vertex] if center else ()) if p["snap"] else [None] * n
+    taken = ([center_vertex] if center else []) + pole_vertices
+    verts = geodesic.snap(saying_pts, taken=taken) if p["snap"] else [None] * n
     stats = layout_stats(saying_pts, {k: v for k, v in related.items() if k[1] < n}, counters)
     if p["snap"]:
         lat = geodesic.vertices()
@@ -332,6 +354,11 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
                                   "x": center_pos[0], "y": center_pos[1], "z": center_pos[2],
                                   "vertex": center_vertex}, ensure_ascii=False)
 
+    if axes:
+        stats["axes"] = axis_stats(saying_pts, ids, axes)
+        p["axes"] = [{"key": ax["key"], "thesis": ax["thesis"], "antithesis": ax["antithesis"],
+                      "dir": list(geodesic.normalize(ax["dir"])),
+                      "scores": {str(k): v for k, v in ax["scores"].items() if v}} for ax in axes]
     cur = conn.execute(
         "INSERT INTO layout_runs (stage, seed, sample, sample_how, params, energy, stats, center) VALUES (?,?,?,?,?,?,?,?)",
         (stage, seed, json.dumps(ids), sample_how, json.dumps(p), energy, json.dumps(stats), center_json))
@@ -347,6 +374,27 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
     conn.executemany("INSERT INTO layout_edges (run_id, a_id, b_id, relatedness) VALUES (?,?,?,?)", edge_rows)
     conn.commit()
     return run_id
+
+
+def axis_stats(saying_pts, ids, axes):
+    """Per axis: how many sayings lean each way, and their mean angle to the pole they lean to
+    versus the opposite pole (the first should be well under 90 degrees, the second well over)."""
+    out = {}
+    for ax in axes:
+        d = geodesic.normalize(ax["dir"])
+        own, other, count = [], [], 0
+        for sid, pt in zip(ids, saying_pts):
+            s = ax["scores"].get(sid, ax["scores"].get(str(sid), 0))
+            if not s:
+                continue
+            count += 1
+            pole = d if s > 0 else (-d[0], -d[1], -d[2])
+            own.append(angle(pt, pole))
+            other.append(180 - own[-1])
+        if count:
+            out[ax["key"]] = {"sayings": count, "to_own_pole": round(sum(own) / count, 1),
+                              "to_opposite_pole": round(sum(other) / count, 1)}
+    return out
 
 
 def _pearson(xs, ys):

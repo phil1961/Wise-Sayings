@@ -100,6 +100,8 @@ def cmd_sphere(conn, a):
 
     if a.action == "score":
         return _sphere_score(conn, a)
+    if a.action == "rate-axes":
+        return _sphere_rate_axes(conn, a)
     if a.action == "compare":
         return _sphere_compare(conn, a)
 
@@ -107,8 +109,11 @@ def cmd_sphere(conn, a):
     seed, ids, how = _sphere_sample(conn, a)
     if a.stage == "meaning" and not _cost_ok(conn, ids, a):
         return 1
+    ax = _axes_for(conn, ids, a)
+    if ax is False:
+        return 1
     print(f"Laying out {len(ids)} sayings (stage {a.stage}, seed {seed})...")
-    run_id = _layout(conn, a, ids, a.stage, seed, how)
+    run_id = _layout(conn, a, ids, a.stage, seed, how, axes=ax)
     out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
     print(f"Wrote {out}")
     return _maybe_open(out, a.open)
@@ -153,13 +158,55 @@ def _cost_ok(conn, ids, a):
     return True
 
 
-def _layout(conn, a, ids, stage, seed, how, related=None, info=None):
+def _axes_for(conn, ids, a):
+    """With --axes: the meaning axes, rated for these sayings (asking Claude for what isn't cached).
+    None without --axes or if the ratings can't be had (the layout then has no axes, with a note);
+    False if the user must confirm first (too many calls)."""
+    if not getattr(a, "axes", False):
+        return None
+    from . import axes as axes_mod, meaning, watcher
+    ax = axes_mod.load(a.axes_file)
+    calls = axes_mod.calls_needed(conn, ids, ax)
+    if calls > meaning.CALLS_WITHOUT_ASKING:
+        u = watcher.usage()
+        if u and calls > u.get("remaining", 0) - LEAVE_FOR_OTHERS:
+            print(f"Rating the axes needs about {calls} Claude calls; the watcher has {u.get('remaining')} left today "
+                  f"and {LEAVE_FOR_OTHERS} are kept for other apps.")
+            return False
+        if not a.yes:
+            print(f"Rating the axes needs about {calls} Claude calls through claude_watcher. Re-run with --yes, "
+                  f"or rate a smaller sample first.")
+            return False
+    try:
+        ratings = axes_mod.scores(conn, ids, ax)
+    except axes_mod.AxesUnavailable as e:
+        print(f"Note: axis ratings unavailable ({e}); laying out without meaning axes.")
+        return None
+    return axes_mod.for_layout(ax, ratings)
+
+
+def _sphere_rate_axes(conn, a):
+    from . import axes as axes_mod
+    seed, ids, how = _sphere_sample(conn, a)
+    ax = axes_mod.load(a.axes_file)
+    need = axes_mod.missing(conn, ids, ax)
+    print(f"{len(ids)} sayings ({how}) on {len(ax)} axes: {len(need)} still to rate "
+          f"({-(-len(need) // axes_mod.SAYINGS_PER_CALL)} call(s)).")
+    if not need:
+        return 0
+    a.axes = True
+    if _axes_for(conn, ids, a) in (None, False):
+        return 1
+    print("Done; the ratings are cached.")
+
+
+def _layout(conn, a, ids, stage, seed, how, related=None, info=None, axes=None):
     from . import sphere
     if stage == "meaning" and related is None:
         related, info = sphere.stage_relatedness(conn, ids, "meaning", scorer=a.scorer)
     run_id = sphere.run_layout(conn, ids, stage=stage, seed=seed, sample_how=how, related=related, stage_info=info,
                                pull=a.pull, push_counters=a.push_counters, form_weight=a.form_weight,
-                               restarts=a.restarts, snap=not a.no_snap)
+                               restarts=a.restarts, snap=not a.no_snap, axes=axes, axis_pull=a.axis_pull)
     run = sphere.load_run(conn, run_id)
     st = run["stats"]
     from .render import stage_label
@@ -169,7 +216,15 @@ def _layout(conn, a, ids, stage, seed, how, related=None, info=None):
     print(f"  closest pair {st['min_angle']}° apart" + (f"; snapping moved points up to {st['max_snap_shift']}°" if 'max_snap_shift' in st else ""))
     if st["counter_angles"]:
         print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
+    _print_axis_stats(st)
     return run_id
+
+
+def _print_axis_stats(st):
+    if st.get("axes"):
+        print("  meaning axes (mean angle from the pole a saying leans to / from the opposite pole):")
+        for k, v in st["axes"].items():
+            print(f"    {k:<10} {v['sayings']:>3} sayings  {v['to_own_pole']:>5}° / {v['to_opposite_pole']}°")
 
 
 def _sphere_score(conn, a):
@@ -200,6 +255,9 @@ def _sphere_compare(conn, a):
         base = None
     if not _cost_ok(conn, ids, a):
         return 1
+    ax = _axes_for(conn, ids, a)
+    if ax is False:
+        return 1
     m_scores, m_info = meaning.meaning_relatedness(conn, ids, scorer=a.scorer)
     t_scores = sphere.tag_relatedness(conn, ids, form_weight=a.form_weight)
     runs = {}
@@ -209,9 +267,9 @@ def _sphere_compare(conn, a):
             print(f"Note: run #{base['id']} used the '{base['params'].get('scorer')}' scorer; this comparison uses '{m_info['scorer']}'.")
     print(f"Comparing tags and meaning on {len(ids)} sayings (seed {seed})...")
     if "tags" not in runs:
-        runs["tags"] = _layout(conn, a, ids, "tags", seed, how)
+        runs["tags"] = _layout(conn, a, ids, "tags", seed, how, axes=ax)
     if "meaning" not in runs:
-        runs["meaning"] = _layout(conn, a, ids, "meaning", seed, how, related=m_scores, info=m_info)
+        runs["meaning"] = _layout(conn, a, ids, "meaning", seed, how, related=m_scores, info=m_info, axes=ax)
     rep = meaning.compare(t_scores, m_scores, ids)
     cid = conn.execute("INSERT INTO comparisons (tags_run, meaning_run, report) VALUES (?,?,?)",
                        (runs["tags"], runs["meaning"], json.dumps(rep))).lastrowid
@@ -290,6 +348,9 @@ def _consult_sphere(conn, a, matcher):
         return 1
     seed = a.seed if a.seed is not None else random.randrange(1_000_000)
     stage, related, info = a.stage, None, None
+    ax = _axes_for(conn, ids, a)
+    if ax is False:
+        return 1
     if stage == "meaning":
         a.scorer = "claude"
         if not _cost_ok(conn, ids, a):
@@ -304,13 +365,14 @@ def _consult_sphere(conn, a, matcher):
     run_id = sphere.run_layout(conn, ids, stage=stage, seed=seed, related=related, stage_info=info,
                                sample_how=f"consult: {a.situation[:80]}",
                                center={"text": a.situation, "relevance": relevance, "matched": matched,
-                                       "pulled_in": pulled_in})
+                                       "pulled_in": pulled_in}, axes=ax, axis_pull=a.axis_pull)
     st = sphere.load_run(conn, run_id)["stats"]
     print(f"Run #{run_id} saved. The most relevant third sit {st['top_third_mean_angle']}° from your situation on "
           f"average (all sayings: {st['mean_angle_from_situation']}°; correlation of relevance with distance "
           f"{st['relevance_vs_distance']}).")
     if st["counter_angles"]:
         print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
+    _print_axis_stats(st)
     out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
     print(f"Wrote {out}")
     return _maybe_open(out, a.open)
@@ -448,6 +510,10 @@ def build_parser():
     s.add_argument("--yes", action="store_true", help="with --sphere: allow more than 10 watcher calls")
     s.add_argument("--out", help="with --sphere: HTML file to write")
     s.add_argument("--open", action="store_true", help="with --sphere: open the page in your browser")
+    s.add_argument("--axes", action="store_true", help="with --sphere: add the meaning axes from axes.txt")
+    s.add_argument("--axes-file", default=str(Path(__file__).resolve().parent.parent / "axes.txt"))
+    s.add_argument("--axis-pull", type=float, default=1.0,
+                   help="with --sphere: pull toward axis poles (default 1.0, gentler than the pull to the situation)")
     s.set_defaults(func=cmd_consult)
 
     s = sub.add_parser("export", help="export the compendium to markdown and/or JSON")
@@ -475,7 +541,7 @@ def build_parser():
     s.set_defaults(func=cmd_settings)
 
     s = sub.add_parser("sphere", help="lay sayings out on a sphere and draw it (see docs/sphere-layout-spec.md)")
-    s.add_argument("action", nargs="?", default="run", choices=("run", "list", "render", "compare", "score"))
+    s.add_argument("action", nargs="?", default="run", choices=("run", "list", "render", "compare", "score", "rate-axes"))
     s.add_argument("run", nargs="?", type=int, help="run id (for render, or compare to reuse a run's sample)")
     s.add_argument("-n", "--n", type=int, default=15, help="how many sayings to place (default 15)")
     s.add_argument("--ids", help="comma-separated saying ids instead of a random sample")
@@ -495,6 +561,11 @@ def build_parser():
                    help="0-1: share of relatedness from having the same form")
     s.add_argument("--restarts", type=int, default=sphere_defaults("restarts"), help="random starts; best is kept")
     s.add_argument("--no-snap", action="store_true", help="don't snap to the 1,002-point lattice")
+    s.add_argument("--axes", action="store_true",
+                   help="add the meaning axes from axes.txt: thesis/antithesis rods, sayings pulled to the poles they embody")
+    s.add_argument("--axes-file", default=str(Path(__file__).resolve().parent.parent / "axes.txt"),
+                   help="axes file (default axes.txt)")
+    s.add_argument("--axis-pull", type=float, default=1.5, help="how strongly sayings are pulled to their axis poles")
     s.add_argument("--include-candidates", action="store_true", help="sample from candidates too")
     s.add_argument("--out", help="HTML file to write (default export/sphere-<run>.html)")
     s.add_argument("--open", action="store_true", help="open the page in your browser")

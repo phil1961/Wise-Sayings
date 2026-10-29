@@ -28,6 +28,10 @@
          text-shadow: 0 0 4px var(--ground), 0 0 2px var(--ground); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .lbl.sel { font-weight: 600; color: #fff; }
   .lbl.center { font: italic 15px var(--display); color: #fff; max-width: 320px; transform: translate(-50%, -160%); }
+  .lbl.axis { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .05em; transform: translate(-50%, -50%); }
+  .lbl.axis.anti { font-style: italic; font-weight: 500; }
+  #info .lean { font-size: 12px; margin-top: 6px; }
+  #info .lean b { font-weight: 600; }
   .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
   #head { top: 12px; left: 12px; max-width: 360px; }
   #head h1 { font: italic 20px var(--display); margin: 0 0 4px; }
@@ -114,6 +118,15 @@ if (DATA.counters.length) addLayer("counters", "Counter-saying chords", "Relatio
 if (HL.hidden.length) addLayer("hidden", "Hidden connections", "Relations", COL.hidden);
 if (HL.mistag.length) addLayer("mistag", "Possible mis-tags", "Relations", COL.mistag);
 if (DATA.center) { addLayer("situation", "Situation marker", "Situation", COL.situation); addLayer("situationLabel", "Situation label", "Situation", COL.situation); }
+/* meaning axes: rods through the centre, thesis at one end and antithesis at the other */
+const AXES = DATA.axes || [];
+const AXIS_COL = ["#ff6b6b", "#4dabf7", "#ffd43b", "#69db7c", "#da77f2", "#ffa94d"];
+AXES.forEach((a, k) => { a.color = AXIS_COL[k % AXIS_COL.length]; a.scores = a.scores || {}; });
+if (AXES.length) { addLayer("axes", "Meaning axes (rods)", "Meaning axes", "#c9d1d9"); addLayer("axisLabels", "Axis labels", "Meaning axes", "#c9d1d9"); }
+const leanOf = (id, a) => a.scores[String(id)] || 0;
+const isPole = id => typeof id === "string" && id.startsWith("axis:");
+const poleParts = id => { const [, key, side] = id.split(":"); return { a: AXES.find(x => x.key === key), side: side === "+" ? 1 : -1 }; };
+const poleName = id => { const { a, side } = poleParts(id); return side > 0 ? a.thesis : a.antithesis; };
 const layerOf = k => LAYERS.find(l => l.key === k);
 
 /* ---------- the look: settings, defaults, presets, persistence ---------- */
@@ -219,6 +232,21 @@ function makeView(spec) {
       ring.computeLineDistances(); world.add(tag(ring, "rings", 0.35, COL.situation));
     }
   }
+  /* meaning axes: one rod through the centre per axis, poking out ~10% of the radius (an inch on a 20-inch globe);
+     the thesis tip is a solid ball, the antithesis tip a hollow one, both clickable */
+  for (const a of AXES) {
+    const d = V(...a.dir).normalize(), len = R * 2.2;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, len, 8), new THREE.MeshBasicMaterial());
+    rod.quaternion.setFromUnitVectors(V(0, 1, 0), d);
+    world.add(tag(rod, "axes", 0.85, a.color));
+    for (const side of [1, -1]) {
+      const id = `axis:${a.key}:${side > 0 ? "+" : "-"}`, tip = d.clone().multiplyScalar(side * R * 1.1);
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 10), new THREE.MeshBasicMaterial({ wireframe: side < 0 }));
+      ball.position.copy(tip);
+      world.add(tag(ball, "axes", 1, a.color, { id, pole: true })); dots.push(ball);
+      pos[id] = tip;
+    }
+  }
   /* triangulation edges: great-circle arcs, brighter with relatedness */
   for (const [a, b, r] of spec.edges) {
     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[a], pos[b], 1.004)), new THREE.LineBasicMaterial());
@@ -253,6 +281,10 @@ function sayingOn(id) {
 function focusSet() { /* the selected saying and everything linked to it, when focus is on */
   const sel = shared.selected;
   if (sel == null || !look.focus) return null;
+  if (isPole(sel)) {
+    const { a, side } = poleParts(sel);
+    return new Set([sel, ...DATA.sayings.filter(s => leanOf(s.id, a) * side > 0).map(s => s.id)]);
+  }
   const set = new Set([sel]);
   const add = (a, b) => { if (a === sel) set.add(b); if (b === sel) set.add(a); };
   for (const v of views) for (const [a, b] of v.spec.edges) add(a, b);
@@ -330,6 +362,20 @@ function renderLabels(v) {
     el.className = "lbl" + (s.id === shared.selected ? " sel" : "");
     el.textContent = short(s.text);
     labelStyle(el, "labels", back, !near);
+    place(el, sp);
+  }
+  if (AXES.length && look.layers.axes.on && look.layers.axisLabels.on) for (const a of AXES) for (const side of [1, -1]) {
+    const id = `axis:${a.key}:${side > 0 ? "+" : "-"}`;
+    const wp = v.pos[id].clone().multiplyScalar(1.06).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
+    if (sp.z > 1) continue;
+    const back = wp.distanceTo(camPos) > camPos.length();
+    if (back && solidGlobe() && shared.selected !== id) continue;
+    const el = document.createElement("div");
+    el.className = "lbl axis" + (side < 0 ? " anti" : "") + (shared.selected === id ? " sel" : "");
+    el.textContent = side > 0 ? a.thesis : a.antithesis;
+    el.style.color = look.layers.axisLabels.color || a.color;
+    /* the tips stand above the surface, so even a solid globe only half-hides the far ones */
+    el.style.opacity = String(Math.min(1, look.layers.axisLabels.gain) * (back ? Math.max(0.18, backFactor()) : 1));
     place(el, sp);
   }
   if (DATA.center && v.pos[0] && look.layers.situationLabel.on && look.layers.situation.on) {
@@ -425,7 +471,7 @@ $("ctlBtn").onclick = () => { ctl.hidden = !ctl.hidden; };
 
 /* ---------- info panel: one neighbour list per view, so a comparison shows both ---------- */
 const info = $("info");
-const nameOf = id => id === 0 ? "◆ your situation" : byId[id].text;
+const nameOf = id => id === 0 ? "◆ your situation" : isPole(id) ? "⟂ " + poleName(id) : byId[id].text;
 const item = (id, cls, extra) => `<li class="${cls || ""}" data-id="${id}">${esc(nameOf(id))}${extra || ""}</li>`;
 const pct = r => r ? ` <span class="tags">(${Math.round(r * 100)}%)</span>` : "";
 function centerPanel() {
@@ -435,16 +481,31 @@ function centerPanel() {
     `<h3>By relevance (closest to the situation)</h3><ul>${ranked.filter(id => relOf(id) > 0).map(id => item(id, "", pct(relOf(id)))).join("")}</ul>` +
     (C.pulled_in.length ? `<h3>Pulled in as counter-sayings</h3><ul>${C.pulled_in.map(id => item(id, "counter")).join("")}</ul>` : "");
 }
+function polePanel(id) {
+  const { a, side } = poleParts(id);
+  const name = side > 0 ? a.thesis : a.antithesis, other = side > 0 ? a.antithesis : a.thesis;
+  const lean = DATA.sayings.map(s => [s.id, leanOf(s.id, a) * side]).filter(([, s]) => s > 0).sort((x, y) => y[1] - x[1]);
+  const against = DATA.sayings.filter(s => leanOf(s.id, a) * side < 0).length;
+  return `<h2 style="color:${a.color}">${esc(name)}</h2><div class="who">${side > 0 ? "thesis" : "antithesis"} of a meaning axis · opposite pole: ${esc(other)}</div>` +
+    `<h3>Sayings that lean this way (${lean.length})</h3>` +
+    (lean.length ? `<ul>${lean.map(([sid, s]) => item(sid, "", ` <span class="tags">(${s === 2 ? "strongly" : "leans"})</span>`)).join("")}</ul>` : "<p class=\"tags\">None in this sample.</p>") +
+    `<div class="tags" style="margin-top:8px">${against} saying(s) lean the other way, toward ${esc(other)}.</div>`;
+}
 function select(id) {
   shared.selected = id;
   applyLook();
   if (id == null) { info.hidden = true; return; }
   let html;
-  if (id === 0) html = centerPanel();
+  if (isPole(id)) html = polePanel(id);
+  else if (id === 0) html = centerPanel();
   else {
     const s = byId[id];
     html = `<h2>${esc(s.text)}</h2><div class="who">#${s.id} · ${esc(s.who)} · ${s.form} · impact ${s.impact_score}</div>` +
       `<div class="lens">${esc(s.lens)}</div><div class="tags">${esc(s.tags.join(", "))}</div>`;
+    const leans = AXES.map(a => [a, leanOf(id, a)]).filter(([, s]) => s);
+    if (AXES.length) html += `<div class="lean">` + (leans.length
+      ? "Leans: " + leans.map(([a, s]) => `<b style="color:${a.color}">${esc(s > 0 ? a.thesis : a.antithesis)}</b> (${s > 0 ? "+" : ""}${s})`).join(", ")
+      : "Not rated toward any axis.") + `</div>`;
     if (DATA.center) html += `<div class="rel">` + (relOf(id) > 0 ? `Relevance to your situation: ${Math.round(relOf(id) * 100)}%`
       : `Not matched to your situation: here because it pulls against one that is.`) + `</div>`;
     for (const v of views) {
@@ -460,7 +521,7 @@ function select(id) {
     if (opp.length) html += `<h3>Pulls the other way</h3><ul>${opp.map(n => item(n, "counter")).join("")}</ul>`;
   }
   info.innerHTML = html; info.hidden = false;
-  info.querySelectorAll("li[data-id]").forEach(li => li.onclick = () => { const n = +li.dataset.id; select(n); turnTo(n); });
+  info.querySelectorAll("li[data-id]").forEach(li => li.onclick = () => { const n = isPole(li.dataset.id) ? li.dataset.id : +li.dataset.id; select(n); turnTo(n); });
 }
 function turnTo(id) { /* bring a saying (as placed in the last view) round to face the camera */
   const v = views[views.length - 1];

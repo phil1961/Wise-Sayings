@@ -274,6 +274,58 @@ sphere page; the thresholds stay per page. A link can open the panel or apply a
 preset: `sphere-4.html#controls`, `sphere-4.html#preset=Tensions`. Comparison
 pages apply the settings to both globes.
 
+### Meaning axes
+
+```
+python sayings.py sphere rate-axes --all                     # Claude rates every saying on every axis (cached)
+python sayings.py sphere run --all --stage meaning --axes --open
+python sayings.py consult "your situation" --sphere --axes --open
+```
+
+`axes.txt` names up to 6 axes, one per line: `key: Thesis | Antithesis | what it is about`.
+Each axis is a rod through the globe's centre that pokes out about 10% of the
+radius (an inch on a 20-inch globe), with the thesis at one end and the
+antithesis at the opposite end. The rods are exactly equally spaced:
+
+- 4–6 axes use the icosahedron's corner pairs, 63.4° between neighbours. That
+  is the same icosahedron the lattice is built from, so every pole is a lattice
+  point.
+- 1–3 axes use x, y and z.
+
+The axes in use:
+
+| Thesis | Antithesis |
+|---|---|
+| Act boldly | Act with caution |
+| Hold your course | Adapt and bend |
+| Force | Guile |
+| Power decides | Legitimacy decides |
+| Trust others | Guard against others |
+| Change what you can | Accept what you can't |
+
+Claude rates each saying on each axis: −2 (strongly the antithesis), −1, 0
+(not about this axis), +1, or +2 (strongly the thesis). That is 25 sayings per
+watcher call, 7 calls for all 151, cached in `axis_scores`. Editing an axis or
+a saying re-rates only what changed. In the layout each saying is pulled toward
+the pole it leans to (`--axis-pull`, default 1.5; 1.0 on situation spheres),
+so sayings with opposite meanings end up facing each other across the globe.
+The poles only attract; they don't push anything away. Each run prints, per
+axis, the mean angle of its sayings to their own pole and to the opposite one.
+For all 151 sayings that was 50–76° versus 104–130°.
+
+In the viewer:
+
+- The rods and their labels each have a controls row.
+- The thesis tip is a solid ball, the antithesis a hollow one.
+- Click a pole to list the sayings that lean toward it.
+- Each saying's panel shows how it leans.
+- On a solid globe the rods vanish inside, and only the tips show above the
+  surface.
+
+The first ratings also show a lean in the collection: caution outnumbers
+boldness about 58 to 26, and no saying is rated strongly for *Force*. That is
+worth knowing when gathering more.
+
 ### Stage two: meaning
 
 Relatedness is how close two sayings are in meaning: their insight, their
@@ -326,6 +378,21 @@ positions depend on the random start and on compromises between forces.
   frame and dimmed on the far side, and the same palette.
 - `compendium/vendor/three-r128.min.js` is copied unchanged from `public/vendor/` (MIT license).
 
+## Published pages
+
+Sphere pages are published to the website's demos folder
+(`D:\AWS3\websites\toughguycomputing_net\www\demos`) as `sayings-<file>`,
+alongside other projects' demos, which are never touched. After publishing, run
+
+```
+python tools/build_demos_index.py
+```
+
+to rebuild https://www.toughguycomputing.com/demos/sayings-index.html, which
+lists only this project's pages, grouped as situation spheres, comparisons and
+plain spheres. Each entry comes from the page's own `<title>` and
+`<meta name="description">`, which `compendium/render.py` writes.
+
 ## Database schema versions
 
 The schema is versioned with SQLite's `PRAGMA user_version`. Migrations live in
@@ -336,6 +403,7 @@ older `sayings.db` is upgraded in place without losing data.
 |---|---|
 | 1 | `sayings`, `tags`, `saying_tags`, `counter_pairs` (the original schema) |
 | 2 | `settings` (key/value, e.g. `default_status`); `layout_runs` (stage, seed, sample, parameters, energy, quality stats); `layout_points` (each saying's relaxed x,y,z and snapped lattice vertex); `layout_edges` (triangulation edges) |
+| 5 | `axis_scores` (each saying's −2..+2 rating on each meaning axis, per model, keyed by axis and saying fingerprints) |
 | 4 | `layout_runs.center` (for a consult sphere: the situation, each saying's relevance, matched tags, the situation's position and lattice vertex; edges to the situation use id 0) |
 | 3 | `relatedness_cache` (Claude meaning scores per pair, keyed by model and saying fingerprints); `layout_edges.relatedness` (each edge's score in its run); `comparisons` (tags run, meaning run, report) |
 

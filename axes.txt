@@ -1,0 +1,14 @@
+# Meaning axes for the sayings sphere. Edit freely; an edited axis is re-rated on next use.
+#
+# One axis per line:   key: Thesis | Antithesis | what the axis is about
+# The thesis sits at one end of a rod through the globe's centre, the antithesis at the
+# opposite end. Up to 6 axes: 4-6 use the icosahedron's corner pairs (6 lines through the
+# centre, every neighbouring pair 63.4 degrees apart), 1-3 use the x, y and z axes (90 degrees
+# apart). The description tells Claude what the axis means when it rates each saying.
+
+boldness: Act boldly | Act with caution | move now and take the risk, or wait, prepare and check before acting
+course: Hold your course | Adapt and bend | commit, persist and stay the course, or change the plan and stay flexible
+means: Force | Guile | win by strength and open confrontation, or by cunning, deception and indirection
+power: Power decides | Legitimacy decides | outcomes are set by who has force, or by consent, justice and moral authority
+trust: Trust others | Guard against others | extend good faith to people, or protect yourself from betrayal and bad faith
+control: Change what you can | Accept what you can't | act on your circumstances, or accept fate and govern only your own response

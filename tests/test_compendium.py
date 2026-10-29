@@ -576,5 +576,82 @@ class TestConsultSphere(Base):
         self.assertTrue(set(run["center"]["pulled_in"]) <= set(run["sample"]))
 
 
+class TestMeaningAxes(Base):
+    def setUp(self):
+        super().setUp()
+        records.import_records(self.conn, records.load_file(SEED))
+        self.accept_all()
+
+    def test_axes_file_loads_and_validates(self):
+        from compendium import axes
+        ax = axes.load()
+        self.assertEqual(len(ax), 6)
+        self.assertEqual((ax[0]["thesis"], ax[0]["antithesis"]), ("Act boldly", "Act with caution"))
+        bad = self.dir / "axes.txt"
+        bad.write_text("x: only one side\n", encoding="utf-8")
+        with self.assertRaises(ValueError):
+            axes.load(bad)
+        bad.write_text("".join(f"a{i}: T | A\n" for i in range(7)), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            axes.load(bad)
+
+    def test_directions_are_equally_spaced(self):
+        import math
+        from compendium import axes, geodesic
+        for n in range(1, 7):
+            ds = axes.directions(n)
+            self.assertEqual(len(ds), n)
+            angles = {round(math.degrees(math.acos(abs(sum(a * b for a, b in zip(x, y))))), 2)
+                      for i, x in enumerate(ds) for y in ds[i + 1:]}
+            self.assertLessEqual(len(angles), 1, (n, angles))      # every pair of lines meets at the same angle
+            if n >= 4:
+                self.assertEqual(angles, {63.43})
+                lat = geodesic.vertices()                       # poles are lattice vertices
+                for d in ds:
+                    self.assertGreater(max(sum(a * b for a, b in zip(d, v)) for v in lat), 0.999999)
+
+    def test_ratings_cached_and_rerated_when_axis_edited(self):
+        from compendium import axes
+        ax = axes.load()
+        calls = []
+        def fake_ask(prompt, model, schema=None, log=None):
+            import re
+            ids = [int(x) for x in re.findall(r"^\[(\d+)\]", prompt, re.M)]
+            calls.append(ids)
+            return {"ratings": [{"id": i, **{a["key"]: (2 if i % 2 else -1) for a in ax}} for i in ids]}, {}
+        ids = list(range(1, 25))
+        with mock.patch.object(axes, "SAYINGS_PER_CALL", 10):
+            r = axes.scores(self.conn, ids, ax, log=lambda m: None, ask=fake_ask)
+            self.assertEqual(len(calls), 3)                      # 24 sayings at 10 per call
+            self.assertEqual((r["boldness"][1], r["boldness"][2]), (2, -1))
+            axes.scores(self.conn, ids, ax, log=lambda m: None, ask=fake_ask)
+            self.assertEqual(len(calls), 3)                      # all cached
+        ax[0]["hash"] = "edited"                                 # an edited axis means re-rating
+        self.assertEqual(len(axes.missing(self.conn, ids, ax)), 24)
+
+    def test_bad_reply_is_refused(self):
+        from compendium import axes
+        ax = axes.load()
+        with self.assertRaises(axes.AxesUnavailable):
+            axes.scores(self.conn, [1, 2], ax, log=lambda m: None, ask=lambda *a, **k: ({"ratings": [{"id": 1}]}, {}))
+
+    def test_layout_pulls_sayings_to_their_poles_and_renders(self):
+        from compendium import axes, render, sphere
+        ax = axes.load()[:3]
+        ids = list(range(1, 21))
+        ratings = {a["key"]: {i: (2 if i <= 6 else -2 if i <= 12 else 0) for i in ids} for a in ax}
+        layout_axes = axes.for_layout(ax, ratings)[:1]
+        run_id = sphere.run_layout(self.conn, ids, seed=2, restarts=2, axes=layout_axes)
+        run = sphere.load_run(self.conn, run_id)
+        st = run["stats"]["axes"][layout_axes[0]["key"]]
+        self.assertEqual(st["sayings"], 12)
+        self.assertLess(st["to_own_pole"], 60)
+        self.assertGreater(st["to_opposite_pole"], 120)
+        self.assertEqual(run["params"]["axes"][0]["thesis"], "Act boldly")
+        html = render.write_page(self.conn, run_id, self.dir / "a.html").read_text(encoding="utf-8")
+        data = json.loads(html.split("const DATA = ", 1)[1].split(";\n", 1)[0])
+        self.assertEqual(data["axes"][0]["antithesis"], "Act with caution")
+
+
 if __name__ == "__main__":
     unittest.main()

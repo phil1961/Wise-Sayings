@@ -50,8 +50,18 @@ def stage_label(run):
     return "by meaning (" + (f"Claude, {run['params'].get('model')}" if scorer == "claude" else "word overlap, offline") + ")"
 
 
-def _write(data, out_path):
+def _attr(text):
+    return (text.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;"))
+
+
+def _write(data, out_path, page_title=None, description=None):
+    """page_title / description go into <title> and <meta name="description">, which index pages
+    (tools/build_demos_index.py) and browser tabs show."""
     html = TEMPLATE.read_text(encoding="utf-8")
+    head = f"<title>{_attr(page_title or data['title'])}</title>"
+    if description:
+        head += f'\n<meta name="description" content="{_attr(description)}">'
+    html = html.replace("<title>Sayings sphere</title>", head, 1)
     html = html.replace("/*__THREE__*/", _script_safe(THREE_JS.read_text(encoding="utf-8")), 1)
     html = html.replace("/*__DATA__*/", _script_safe(json.dumps(data, ensure_ascii=False)), 1)
     out_path = Path(out_path)
@@ -80,8 +90,25 @@ def write_page(conn, run_id, out_path):
         "views": [{"title": stage_label(run), "points": run["points"], "edges": _edges(conn, run)}],
         "counters": sorted(sphere.counter_pairs(conn, ids)),
         "lattice": [[round(c, 5) for c in v] for v in geodesic.vertices()],
+        "axes": run["params"].get("axes"),
     }
-    return _write(data, out_path)
+    if center:
+        title = f"Sayings around: {_clip(center['text'], 70)}"
+        desc = (f"The {len(center['relevance'])} sayings that best fit this situation, placed around it on a globe "
+                f"(closer = more relevant), with their counter-sayings on the far side; arranged {stage_label(run)}.")
+    else:
+        title = f"Sayings sphere: {len(ids)} sayings {stage_label(run)}"
+        desc = (f"{len(ids)} sayings laid out on a globe so related ones sit together ({stage_label(run)}), "
+                f"with counter-sayings on opposite sides. Run {run['id']}.")
+    if run["params"].get("axes"):
+        names = ", ".join(f"{a['thesis']}/{a['antithesis']}" for a in run["params"]["axes"])
+        title += " · with meaning axes"
+        desc += f" Meaning axes (thesis/antithesis rods through the centre): {names}."
+    return _write(data, out_path, title, desc)
+
+
+def _clip(text, n):
+    return text if len(text) <= n else text[: n - 1].rsplit(" ", 1)[0] + "…"
 
 
 def write_compare_page(conn, comparison_id, out_path):
@@ -96,7 +123,10 @@ def write_compare_page(conn, comparison_id, out_path):
     mpts = {p["saying_id"]: p for p in meaning_run["points"]}
     src = [(order[i]["x"], order[i]["y"], order[i]["z"]) for i in ids]
     dst = [(mpts[i]["x"], mpts[i]["y"], mpts[i]["z"]) for i in ids]
-    moved, fit = sphere.align(src, dst)
+    if tags_run["params"].get("axes") and meaning_run["params"].get("axes"):
+        moved, fit = src, {"mirrored": False, "rms_angle": None}   # the axis poles already fix both frames
+    else:
+        moved, fit = sphere.align(src, dst)
     as_points = lambda pts: [{"saying_id": i, "x": p[0], "y": p[1], "z": p[2], "vertex": None} for i, p in zip(ids, pts)]
     data = {
         "title": "Tags vs meaning",
@@ -111,9 +141,14 @@ def write_compare_page(conn, comparison_id, out_path):
         ],
         "counters": sorted(sphere.counter_pairs(conn, ids)),
         "highlights": {"hidden": rep["hidden"], "mistag": rep["mistag"]},
+        "axes": meaning_run["params"].get("axes"),
         "lattice": [[round(c, 5) for c in v] for v in geodesic.vertices()],
     }
-    return _write(data, out_path)
+    title = f"Sayings: tags vs meaning, {len(ids)} sayings"
+    desc = (f"Two globes of the same {len(ids)} sayings, one arranged by shared tags and one by meaning, turning "
+            f"together. Agreement {rep['agreement']}; {len(rep['hidden'])} hidden connections, "
+            f"{len(rep['mistag'])} possible mis-tags.")
+    return _write(data, out_path, title, desc)
 
 
 def compare_markdown(conn, comparison_id):
