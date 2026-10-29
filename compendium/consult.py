@@ -94,23 +94,24 @@ def consult(conn, situation, limit=12, matcher=None):
             continue
         relevance = sum(w for w, _ in hits) + TEXT_HIT_WEIGHT * min(text_hits, TEXT_HIT_CAP)
         primary = tag_names[max(hits)[1]] if hits else "related wording"
-        scored.append((relevance * row["impact_score"], row["id"], primary))
+        scored.append((relevance * row["impact_score"], row["id"], primary, relevance))
 
     scored.sort(key=lambda s: (-s[0], s[1]))
     top = scored[:limit]
-    result_ids = {sid for _, sid, _ in top}
+    result_ids = {sid for _, sid, _, _ in top}
 
     groups, order = {}, []
-    for score, sid, primary in top:
+    for score, sid, primary, relevance in top:
         if primary not in groups:
             groups[primary] = []
             order.append(primary)
         s = records.get(conn, sid)
-        s["score"] = round(score, 1)
+        s["score"] = round(score, 1)          # relevance x impact: the ranking
+        s["relevance"] = round(relevance, 2)  # how well it fits the situation, before impact
         groups[primary].append(s)
 
     tensions, seen = [], set()
-    for _, sid, _ in top:
+    for _, sid, _, _ in top:
         for other in records.counters_of(conn, sid):
             pair = tuple(sorted((sid, other)))
             if pair in seen:

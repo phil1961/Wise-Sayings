@@ -122,18 +122,23 @@ def energy_and_grad(pts, related, counters, pull, push_counters):
     return total, grad
 
 
-def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10):
+def relax(pts, related, counters, pull, push_counters, max_iter=4000, tol=1e-10, fixed=()):
     """Gradient descent kept on the sphere: step along the tangent part of -grad, renormalize.
 
     The step shrinks when energy rises and grows a little when it falls. Stops when
-    the relative energy drop stays below tol or the step becomes tiny.
+    the relative energy drop stays below tol or the step becomes tiny. Points whose
+    index is in `fixed` never move (a situation at the centre of a consult sphere).
     """
     pts = [geodesic.normalize(p) for p in pts]
+    fixed = set(fixed)
     e, grad = energy_and_grad(pts, related, counters, pull, push_counters)
     step = 0.01
     for _ in range(max_iter):
         moved = []
-        for p, g in zip(pts, grad):
+        for k, (p, g) in enumerate(zip(pts, grad)):
+            if k in fixed:
+                moved.append(p)
+                continue
             radial = _dot(g, p)
             tangent = (g[0] - radial * p[0], g[1] - radial * p[1], g[2] - radial * p[2])
             moved.append(geodesic.normalize((p[0] - step * tangent[0], p[1] - step * tangent[1],
@@ -260,13 +265,23 @@ def choose_sample(conn, n, seed, include_candidates=False):
     return sorted(random.Random(seed).sample(ids, n))
 
 
-def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, stage_info=None, **params):
+CENTER_ID = 0          # the situation's id in layout_edges (saying ids start at 1)
+NORTH = (0.0, 1.0, 0.0)
+
+
+def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, stage_info=None,
+               center=None, **params):
     """Lay out the given sayings, save the run, and return its id.
 
     `related` ({(a_id, b_id): 0..1}) can be passed in; otherwise it is computed for
     the stage. `stage_info` (e.g. which meaning scorer ran) is saved with the params.
+
+    `center` makes a consult sphere: {"text": situation, "relevance": {id: 0..1},
+    "matched": [tags]}. The situation is held fixed at the lattice vertex nearest the
+    north pole, and each saying is pulled toward it with strength
+    pull * center_pull * relevance, so the most relevant sayings gather around it.
     """
-    p = {**DEFAULTS, **params}
+    p = {**DEFAULTS, "center_pull": 2.0, **params}
     if len(ids) < 4:
         raise ValueError("need at least 4 sayings for a sphere layout")
     ids = list(ids)
@@ -279,35 +294,69 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
     related = {(index[a], index[b]): r for (a, b), r in rel_by_id.items()}
     counters = {tuple(sorted((index[a], index[b]))) for a, b in counter_pairs(conn, ids)}
 
+    n = len(ids)
+    fixed, center_vertex, center_pos = (), None, None
+    if center is not None:
+        center_vertex = geodesic.nearest(NORTH)
+        center_pos = geodesic.vertices()[center_vertex]
+        for sid, rel in center["relevance"].items():
+            if sid in index and rel > 0:
+                related[(index[sid], n)] = p["center_pull"] * rel
+        fixed = (n,)
+
     rng = random.Random(seed)
     best = None
     for _ in range(p["restarts"]):
-        start = [random_point(rng) for _ in ids]
-        pts, e = relax(start, related, counters, p["pull"], p["push_counters"])
+        start = [random_point(rng) for _ in ids] + ([center_pos] if center else [])
+        pts, e = relax(start, related, counters, p["pull"], p["push_counters"], fixed=fixed)
         if best is None or e < best[1]:
             best = (pts, e)
     pts, energy = best
 
-    edges = hull_edges(convex_hull(pts))
-    verts = geodesic.snap(pts) if p["snap"] else [None] * len(ids)
-    stats = layout_stats(pts, related, counters)
+    edges = hull_edges(convex_hull(pts))          # includes the situation, when there is one
+    saying_pts = pts[:n]
+    verts = geodesic.snap(saying_pts, taken=[center_vertex] if center else ()) if p["snap"] else [None] * n
+    stats = layout_stats(saying_pts, {k: v for k, v in related.items() if k[1] < n}, counters)
     if p["snap"]:
         lat = geodesic.vertices()
-        stats["max_snap_shift"] = round(max(angle(a, lat[v]) for a, v in zip(pts, verts)), 1)
+        stats["max_snap_shift"] = round(max(angle(a, lat[v]) for a, v in zip(saying_pts, verts)), 1)
+    center_json = None
+    if center is not None:
+        rels = [center["relevance"].get(sid, 0.0) for sid in ids]
+        angs = [angle(pt, center_pos) for pt in saying_pts]
+        stats["relevance_vs_distance"] = _pearson(rels, angs)
+        top = sorted(range(n), key=lambda k: -rels[k])[:max(1, n // 3)]
+        stats["top_third_mean_angle"] = round(sum(angs[k] for k in top) / len(top), 1)
+        stats["mean_angle_from_situation"] = round(sum(angs) / n, 1)
+        center_json = json.dumps({**center, "relevance": {str(k): v for k, v in center["relevance"].items()},
+                                  "x": center_pos[0], "y": center_pos[1], "z": center_pos[2],
+                                  "vertex": center_vertex}, ensure_ascii=False)
 
     cur = conn.execute(
-        "INSERT INTO layout_runs (stage, seed, sample, sample_how, params, energy, stats) VALUES (?,?,?,?,?,?,?)",
-        (stage, seed, json.dumps(ids), sample_how, json.dumps(p), energy, json.dumps(stats)))
+        "INSERT INTO layout_runs (stage, seed, sample, sample_how, params, energy, stats, center) VALUES (?,?,?,?,?,?,?,?)",
+        (stage, seed, json.dumps(ids), sample_how, json.dumps(p), energy, json.dumps(stats), center_json))
     run_id = cur.lastrowid
     conn.executemany("INSERT INTO layout_points (run_id, saying_id, x, y, z, vertex) VALUES (?,?,?,?,?,?)",
-                     [(run_id, sid, *pt, v) for sid, pt, v in zip(ids, pts, verts)])
+                     [(run_id, sid, *pt, v) for sid, pt, v in zip(ids, saying_pts, verts)])
+    all_ids = ids + [CENTER_ID]
     edge_rows = []
     for a, b in edges:
-        x, y = sorted((ids[a], ids[b]))
-        edge_rows.append((run_id, x, y, rel_by_id.get((x, y), 0.0)))
+        x, y = sorted((all_ids[a], all_ids[b]))
+        r = center["relevance"].get(y, 0.0) if x == CENTER_ID else rel_by_id.get((x, y), 0.0)
+        edge_rows.append((run_id, x, y, r))
     conn.executemany("INSERT INTO layout_edges (run_id, a_id, b_id, relatedness) VALUES (?,?,?,?)", edge_rows)
     conn.commit()
     return run_id
+
+
+def _pearson(xs, ys):
+    n = len(xs)
+    if n < 3 or len(set(xs)) < 2 or len(set(ys)) < 2:
+        return None
+    mx, my = sum(xs) / n, sum(ys) / n
+    cov = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    sd = math.sqrt(sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys))
+    return round(cov / sd, 3)
 
 
 def load_run(conn, run_id):
@@ -317,6 +366,10 @@ def load_run(conn, run_id):
     run = dict(row)
     for k in ("sample", "params", "stats"):
         run[k] = json.loads(run[k])
+    if run.get("center"):
+        c = json.loads(run["center"])
+        c["relevance"] = {int(k): v for k, v in c["relevance"].items()}
+        run["center"] = c
     run["points"] = [dict(r) for r in conn.execute(
         "SELECT saying_id, x, y, z, vertex FROM layout_points WHERE run_id=?", (run_id,))]
     run["edges"] = [tuple(r) for r in conn.execute(

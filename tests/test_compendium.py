@@ -531,5 +531,50 @@ class TestWatcher(Base):
         self.assertEqual(w, {betrayal: 3.0})
 
 
+class TestConsultSphere(Base):
+    def setUp(self):
+        super().setUp()
+        records.import_records(self.conn, records.load_file(SEED))
+        self.accept_all()
+
+    def test_consult_reports_relevance(self):
+        groups, _, _ = consult.consult(self.conn, "should I hesitate or commit now?")
+        s = groups[0][1][0]
+        self.assertGreater(s["relevance"], 0)
+        self.assertAlmostEqual(s["score"], round(s["relevance"] * s["impact_score"], 1), places=0)
+
+    def test_centered_layout_puts_relevant_sayings_near_the_situation(self):
+        from compendium import geodesic, render, sphere
+        ids = list(range(1, 17))
+        relevance = {i: (1.0 if i <= 5 else 0.1) for i in ids}
+        run_id = sphere.run_layout(self.conn, ids, seed=1, restarts=2,
+                                   center={"text": "a test situation", "relevance": relevance, "matched": ["risk"],
+                                           "pulled_in": []})
+        run = sphere.load_run(self.conn, run_id)
+        c = run["center"]
+        self.assertEqual(c["vertex"], geodesic.nearest(sphere.NORTH))
+        self.assertEqual(c["relevance"][1], 1.0)                       # keys come back as ints
+        st = run["stats"]
+        self.assertLess(st["relevance_vs_distance"], -0.3)              # more relevant -> closer
+        self.assertLess(st["top_third_mean_angle"], st["mean_angle_from_situation"])
+        self.assertTrue(any(a == sphere.CENTER_ID for a, _, _ in run["edges"]))   # triangulated with the situation
+        self.assertNotIn(c["vertex"], [p["vertex"] for p in run["points"]])       # no saying on its marble
+        html = render.write_page(self.conn, run_id, self.dir / "c.html").read_text(encoding="utf-8")
+        data = json.loads(html.split("const DATA = ", 1)[1].split(";\n", 1)[0])
+        self.assertEqual(data["center"]["text"], "a test situation")
+        self.assertEqual(data["title"], "Around your situation")
+
+    def test_consult_sphere_command(self):
+        from compendium import cli, sphere
+        out = self.dir / "s.html"
+        code = cli.main(["--db", str(self.dir / "t.db"), "consult", "should I hesitate or commit now? the plan changed",
+                         "--sphere", "--stage", "tags", "--n", "8", "--seed", "2", "--out", str(out)])
+        self.assertEqual(code, 0)
+        self.assertTrue(out.exists())
+        run = sphere.load_run(self.conn, self.conn.execute("SELECT max(id) FROM layout_runs").fetchone()[0])
+        self.assertTrue(run["sample_how"].startswith("consult: should I hesitate"))
+        self.assertTrue(set(run["center"]["pulled_in"]) <= set(run["sample"]))
+
+
 if __name__ == "__main__":
     unittest.main()

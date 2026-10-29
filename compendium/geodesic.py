@@ -51,18 +51,25 @@ def vertices():
     return _CACHE[FREQUENCY]
 
 
-def snap(points):
+def nearest(p):
+    """Index of the lattice vertex nearest to point p."""
+    verts = vertices()
+    return max(range(len(verts)), key=lambda v: _dot(p, verts[v]))
+
+
+def snap(points, taken=()):
     """Give each point its nearest free lattice vertex (greedy, like the JS `snap`).
 
     Points are handled in order of how close their nearest vertex is, so the points
-    that fit the lattice best claim their vertex first. Returns a list of vertex indexes.
+    that fit the lattice best claim their vertex first. Vertices in `taken` are
+    already occupied. Returns a list of vertex indexes.
     """
     verts = vertices()
     ranked = []
     for idx, p in enumerate(points):
         order = sorted(range(len(verts)), key=lambda v: -_dot(p, verts[v]))
         ranked.append((-_dot(p, verts[order[0]]), idx, order))
-    taken, result = set(), [None] * len(points)
+    taken, result = set(taken), [None] * len(points)
     for _, idx, order in sorted(ranked):
         v = next(v for v in order if v not in taken)
         taken.add(v)

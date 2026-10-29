@@ -65,10 +65,17 @@ def write_page(conn, run_id, out_path):
     if run is None:
         raise ValueError(f"no layout run #{run_id}")
     ids = run["sample"]
+    center = run.get("center")
     data = {
-        "title": "Sayings sphere",
+        "title": "Around your situation" if center else "Sayings sphere",
         "subtitle": f"Run {run['id']} · {stage_label(run)} · {len(ids)} sayings · seed {run['seed']}"
                     + (" · on the frequency-10 lattice" if run["params"].get("snap") else ""),
+        "center": None if not center else {
+            "text": center["text"], "matched": center.get("matched", []),
+            "pos": [center["x"], center["y"], center["z"]],
+            "relevance": {str(k): v for k, v in center["relevance"].items()},
+            "pulled_in": center.get("pulled_in", []),
+        },
         "sayings": _sayings(conn, ids),
         "views": [{"title": stage_label(run), "points": run["points"], "edges": _edges(conn, run)}],
         "counters": sorted(sphere.counter_pairs(conn, ids)),

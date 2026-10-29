@@ -129,6 +129,12 @@ MIGRATIONS = {
         created_at  TEXT NOT NULL DEFAULT (datetime('now'))
     );
     """,
+    4: """
+    -- A run centred on a situation (consult --sphere). JSON: the situation text, each saying's
+    -- relevance to it (0..1), the tags it matched, and where the situation sits (x,y,z and lattice
+    -- vertex). NULL for ordinary runs. Triangulation edges to the situation use saying id 0.
+    ALTER TABLE layout_runs ADD COLUMN center TEXT;
+    """,
 }
 
 

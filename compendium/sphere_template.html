@@ -26,6 +26,8 @@
          text-shadow: 0 0 4px var(--ground), 0 0 2px var(--ground); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .lbl.back { opacity: .25; }
   .lbl.sel { font-weight: 600; color: #fff; }
+  .lbl.center { font: italic 15px var(--display); color: #fff; max-width: 320px; transform: translate(-50%, -160%); }
+  #info .rel { color: var(--ink); font-size: 12px; margin-top: 6px; }
   .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
   #head { top: 12px; left: 12px; max-width: 360px; }
   #head h1 { font: italic 20px var(--display); margin: 0 0 4px; }
@@ -63,7 +65,7 @@
 <script>
 const DATA = /*__DATA__*/;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const COL = { ink: css("--ink"), dim: "#4a515b", ground: css("--ground"), load: css("--load"), hidden: css("--hidden"), mistag: css("--mistag"),
+const COL = { ink: css("--ink"), dim: "#4a515b", ground: css("--ground"), load: css("--load"), hidden: css("--hidden"), mistag: css("--mistag"), situation: "#ffffff",
   apophthegm: css("--env"), aphorism: css("--said"), maxim: css("--moral"), proverb: css("--mind"), epigram: css("--bond") };
 const R = 10, $ = id => document.getElementById(id), V = (x, y, z) => new THREE.Vector3(x, y, z);
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -121,6 +123,22 @@ function makeView(spec) {
     const dot = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 12), new THREE.MeshBasicMaterial({ color: COL[s.form] || COL.ink }));
     dot.position.copy(v.clone().multiplyScalar(1 + size / R)); dot.userData.id = s.id; world.add(dot); dots.push(dot);
   }
+  /* a consult sphere: the situation is a fixed marker; faint rings mark 30, 60 and 90 degrees from it */
+  if (DATA.center) {
+    const c = V(...DATA.center.pos).normalize(), v = c.clone().multiplyScalar(R);
+    pos[0] = v;
+    const marker = new THREE.Mesh(new THREE.OctahedronGeometry(0.75), new THREE.MeshBasicMaterial({ color: COL.situation }));
+    marker.position.copy(c.clone().multiplyScalar(R + 0.75)); marker.userData.id = 0; world.add(marker); dots.push(marker);
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.05, 8, 48), new THREE.MeshBasicMaterial({ color: COL.situation, transparent: true, opacity: 0.6 }));
+    halo.position.copy(marker.position); halo.lookAt(c.clone().multiplyScalar(2 * R)); world.add(halo);
+    const u = Math.abs(c.x) < 0.9 ? V(1, 0, 0) : V(0, 0, 1), e1 = u.sub(c.clone().multiplyScalar(u.dot(c))).normalize(), e2 = c.clone().cross(e1);
+    for (const deg of [30, 60, 90]) {
+      const a = deg * Math.PI / 180, pts = [];
+      for (let i = 0; i <= 96; i++) { const t = i / 96 * Math.PI * 2; pts.push(c.clone().multiplyScalar(Math.cos(a)).add(e1.clone().multiplyScalar(Math.sin(a) * Math.cos(t))).add(e2.clone().multiplyScalar(Math.sin(a) * Math.sin(t))).multiplyScalar(R * 1.002)); }
+      const ring = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: COL.situation, dashSize: 0.25, gapSize: 0.35, transparent: true, opacity: 0.35 }));
+      ring.computeLineDistances(); world.add(ring);
+    }
+  }
   /* triangulation edges: great-circle arcs, brighter with relatedness */
   const edgeLines = [];
   for (const [a, b, r] of spec.edges) {
@@ -162,20 +180,46 @@ function renderLabels(v) {
     if (wp.distanceTo(camPos) > camPos.length()) el.classList.add("back");
     v.labelsEl.appendChild(el);
   }
+  if (DATA.center && v.pos[0]) {
+    const wp = v.pos[0].clone().multiplyScalar(1.12).applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
+    if (sp.z <= 1) {
+      const el = document.createElement("div");
+      el.className = "lbl center" + (wp.distanceTo(camPos) > camPos.length() ? " back" : "");
+      el.textContent = short(DATA.center.text);
+      el.style.left = ((sp.x + 1) / 2 * w) + "px"; el.style.top = ((1 - sp.y) / 2 * h) + "px";
+      v.labelsEl.appendChild(el);
+    }
+  }
 }
 
 /* info panel: one neighbour list per view, so a comparison shows both */
 const info = $("info");
-const item = (id, cls, extra) => `<li class="${cls || ""}" data-id="${id}">${esc(byId[id].text)}${extra || ""}</li>`;
+const nameOf = id => id === 0 ? "◆ your situation" : byId[id].text;
+const item = (id, cls, extra) => `<li class="${cls || ""}" data-id="${id}">${esc(nameOf(id))}${extra || ""}</li>`;
+const relOf = id => DATA.center ? (DATA.center.relevance[String(id)] || 0) : null;
+function centerPanel() {
+  const C = DATA.center, ranked = DATA.sayings.map(s => s.id).sort((a, b) => relOf(b) - relOf(a));
+  return `<h2>${esc(C.text)}</h2><div class="who">your situation · ${DATA.sayings.length} sayings around it</div>` +
+    (C.matched.length ? `<div class="tags">matched: ${esc(C.matched.join(", "))}</div>` : "") +
+    `<h3>By relevance (closest to the top of the globe)</h3><ul>${ranked.filter(id => relOf(id) > 0).map(id => item(id, "", pct(relOf(id)))).join("")}</ul>` +
+    (C.pulled_in.length ? `<h3>Pulled in as counter-sayings</h3><ul>${C.pulled_in.map(id => item(id, "counter")).join("")}</ul>` : "");
+}
 const pct = r => r ? ` <span class="tags">(${Math.round(r * 100)}%)</span>` : "";
 function select(id) {
   shared.selected = id;
   for (const v of views) for (const l of v.edgeLines)
     l.material.opacity = id == null ? l.userData.base : (l.userData.a === id || l.userData.b === id ? 0.95 : l.userData.base * 0.35);
   if (id == null) { info.hidden = true; return; }
+  if (id === 0) {
+    info.innerHTML = centerPanel(); info.hidden = false;
+    info.querySelectorAll("li[data-id]").forEach(li => li.onclick = () => { const n = +li.dataset.id; select(n); turnTo(n); });
+    return;
+  }
   const s = byId[id];
   let html = `<h2>${esc(s.text)}</h2><div class="who">#${s.id} · ${esc(s.who)} · ${s.form} · impact ${s.impact_score}</div>` +
     `<div class="lens">${esc(s.lens)}</div><div class="tags">${esc(s.tags.join(", "))}</div>`;
+  if (DATA.center) html += `<div class="rel">` + (relOf(id) > 0 ? `Relevance to your situation: ${Math.round(relOf(id) * 100)}%`
+    : `Not matched to your situation: here because it pulls against one that is.`) + `</div>`;
   for (const v of views) {
     const near = v.spec.edges.filter(([a, b]) => a === id || b === id).map(([a, b, r]) => [a === id ? b : a, r]).sort((x, y) => (y[1] || 0) - (x[1] || 0));
     if (near.length) html += `<h3>Neighbours${views.length > 1 ? " · " + esc(v.spec.title) : ""}</h3><ul>${near.map(([n, r]) => item(n, "", pct(r))).join("")}</ul>`;
@@ -219,13 +263,19 @@ function hookPointer(v) {
 
 DATA.views.forEach(makeView);
 if (DATA.views.length > 1) shared.camDist = 34;
+/* a consult sphere opens with the situation tilted toward you, and its slow spin turns about the situation */
+const spinAxis = DATA.center ? V(...DATA.center.pos).normalize() : null;
+if (DATA.center) shared.q.setFromUnitVectors(spinAxis, V(0, 0.3, 0.95).normalize());
 $("hint").textContent = "drag turns · wheel zooms · click a saying" + (DATA.views.length > 1 ? " · both globes turn together" : "");
 function resize() { for (const v of views) { const w = v.canvas.clientWidth, h = v.canvas.clientHeight; v.renderer.setSize(w, h, false); v.camera.aspect = w / h; v.camera.updateProjectionMatrix(); } }
 addEventListener("resize", resize); resize();
 function tick() {
   requestAnimationFrame(tick);
   if (shared.targetQ) { shared.q.slerp(shared.targetQ, reduce ? 1 : 0.08); if (shared.q.angleTo(shared.targetQ) < 0.002) shared.targetQ = null; }
-  else if (shared.spin) shared.q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), 0.0015));
+  else if (shared.spin) {
+    if (spinAxis) shared.q.multiply(new THREE.Quaternion().setFromAxisAngle(spinAxis, 0.002));
+    else shared.q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), 0.0015));
+  }
   for (const v of views) {
     v.camera.position.set(0, 0, shared.camDist); v.camera.lookAt(0, 0, 0);
     v.world.quaternion.copy(shared.q);

@@ -54,6 +54,25 @@ def configured():
     return bool(_setting("WATCHER_TOKEN"))
 
 
+def usage():
+    """Today's call count from GET /usage (watcher 0.9.0+): {used, limit, remaining, by_caller, ...}, or None.
+
+    The count lives in the watcher's memory and restarts from 0 when the app restarts, so it is a
+    guide, not a quota to plan to the last call.
+    """
+    token = _setting("WATCHER_TOKEN")
+    url = _setting("WATCHER_URL") or DEFAULT_URL
+    if not token or not url.startswith("https://"):
+        return None
+    req = urllib.request.Request(url.rsplit("/ask", 1)[0] + "/usage", headers={"x-watcher-token": token})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            out = json.loads(r.read())
+        return out if out.get("ok") else None
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return None
+
+
 def ask(prompt, model, schema=None, timeout_s=300, log=None):
     """Send one request. Returns (raw, usage): raw is the parsed object when a schema is given."""
     token = _setting("WATCHER_TOKEN")

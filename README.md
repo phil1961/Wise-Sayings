@@ -34,8 +34,10 @@ Code under his subscription, so calls aren't billed per token. The client is
 - The watcher is shared with Network Meaning: it runs one call at a time and
   allows 200 calls a day for all apps. Calls here are labelled
   `caller: "wise-sayings"`. When the watcher is busy the client waits and
-  retries (20 s, 45 s, 90 s). Any run that would need more than 10 calls asks
-  for `--yes`.
+  retries (20 s, 45 s, 90 s); a `daily_limit` answer stops the run, without
+  retrying. Any run that would need more than 10 calls asks for `--yes`, and is
+  refused if it would leave fewer than 50 of today's calls for other apps. That
+  is checked with the watcher's `GET /usage` (watcher 0.9.0+).
 - The watcher runs Claude Code non-interactively with no tools, so a call can't
   stall on a permission prompt; at worst it times out after about 5½ minutes.
 - If the watcher can't be reached, each feature falls back to its offline method
@@ -168,8 +170,32 @@ You can also write your own matcher: a function
 
 ## The sayings sphere
 
-Spec: [docs/sphere-layout-spec.md](docs/sphere-layout-spec.md). Both stages
-and the comparison are built.
+Spec: [docs/sphere-layout-spec.md](docs/sphere-layout-spec.md). Both stages,
+the comparison, and the sphere centred on a situation are built.
+
+### Centred on your situation
+
+```
+python sayings.py consult "a much bigger competitor wants to buy us out and threatens a price war" --sphere --open
+```
+
+This makes the decision-aid view. `consult` finds the best sayings for your
+situation (`--n`, default 15; add `--smart` to have Claude pick the tags).
+The counter-sayings of those matches are added too. Then:
+
+- Your situation is a fixed white marker near the top of the globe, with
+  dashed rings at 30°, 60° and 90° from it.
+- Each saying is pulled toward it in proportion to its relevance, so the
+  closer a saying sits, the better it fits.
+- Among themselves the sayings arrange by meaning (Claude scores via the
+  watcher, cached), or by tags with `--stage tags` or if the watcher can't be
+  reached.
+- Counter-sayings are pushed to the far side of what they argue against.
+
+Click the marker for the sayings ranked by relevance and the tags your
+situation matched. Click a saying for its lens and its relevance (or why it's
+there, if it was pulled in as a counter). The run prints how well relevance
+tracks distance; it's usually a correlation around −0.8.
 
 ```
 python sayings.py sphere run --n 15 --open                  # stage one: by tags; any number up to all sayings
@@ -270,6 +296,7 @@ older `sayings.db` is upgraded in place without losing data.
 |---|---|
 | 1 | `sayings`, `tags`, `saying_tags`, `counter_pairs` (the original schema) |
 | 2 | `settings` (key/value, e.g. `default_status`); `layout_runs` (stage, seed, sample, parameters, energy, quality stats); `layout_points` (each saying's relaxed x,y,z and snapped lattice vertex); `layout_edges` (triangulation edges) |
+| 4 | `layout_runs.center` (for a consult sphere: the situation, each saying's relevance, matched tags, the situation's position and lattice vertex; edges to the situation use id 0) |
 | 3 | `relatedness_cache` (Claude meaning scores per pair, keyed by model and saying fingerprints); `layout_edges.relatedness` (each edge's score in its run); `comparisons` (tags run, meaning run, report) |
 
 ## Tests

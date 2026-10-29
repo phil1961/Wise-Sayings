@@ -126,6 +126,9 @@ def _sphere_sample(conn, a):
     return seed, ids, f"random {a.n}" + (" incl. candidates" if a.include_candidates else "")
 
 
+LEAVE_FOR_OTHERS = 50   # watcher calls a bulk run here must leave for other apps today
+
+
 def _cost_ok(conn, ids, a):
     """Claude calls go through claude_watcher, whose 200 calls a day (one at a time) are shared with
     other apps; ask for --yes before a run that needs more than a handful of them."""
@@ -134,6 +137,14 @@ def _cost_ok(conn, ids, a):
         return True
     new = meaning.uncached_count(conn, ids)
     calls = -(-new // meaning.PAIRS_PER_REQUEST)
+    if calls > meaning.CALLS_WITHOUT_ASKING:
+        from . import watcher
+        u = watcher.usage() if meaning.TRANSPORT == "watcher" else None
+        if u and calls > u.get("remaining", 0) - LEAVE_FOR_OTHERS:
+            print(f"That needs about {calls} Claude calls, but the watcher has {u.get('remaining')} left today "
+                  f"({u.get('used')} of {u.get('limit')} used), and {LEAVE_FOR_OTHERS} are kept for other apps. "
+                  f"Try a smaller --n, or again after the UTC day turns over.")
+            return False
     if calls > meaning.CALLS_WITHOUT_ASKING and not a.yes:
         print(f"That needs {new} new pair scores, about {calls} Claude calls. They go through claude_watcher, which "
               f"allows 200 calls a day shared with Network Meaning and runs one at a time, so this would hold it "
@@ -260,8 +271,55 @@ def cmd_show(conn, a):
     print(report.format_saying(s, verbose=True))
 
 
+def _consult_sphere(conn, a, matcher):
+    """consult --sphere: lay the situation's best sayings out on a sphere around it."""
+    from . import meaning, render, sphere
+    groups, tensions, matched = consult_mod.consult(conn, a.situation, a.n, matcher)
+    found = [s for _, ss in groups for s in ss]
+    if not found:
+        print("No accepted sayings matched. Try different words, or --smart.")
+        return 0
+    top = max(s["relevance"] for s in found) or 1.0
+    relevance = {s["id"]: round(s["relevance"] / top, 3) for s in found}
+    # Counter-sayings of the matches come too, so what argues against the advice is on the globe.
+    pulled_in = sorted({o for s in found for o in records.counters_of(conn, s["id"])
+                        if o not in relevance and records.get(conn, o)["status"] == "accepted"})
+    ids = sorted(relevance) + pulled_in
+    if len(ids) < 4:
+        print(f"Only {len(ids)} saying(s) matched; a sphere needs at least 4. Try --n higher, other words, or --smart.")
+        return 1
+    seed = a.seed if a.seed is not None else random.randrange(1_000_000)
+    stage, related, info = a.stage, None, None
+    if stage == "meaning":
+        a.scorer = "claude"
+        if not _cost_ok(conn, ids, a):
+            return 1
+        try:
+            related, info = meaning.meaning_relatedness(conn, ids, scorer="claude", fallback=False)
+        except meaning.ScorerUnavailable as e:
+            print(f"Note: meaning scores unavailable ({e}); arranging by shared tags instead.")
+            stage = "tags"
+    print(f"Laying out {len(ids)} sayings around your situation "
+          f"({len(relevance)} matched, {len(pulled_in)} counter-sayings pulled in; arranged by {stage}; seed {seed})...")
+    run_id = sphere.run_layout(conn, ids, stage=stage, seed=seed, related=related, stage_info=info,
+                               sample_how=f"consult: {a.situation[:80]}",
+                               center={"text": a.situation, "relevance": relevance, "matched": matched,
+                                       "pulled_in": pulled_in})
+    st = sphere.load_run(conn, run_id)["stats"]
+    print(f"Run #{run_id} saved. The most relevant third sit {st['top_third_mean_angle']}° from your situation on "
+          f"average (all sayings: {st['mean_angle_from_situation']}°; correlation of relevance with distance "
+          f"{st['relevance_vs_distance']}).")
+    if st["counter_angles"]:
+        print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
+    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
+    print(f"Wrote {out}")
+    return _maybe_open(out, a.open)
+
+
 def cmd_consult(conn, a):
     matcher = consult_mod.load_matcher("compendium.llm_matcher:match" if a.smart else a.matcher)
+    if a.sphere:
+        return _consult_sphere(conn, a, matcher)
     groups, tensions, matched = consult_mod.consult(conn, a.situation, a.limit, matcher)
     if not groups:
         print("No accepted sayings matched. Try different words, or see `python sayings.py tags`.")
@@ -381,6 +439,15 @@ def build_parser():
     s.add_argument("--smart", action="store_true",
                    help="let Claude pick the tags, via claude_watcher (one call; falls back to keywords)")
     s.add_argument("--matcher", help="module:function to replace the keyword matcher")
+    s.add_argument("--sphere", action="store_true",
+                   help="lay the best sayings out on a sphere around your situation and write a page")
+    s.add_argument("-n", "--n", type=int, default=15, help="with --sphere: how many matching sayings (default 15)")
+    s.add_argument("--stage", default="meaning", choices=("meaning", "tags"),
+                   help="with --sphere: arrange the sayings among themselves by meaning (default, via the watcher) or tags")
+    s.add_argument("--seed", type=int, help="with --sphere: random seed")
+    s.add_argument("--yes", action="store_true", help="with --sphere: allow more than 10 watcher calls")
+    s.add_argument("--out", help="with --sphere: HTML file to write")
+    s.add_argument("--open", action="store_true", help="with --sphere: open the page in your browser")
     s.set_defaults(func=cmd_consult)
 
     s = sub.add_parser("export", help="export the compendium to markdown and/or JSON")
