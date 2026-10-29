@@ -1,0 +1,773 @@
+[
+  {
+    "text": "Let the welfare of the people be the ultimate law.",
+    "variants": [
+      "Salus populi suprema lex esto"
+    ],
+    "form": "maxim",
+    "attribution": "Cicero",
+    "attribution_confidence": "verified",
+    "documented_in": "Cicero, De Legibus (On the Laws) 3.3, in the Latin 'Salus populi suprema lex esto' (the formula of a proposed law code). English as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Marcus_Tullius_Cicero",
+    "lens": "When rules collide with a crisis, the test of a decision is the welfare of those it serves, not the letter of the rule. It also warns: anyone who invokes 'public welfare' to override the rules is claiming a very large power, so ask who decides what the welfare is.",
+    "impact_score": 7,
+    "impact_rationale": "Foundational legal-political maxim, still cited; useful both as justification and as a warning about emergency power.",
+    "subject_tags": [
+      "power",
+      "prudence"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "dealing_with_powerful"
+    ],
+    "counter_sayings": [
+      "Those who would give up essential Liberty, to purchase a little temporary Safety, deserve neither Liberty nor Safety."
+    ]
+  },
+  {
+    "text": "For laws are silent among arms.",
+    "variants": [
+      "Silent enim leges inter arma",
+      "In a time of war, the law falls silent.",
+      "Laws are silent in time of war."
+    ],
+    "form": "maxim",
+    "attribution": "Cicero",
+    "attribution_confidence": "verified",
+    "documented_in": "Cicero, Pro Milone, ch. 4 sec. 11 (Latin 'Silent enim leges inter arma'; often quoted 'Inter arma enim silent leges'). Checked: https://en.wikiquote.org/wiki/Marcus_Tullius_Cicero",
+    "lens": "When force is in play, formal rules, contracts and rights may simply stop operating, whatever they promise on paper. Do not plan on the assumption that a rule will protect you once the other side has stopped caring about rules.",
+    "impact_score": 7,
+    "impact_rationale": "Short, enduring statement of when legal protection fails; Cicero was arguing a self-defence plea, so it is also a lens on convenient emergencies.",
+    "subject_tags": [
+      "war",
+      "power",
+      "truth"
+    ],
+    "situation_tags": [
+      "security_weakness",
+      "ultimatum"
+    ]
+  },
+  {
+    "text": "To ravage, to slaughter, to usurp under false titles, they call empire, and where they make a desert, they call it peace.",
+    "variants": [
+      "They make a desert and call it peace.",
+      "Auferre, trucidare, rapere, falsis nominibus imperium, atque, ubi solitudinem faciunt, pacem appellant."
+    ],
+    "form": "aphorism",
+    "attribution": "Tacitus",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Tacitus, Agricola 30, close of chapter; the words are put in the mouth of the Caledonian chief Calgacus before the battle of Mons Graupius, so Tacitus's own composition rather than a recorded speech. Oxford Revised Translation as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Tacitus",
+    "lens": "Notice when a flattering word is being used to cover a destructive result. 'Peace', 'stability' or 'efficiency' may only mean that nothing is left to resist; judge the outcome, not the label.",
+    "impact_score": 8,
+    "impact_rationale": "Enduring, widely quoted test for euphemism and spin; unusually portable beyond war.",
+    "subject_tags": [
+      "power",
+      "truth",
+      "war"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "It belongs to human nature to hate those you have injured.",
+    "variants": [
+      "Proprium humani ingenii est odisse quem laeseris."
+    ],
+    "form": "aphorism",
+    "attribution": "Tacitus",
+    "attribution_confidence": "verified",
+    "documented_in": "Tacitus, Agricola ch. 42, as reported in Bartlett's Familiar Quotations (10th ed., 1919) on Wikiquote. Checked: https://en.wikiquote.org/wiki/Tacitus",
+    "lens": "Resentment often runs from the wrongdoer to the wronged: people dislike those they have harmed because the harm accuses them. Expect hostility from someone you have been wronged by or whom you have wronged, and do not read it as proof you were in the wrong.",
+    "impact_score": 7,
+    "impact_rationale": "Sharp psychological observation that explains puzzling hostility; fits the La Rochefoucauld tradition.",
+    "subject_tags": [
+      "human_nature"
+    ],
+    "situation_tags": [
+      "betrayal"
+    ]
+  },
+  {
+    "text": "Where the lion's skin will not reach, it must be patched out with the fox's.",
+    "variants": [
+      "Where the lion's skin will not reach, it must be pieced with the fox's."
+    ],
+    "form": "apophthegm",
+    "attribution": "Lysander of Sparta",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Lysander 7.4 (Perrin translation); also in Plutarch's Apophthegmata (Kings and Commanders, Lysander). Said in answer to those who said the descendants of Heracles should not make war by deceit. Checked: https://lexundria.com/plut_lys/7/prr and https://en.wikiquote.org/wiki/Plutarch",
+    "lens": "Strength is the first resort, but when it runs out the remaining tool is cunning. Before concluding you are beaten, ask what you can get by indirection that you cannot get by force.",
+    "impact_score": 7,
+    "impact_rationale": "Memorable, practical statement of force plus guile; echoes the Sun Tzu line on deception while adding the idea of filling a gap in strength.",
+    "subject_tags": [
+      "deception",
+      "power",
+      "war"
+    ],
+    "situation_tags": [
+      "overwhelming_opponent",
+      "competition"
+    ]
+  },
+  {
+    "text": "'If I were Alexander, I would accept these terms.' 'And so indeed would I, were I Parmenio.'",
+    "variants": [],
+    "form": "apophthegm",
+    "attribution": "Alexander the Great (replying to Parmenion)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Alexander 29 (Perrin translation): Parmenion says 'If I were Alexander, I would accept these terms', and Alexander replies 'And so indeed would I, were I Parmenio.' Other sources (Arrian, Curtius) differ on the circumstances. Checked: https://lexundria.com/plut_alex/29/prr and https://en.wikiquote.org/wiki/Alexander_the_Great",
+    "lens": "Advice depends on where the adviser stands: what is prudent for the person with little to lose may be wrong for the person carrying the vision. Ask what your adviser would risk if the advice failed, and what you would give up if you took it.",
+    "impact_score": 7,
+    "impact_rationale": "Compact illustration of position-dependent advice and of a leader's different stakes.",
+    "subject_tags": [
+      "risk",
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "The Lacedaemonians are not wont to ask how many, but where the enemy are.",
+    "variants": [
+      "The Lacedæmonians are not wont to ask how many, but where the enemy are."
+    ],
+    "form": "apophthegm",
+    "attribution": "Agis (Spartan king)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch (attributed), Regum et imperatorum apophthegmata (Sayings of Kings and Commanders), Agis entry, listed as no. 58 on Wikiquote; a later collection, so traditional attribution. Checked: https://en.wikiquote.org/wiki/Plutarch",
+    "lens": "Counting the other side's numbers can paralyze you; the useful questions are where they are and what to do about it. Shift from 'how big is the opponent' to 'where is the contact point'.",
+    "impact_score": 6,
+    "impact_rationale": "Short morale-and-focus reframe for facing a bigger opponent, though more rhetoric than strategy.",
+    "subject_tags": [
+      "war",
+      "power",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "overwhelming_opponent",
+      "anxiety"
+    ]
+  },
+  {
+    "text": "Either this or upon this.",
+    "variants": [
+      "With it or on it.",
+      "Come back with your shield or on it."
+    ],
+    "form": "apophthegm",
+    "attribution": "A Spartan mother (as reported in Plutarch)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch (attributed), Sayings of Spartan Women, in the 'Other Spartan Women' group, Moralia, ca. 241; said as she handed her son his shield. Ancient editors differ on whether 'upon this' means falling on it or being carried home on it, and Stobaeus credits Gorgo. Checked: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Moralia/Sayings_of_Spartan_Women*.html",
+    "lens": "A commitment is only real when the way back is closed: the soldier returns holding the shield or carried on it, not running without it. Ask whether you are behaving as if retreat is still an option.",
+    "impact_score": 7,
+    "impact_rationale": "Austere statement of all-in commitment; ancient and well documented, though the exact attribution is unsettled.",
+    "subject_tags": [
+      "war",
+      "risk",
+      "persistence"
+    ],
+    "situation_tags": [
+      "commitment",
+      "leadership_crisis"
+    ]
+  },
+  {
+    "text": "Wise men profit more from fools than fools from wise men; for the wise men shun the mistakes of fools, but fools do not imitate the successes of the wise.",
+    "variants": [
+      "Wise men learn more from fools than fools from the wise."
+    ],
+    "form": "apophthegm",
+    "attribution": "Cato the Elder",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Cato (the Elder), as listed on Wikiquote; the exact chapter was not confirmed from the text. Checked: https://en.wikiquote.org/wiki/Cato_the_Elder",
+    "lens": "Other people's failures are cheap lessons and the most readily available ones. Study what went wrong for them before you spend your own money learning it.",
+    "impact_score": 6,
+    "impact_rationale": "Useful, durable, but close in spirit to some existing items on enemies spotting your faults.",
+    "subject_tags": [
+      "knowledge",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "after_failure",
+      "competition"
+    ]
+  },
+  {
+    "text": "I would much rather have men ask why I have no statue, than why I have one.",
+    "form": "apophthegm",
+    "attribution": "Cato the Elder",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Plutarch, Life of Cato the Elder, ch. 19.4 as cited on Wikiquote (Parallel Lives); Wikiquote's translation. Checked: https://en.wikiquote.org/wiki/Cato_the_Elder",
+    "lens": "Seek the substance that makes recognition a natural question rather than chasing the recognition itself. If you have to ask for the honor, the honor is not worth much.",
+    "impact_score": 6,
+    "impact_rationale": "Clear line on earned versus sought reputation; modest lens value beyond ambition and vanity.",
+    "subject_tags": [
+      "human_nature",
+      "power"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "Know thine opportunity.",
+    "variants": [
+      "Know the right moment.",
+      "Know the opportunity."
+    ],
+    "form": "maxim",
+    "attribution": "Pittacus of Mytilene",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 1.79 (Pittacus), one of the Seven Sages' maxims. Checked: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Diogenes_Laertius/Lives_of_the_Eminent_Philosophers/1/Pittacus*.html and https://en.wikiquote.org/wiki/Seven_Sages_of_Greece",
+    "lens": "Timing is an asset that is only valuable if you recognize it: the same action can be wasted early or late. Ask what window you are in and what would tell you it is closing.",
+    "impact_score": 7,
+    "impact_rationale": "Very old, compact statement of the kairos idea; pairs with, and tensions against, both patient and hasty sayings.",
+    "subject_tags": [
+      "timing",
+      "planning"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "hasty_decision"
+    ],
+    "counter_sayings": [
+      "Make haste slowly."
+    ]
+  },
+  {
+    "text": "Let not your tongue outrun your thought.",
+    "variants": [
+      "Do not let your tongue run ahead of your mind."
+    ],
+    "form": "maxim",
+    "attribution": "Chilon of Sparta",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 1 (Chilon), Loeb (1925) translation; one of the maxims of the Seven Sages. Section number not confirmed. Checked: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Diogenes_Laertius/Lives_of_the_Eminent_Philosophers/1/Chilon*.html",
+    "lens": "In a heated exchange, the gap between what you think and what you say is your last protection. Wait one beat before the sentence you cannot take back.",
+    "impact_score": 6,
+    "impact_rationale": "Classic sage maxim, simple and usable; a little generic.",
+    "subject_tags": [
+      "prudence",
+      "brevity"
+    ],
+    "situation_tags": [
+      "hasty_decision",
+      "keeping_secrets"
+    ]
+  },
+  {
+    "text": "The reason why we have two ears and only one mouth is that we may listen the more and talk the less.",
+    "variants": [
+      "We have two ears and one mouth, so we should listen more than we say."
+    ],
+    "form": "apophthegm",
+    "attribution": "Zeno of Citium",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Diogenes Laertius, Lives of the Eminent Philosophers 7.23 (Zeno), as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Zeno_of_Citium",
+    "lens": "Information and trust come from listening; talking mostly shows others what you already hold. When you are unsure about a situation or a person, ask and let them fill the silence.",
+    "impact_score": 6,
+    "impact_rationale": "Widely repeated and sensible, but a simple prescription more than a reframe.",
+    "subject_tags": [
+      "knowledge",
+      "brevity"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "negotiation"
+    ]
+  },
+  {
+    "text": "Fortune blinds men when she does not wish them to withstand the violence of her onslaughts.",
+    "form": "aphorism",
+    "attribution": "Livy",
+    "attribution_confidence": "verified",
+    "documented_in": "Livy, Ab Urbe Condita 5.37 (on the Romans' blind unpreparedness before the Gauls arrived at Rome), as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Livy",
+    "lens": "Before a disaster, the obvious precautions often look foolishly missed in hindsight. If everyone around you has stopped seeing a danger, treat the shared blindness itself as a warning.",
+    "impact_score": 7,
+    "impact_rationale": "Accurate pattern of how groups misjudge just before a collapse; links to hubris and the Solon item.",
+    "subject_tags": [
+      "risk",
+      "human_nature",
+      "adversity"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "security_weakness"
+    ]
+  },
+  {
+    "text": "For harmony makes small states great, while discord undermines the mightiest empires.",
+    "variants": [
+      "Nam concordia parvae res crescunt, discordia maxumae dilabuntur."
+    ],
+    "form": "maxim",
+    "attribution": "Sallust",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sallust, Bellum Iugurthinum 10.6, spoken by the Numidian king Micipsa to his sons and nephew, so the speech is Sallust's composition. Translation as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Sallust",
+    "lens": "Small groups with common purpose beat large ones that fight within themselves. If the team or partnership is large and quarrelsome, the most valuable work may be internal concord, not new outside strategy.",
+    "impact_score": 7,
+    "impact_rationale": "Durable motto on unity versus division, used as a national and organizational slogan for centuries.",
+    "subject_tags": [
+      "power",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "overwhelming_opponent"
+    ]
+  },
+  {
+    "text": "Necessity makes even the timid brave.",
+    "variants": [
+      "Necessitas etiam timidos fortes facit."
+    ],
+    "form": "aphorism",
+    "attribution": "Sallust",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Sallust, Bellum Catilinae 58 (Wikiquote cites it as LVII), in Catiline's speech before the last battle, so a composed speech. Checked: https://en.wikiquote.org/wiki/Sallust",
+    "lens": "A cornered opponent is more dangerous than a free one. Leave a way out for those you defeat, and ask whether your own caution comes from having an option you could drop.",
+    "impact_score": 7,
+    "impact_rationale": "Two-sided lens: warning about a desperate rival and a reason for commitment; consistent with Sun Tzu advice to leave an exit.",
+    "subject_tags": [
+      "war",
+      "human_nature",
+      "risk"
+    ],
+    "situation_tags": [
+      "commitment",
+      "competition",
+      "ultimatum"
+    ]
+  },
+  {
+    "text": "Circumstances rule men; men do not rule circumstances.",
+    "form": "aphorism",
+    "attribution": "Artabanus (as written by Herodotus)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Herodotus, Histories 7.49, Artabanus advising Xerxes against invading Greece; the speech is Herodotus's reconstruction. Translation as given on Wikiquote (translator not named). Checked: https://en.wikiquote.org/wiki/Herodotus",
+    "lens": "Your plan is only as good as the conditions it meets, which you do not control. Before committing, ask which circumstance, not an opponent, could defeat you, and what you will do then.",
+    "impact_score": 7,
+    "impact_rationale": "Cautionary counterpart to Xerxes' answer; a recurrent theme about the limits of control.",
+    "subject_tags": [
+      "risk",
+      "prudence",
+      "planning"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "plan_failing"
+    ],
+    "counter_sayings": [
+      "Great deeds are usually wrought at great risks."
+    ]
+  },
+  {
+    "text": "Great deeds are usually wrought at great risks.",
+    "form": "aphorism",
+    "attribution": "Xerxes (as written by Herodotus)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Herodotus, Histories 7.50, Xerxes' reply to Artabanus; reconstructed speech. Translation as given on Wikiquote (translator not named). Checked: https://en.wikiquote.org/wiki/Herodotus",
+    "lens": "Safe choices rarely produce large results, and caution that never moves forfeits the prize. Decide how much risk the goal is worth, and whether you can survive the failure case. (Xerxes' own expedition ended badly, which is part of the lesson.)",
+    "impact_score": 7,
+    "impact_rationale": "Standard counter to over-caution, with built-in irony because of who said it and how it turned out.",
+    "subject_tags": [
+      "risk",
+      "planning"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "commitment"
+    ],
+    "counter_sayings": [
+      "Circumstances rule men; men do not rule circumstances."
+    ]
+  },
+  {
+    "text": "These take as your model and, judging happiness to be the fruit of freedom and freedom of valour, never decline the dangers of war.",
+    "variants": [
+      "The secret of happiness is freedom, and the secret of freedom is courage. (popular paraphrase)"
+    ],
+    "form": "aphorism",
+    "attribution": "Pericles (as written by Thucydides)",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Thucydides, History of the Peloponnesian War 2.43 (Pericles' Funeral Oration, composed by Thucydides), Richard Crawley translation, confirmed verbatim in the Project Gutenberg text. The popular 'secret of happiness' wording is a paraphrase, not Crawley's. Checked: https://www.gutenberg.org/cache/epub/7142/pg7142.txt",
+    "lens": "A life without independence is never settled, and independence has to be defended by someone willing to risk loss. When you are drifting under someone else's control, ask what it would take to be self-governing and whether the missing piece is nerve.",
+    "impact_score": 6,
+    "impact_rationale": "Famous civic-courage line; lens is more exhortation than diagnosis.",
+    "subject_tags": [
+      "freedom",
+      "risk",
+      "persistence"
+    ],
+    "situation_tags": [
+      "anxiety",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "All victories breed hate, and that over your superior is foolish or fatal.",
+    "form": "maxim",
+    "attribution": "Baltasar Gracián",
+    "attribution_confidence": "verified",
+    "documented_in": "Gracián, The Art of Worldly Wisdom (Oráculo manual y arte de prudencia, 1647), maxim VII 'Avoid Victories over Superiors', Joseph Jacobs translation (1892), as read in a full-text scan. Checked: https://archive.org/stream/artofworldlywisd00gracuoft/artofworldlywisd00gracuoft_djvu.txt",
+    "lens": "Being right, or even being better, is not free when the person you outdo controls your fate. Ask whether the win you want is worth the resentment it buys, and whether you can let the superior seem to have thought of it first.",
+    "impact_score": 8,
+    "impact_rationale": "Names a hidden cost of winning that is routinely ignored in office and political fights; distinct from the existing entries on costly wins.",
+    "subject_tags": [
+      "power",
+      "human_nature",
+      "prudence"
+    ],
+    "situation_tags": [
+      "dealing_with_powerful",
+      "costly_win",
+      "competition"
+    ]
+  },
+  {
+    "text": "Trust the friends of to-day as if they will be enemies to-morrow, and that of the worst kind.",
+    "variants": [],
+    "form": "maxim",
+    "attribution": "Baltasar Gracián",
+    "attribution_confidence": "verified",
+    "documented_in": "Gracián, The Art of Worldly Wisdom (1647), maxim CCXVII 'Neither Love nor Hate, for ever', Jacobs translation (1892). The scan reads 'if they, will be' (an OCR/typographic stray comma); the text above drops that comma. Checked: https://archive.org/stream/artofworldlywisd00gracuoft/artofworldlywisd00gracuoft_djvu.txt",
+    "lens": "Share with a friend only what you could survive having used against you, and treat a falling-out as a possibility, not an insult. The flip side in the same maxim: keep a door open to reconciliation with enemies.",
+    "impact_score": 8,
+    "impact_rationale": "Practical rule for exposure to betrayal that does not require cynicism about the friend; pairs the precaution with an open door.",
+    "subject_tags": [
+      "human_nature",
+      "prudence",
+      "deception"
+    ],
+    "situation_tags": [
+      "betrayal",
+      "keeping_secrets",
+      "security_weakness"
+    ]
+  },
+  {
+    "text": "For injuries ought to be done all at one time, so that, being tasted less, they offend less; benefits ought to be given little by little, so that the flavour of them may last longer.",
+    "form": "maxim",
+    "attribution": "Niccolo Machiavelli",
+    "attribution_confidence": "verified",
+    "documented_in": "Machiavelli, The Prince, chapter VIII (Of Those Who Have Obtained a Principality by Wickedness), W. K. Marriott translation, Project Gutenberg. Checked: https://www.gutenberg.org/cache/epub/1232/pg1232.txt",
+    "lens": "If you must deliver bad news, cuts, or a hard change, do it once and completely; drip-feeding keeps everyone permanently afraid and keeps you holding the knife. Spread the good news out instead, so it keeps being felt.",
+    "impact_score": 8,
+    "impact_rationale": "A concrete, still-used rule for layoffs, reforms and hard conversations; widely tested and often ignored. Stated in the context of a ruler seizing power, so apply with judgment.",
+    "subject_tags": [
+      "power",
+      "timing",
+      "human_nature"
+    ],
+    "situation_tags": [
+      "leadership_crisis",
+      "hasty_decision",
+      "dealing_with_powerful"
+    ]
+  },
+  {
+    "text": "...fortune being changeful and mankind steadfast in their ways, so long as the two are in agreement men are successful, but unsuccessful when they fall out.",
+    "form": "maxim",
+    "attribution": "Niccolo Machiavelli",
+    "attribution_confidence": "verified",
+    "documented_in": "Machiavelli, The Prince, chapter XXV (What Fortune Can Effect in Human Affairs), Marriott translation, from 'I conclude, therefore that, ...'. Checked: https://www.gutenberg.org/cache/epub/1232/pg1232.txt",
+    "lens": "Past success may be success of a method that matched past conditions. When a plan that always worked starts failing, suspect that the world changed while your habits did not, and ask what you would do if you had to start from today's conditions.",
+    "impact_score": 9,
+    "impact_rationale": "Explains why proven strategies collapse; a deep lens on adaptation that applies to markets, careers and institutions.",
+    "subject_tags": [
+      "change",
+      "adversity",
+      "planning"
+    ],
+    "situation_tags": [
+      "plan_failing",
+      "overconfidence",
+      "after_failure"
+    ],
+    "counter_sayings": [
+      "Don't change horses in midstream."
+    ]
+  },
+  {
+    "text": "Fortune is like the market; where many times if you can stay a little, the price will fall.",
+    "form": "aphorism",
+    "attribution": "Francis Bacon",
+    "attribution_confidence": "verified",
+    "documented_in": "Bacon, Essays or Counsels, Civil and Moral (1625 edition), 'Of Delays', opening sentence. Project Gutenberg text with modernized spelling. Checked: https://www.gutenberg.org/cache/epub/575/pg575.txt",
+    "lens": "Some opportunities get cheaper if you wait, others (Bacon adds Sibylla's books) get dearer, so ask which kind you are in before acting. Bacon's same essay says to watch first and then move fast, with secrecy in counsel and speed in execution.",
+    "impact_score": 7,
+    "impact_rationale": "Neat negotiating and timing lens, with the balancing caution built into the same essay; slightly narrower in application than the top entries.",
+    "subject_tags": [
+      "timing",
+      "money",
+      "planning"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "paralysis",
+      "hasty_decision"
+    ],
+    "counter_sayings": [
+      "He who hesitates is lost."
+    ]
+  },
+  {
+    "text": "He that will not apply new remedies, must expect new evils; for time is the greatest innovator.",
+    "form": "aphorism",
+    "attribution": "Francis Bacon",
+    "attribution_confidence": "verified",
+    "documented_in": "Bacon, Essays or Counsels, Civil and Moral, 'Of Innovations'. Project Gutenberg text with modernized spelling. Checked: https://www.gutenberg.org/cache/epub/575/pg575.txt",
+    "lens": "Standing still is not a neutral choice: time changes things whether or not you do. Compare the risk of the change you fear with the risk of the change that will happen to you anyway.",
+    "impact_score": 8,
+    "impact_rationale": "Reframes inaction as a decision with its own cost; the standard answer to 'if it isn't broken'.",
+    "subject_tags": [
+      "change",
+      "risk",
+      "timing"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "plan_failing",
+      "prevention"
+    ],
+    "counter_sayings": [
+      "Don't change horses in midstream."
+    ]
+  },
+  {
+    "text": "Hope deceives more men than cunning does.",
+    "form": "maxim",
+    "attribution": "Luc de Clapiers, Marquis de Vauvenargues",
+    "attribution_confidence": "verified",
+    "documented_in": "Vauvenargues, Réflexions et maximes, maxim 569 ('L'espérance fait plus de dupes que l'habileté'), as reported on Wikiquote from the Ehrlich and DeBruhl thesaurus of quotations. Checked: https://en.wikiquote.org/wiki/Luc_de_Clapiers,_Marquis_de_Vauvenargues",
+    "lens": "Before looking for who might be cheating you, check whether you are mostly being fooled by what you want to be true. The forecast you wish were right is the one you audit least.",
+    "impact_score": 7,
+    "impact_rationale": "Short, true, and points the suspicion inward; useful for deals and projects driven by wishful thinking.",
+    "subject_tags": [
+      "truth",
+      "human_nature",
+      "risk"
+    ],
+    "situation_tags": [
+      "overconfidence",
+      "acting_with_incomplete_info",
+      "temptation"
+    ]
+  },
+  {
+    "text": "Necessity relieves us from the embarrassment of choice.",
+    "form": "maxim",
+    "attribution": "Luc de Clapiers, Marquis de Vauvenargues",
+    "attribution_confidence": "verified",
+    "documented_in": "Vauvenargues, Réflexions et maximes, maxim 592 ('La nécessité nous délivre de l'embarras du choix'), F. G. Stevens translation (1940), as given on Wikiquote. Checked: https://en.wikiquote.org/wiki/Luc_de_Clapiers,_Marquis_de_Vauvenargues",
+    "lens": "When you are stuck among many options, ask what constraint, deadline or cost would make the choice for you, then decide as if it were already imposed. Paralysis is often an excess of freedom, not a shortage of information.",
+    "impact_score": 7,
+    "impact_rationale": "Helpful for decision paralysis and for burning-boats commitment; a lens rather than just a witticism.",
+    "subject_tags": [
+      "freedom",
+      "timing",
+      "persistence"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "commitment"
+    ],
+    "counter_sayings": [
+      "Look before you leap."
+    ]
+  },
+  {
+    "text": "To help a man suffering from dropsy, it's far better to cure his thirst than to offer him a barrel of wine. Apply this principle to the wealthy.",
+    "variants": [
+      "Celui-là fait plus, pour un hydropique, qui le guérit de la soif, que celui qui lui donne un tonneau de vin. Appliquez cela aux richesses."
+    ],
+    "form": "aphorism",
+    "attribution": "Nicolas Chamfort",
+    "attribution_confidence": "verified",
+    "documented_in": "Chamfort, Maximes et Pensées, no. 121 (published posthumously, 1795), English as given on Wikiquote under 'Reflections'; the translator is not named there. Checked: https://en.wikiquote.org/wiki/Nicolas_Chamfort",
+    "lens": "If the more you get the more you want, supplying the want is not the cure. Ask whether the answer to this craving, for money, status or approval, is more of the thing or a change in the craving itself.",
+    "impact_score": 7,
+    "impact_rationale": "Memorable diagnosis of insatiable desire that changes the solution being sought; adds a money angle the compendium lacks.",
+    "subject_tags": [
+      "money",
+      "human_nature",
+      "prudence"
+    ],
+    "situation_tags": [
+      "temptation",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "The thing I fear most is fear.",
+    "form": "aphorism",
+    "attribution": "Michel de Montaigne",
+    "attribution_confidence": "verified",
+    "documented_in": "Montaigne, Essays, Book I, ch. 18, 'Of Fear' (Villey/Frame numbering), Donald Frame translation, as given on Wikiquote (French: 'C'est ce de quoi j'ai le plus de peur que la peur'). Checked: https://en.wikiquote.org/wiki/Michel_de_Montaigne",
+    "lens": "Notice that the fear itself, its racing and its distortion of judgment, is often the larger threat than the thing feared. Deal with the fear's effects first and then judge the danger.",
+    "impact_score": 7,
+    "impact_rationale": "Compact reframe for anxiety and panic decisions; famous, with a real mechanism behind it.",
+    "subject_tags": [
+      "human_nature",
+      "risk",
+      "prudence"
+    ],
+    "situation_tags": [
+      "anxiety",
+      "hasty_decision"
+    ]
+  },
+  {
+    "text": "Since war is not an act of senseless passion but is controlled by its political object, the value of this object must determine the sacrifices to be made for it in magnitude and also in duration. Once the expenditure of effort exceeds the value of the political object, the object must be renounced and peace must follow.",
+    "form": "maxim",
+    "attribution": "Carl von Clausewitz",
+    "attribution_confidence": "verified",
+    "documented_in": "Clausewitz, On War (Vom Kriege), Book I, ch. 2, Howard and Paret translation, as quoted on Wikiquote. Checked: https://en.wikiquote.org/wiki/Carl_von_Clausewitz",
+    "lens": "Set, in advance, what the goal is worth and stop when the cost of pursuing it passes that value. Escalation, sunk effort and pride are not reasons to keep paying; the fight, litigation or project is a means to an end.",
+    "impact_score": 9,
+    "impact_rationale": "A clear walk-away rule for any contest or lawsuit, from the foundational strategist; addresses the costly-win trap directly.",
+    "subject_tags": [
+      "war",
+      "planning",
+      "money"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "unclear_goals",
+      "competition"
+    ],
+    "counter_sayings": [
+      "Fall seven times, get up eight."
+    ]
+  },
+  {
+    "text": "All the business of war, and indeed all the business of life, is to endeavour to find out what you don't know by what you do; that's what I called \"guessing what was at the other side of the hill.\"",
+    "form": "apophthegm",
+    "attribution": "Arthur Wellesley, 1st Duke of Wellington",
+    "attribution_confidence": "verified",
+    "documented_in": "Wellington's remarks to John Wilson Croker (4 September 1852), recorded in The Croker Papers, vol. III (1884), p. 276, as cited on Wikiquote. Checked: https://en.wikiquote.org/wiki/Arthur_Wellesley,_1st_Duke_of_Wellington",
+    "lens": "You never have the full picture, so build the method for inferring it: what do the things you can observe tell you about what you cannot see? Make the guess explicit and test it, rather than waiting for certainty or pretending to have it.",
+    "impact_score": 8,
+    "impact_rationale": "Practical epistemology for decisions under incomplete information, from a commander who won by doing it.",
+    "subject_tags": [
+      "knowledge",
+      "risk",
+      "planning"
+    ],
+    "situation_tags": [
+      "acting_with_incomplete_info",
+      "paralysis"
+    ]
+  },
+  {
+    "text": "All great events hang by a hair. The man of ability takes advantage of everything and neglects nothing that can give him a chance of success; whilst the less able man sometimes loses everything by neglecting a single one of those chances.",
+    "form": "maxim",
+    "attribution": "Napoleon Bonaparte",
+    "attribution_confidence": "verified",
+    "documented_in": "Napoleon, letter to the Minister of Foreign Affairs, Passariano, 26 September 1797, as quoted in Yorck von Wartenburg, Napoleon as a General (1902), p. 269, per Wikiquote. Checked: https://en.wikiquote.org/wiki/Napoleon",
+    "lens": "In a close contest the small things decide the outcome: the overlooked detail, the unused advantage. Before a decisive moment, list the minor chances you are tempted to ignore and take the ones that cost little.",
+    "impact_score": 7,
+    "impact_rationale": "Sourced to a dated letter; an argument for attention to marginal factors when the result is balanced.",
+    "subject_tags": [
+      "planning",
+      "risk",
+      "knowledge"
+    ],
+    "situation_tags": [
+      "competition",
+      "overconfidence",
+      "prevention"
+    ]
+  },
+  {
+    "text": "If the art of war were nothing but the art of avoiding risks, glory would become the prey of mediocre minds.... I have made all the calculations; fate will do the rest.",
+    "form": "maxim",
+    "attribution": "Napoleon Bonaparte",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Said at the start of the 1813 campaign, as quoted in J. Christopher Herold, The Mind of Napoleon (1955), p. 45, per Wikiquote. Secondhand recollection, not a document he wrote. Checked: https://en.wikiquote.org/wiki/Napoleon",
+    "lens": "If your plan is to remove all risk, you have chosen to compete only for what everyone else also has. Do the calculations you can, name the part that is left to chance, and then accept it consciously.",
+    "impact_score": 6,
+    "impact_rationale": "Useful counterweight to over-caution; weaker for provenance, and Napoleon's 1813 outcome shows the cost of overreach.",
+    "subject_tags": [
+      "risk",
+      "war",
+      "planning"
+    ],
+    "situation_tags": [
+      "paralysis",
+      "commitment",
+      "competition"
+    ],
+    "counter_sayings": [
+      "Look before you leap."
+    ]
+  },
+  {
+    "text": "The problems of victory are more agreeable than those of defeat, but they are no less difficult.",
+    "form": "aphorism",
+    "attribution": "Winston Churchill",
+    "attribution_confidence": "verified",
+    "documented_in": "Churchill, speech in the House of Commons, 11 November 1942 (debate on the Address), cited on Wikiquote's sourced section with a Hansard link. Checked: https://en.wikiquote.org/wiki/Winston_Churchill",
+    "lens": "Winning does not end the work; it exchanges one set of hard problems for another, such as consolidating, sharing the spoils, or not overreaching. Plan for the day after the win, not only the win.",
+    "impact_score": 7,
+    "impact_rationale": "Authentic and sourced (many Churchill lines are not); useful for success that creates its own risks.",
+    "subject_tags": [
+      "adversity",
+      "planning",
+      "power"
+    ],
+    "situation_tags": [
+      "costly_win",
+      "hard_times",
+      "overconfidence"
+    ]
+  },
+  {
+    "text": "Politics is the art of the possible.",
+    "variants": [
+      "Die Politik ist die Lehre vom Möglichen."
+    ],
+    "form": "aphorism",
+    "attribution": "Otto von Bismarck",
+    "attribution_confidence": "verified",
+    "documented_in": "Bismarck, interview of 11 August 1867 with Friedrich Meyer von Waldeck, 'Die Politik ist die Lehre vom Möglichen' (literally 'the doctrine of the possible'), printed in Die Gartenlaube (1876) and reprinted in Fürst Bismarck: neue Tischgespräche und Interviews, vol. 1, p. 248, per Wikiquote's sourced section. Checked: https://en.wikiquote.org/wiki/Otto_von_Bismarck",
+    "lens": "In a negotiation, the question is not what you ideally want but what is achievable given the other side's real position and the time you have. Define the best outcome that can actually be had, and pursue that.",
+    "impact_score": 7,
+    "impact_rationale": "Widely quoted and, unlike many Bismarck lines, genuinely sourced; a standard antidote to holding out for perfect terms.",
+    "subject_tags": [
+      "power",
+      "planning",
+      "truth"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "unclear_goals"
+    ]
+  },
+  {
+    "text": "I have always found the word Europe on the lips of those politicians who wanted something from other Powers which they dared not demand in their own names.",
+    "form": "aphorism",
+    "attribution": "Otto von Bismarck",
+    "attribution_confidence": "attributed_uncertain",
+    "documented_in": "Bismarck, as quoted in A. J. P. Taylor, Bismarck: The Man and the Statesman (1955), p. 167, per Wikiquote's undated sourced section. Checked: https://en.wikiquote.org/wiki/Otto_von_Bismarck Known only through Taylor's quotation, so the attribution is secondhand.",
+    "lens": "When someone invokes a grand collective (the team, the market, the community, the principle) to support their demand, ask what they personally want and why they are not asking for it in their own name. Shared interest is often a cover for self-interest.",
+    "impact_score": 7,
+    "impact_rationale": "Practical way to read motives in arguments and negotiations; applies well beyond diplomacy.",
+    "subject_tags": [
+      "human_nature",
+      "deception",
+      "power"
+    ],
+    "situation_tags": [
+      "negotiation",
+      "dealing_with_powerful",
+      "ultimatum"
+    ]
+  }
+]
