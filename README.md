@@ -70,6 +70,9 @@ python sayings.py sphere run --n 15 --open
 | `set-status accepted\|candidate\|rejected ID... [--note TEXT]` | accept, un-accept, or reject sayings |
 | `settings [default_status [VALUE]]` | show or change settings |
 | `sphere run [--n N] [--ids 1,2,3] [--seed S] [--open]` | lay out sayings on a sphere, save the run, write `export/sphere-<run>.html` |
+| `sphere run --stage meaning [--scorer claude\|words]` | stage two layout, by meaning |
+| `sphere compare [RUN] [--n N\|--ids\|--all] [--open]` | tags vs meaning on one sample: two globes plus a report of hidden connections and possible mis-tags |
+| `sphere score [--n N\|--ids\|--all] [--yes]` | have Claude score pairs ahead of time (cached) |
 | `sphere list` / `sphere render RUN [--open]` | list saved runs / redraw one |
 | `review export [FILE]` / `review apply FILE` | markdown review round-trip |
 | `search [TEXT] [--tag T] [--form F] [--by NAME] [--status S] [-v]` | find sayings (accepted only by default; `--status all` for everything) |
@@ -145,11 +148,15 @@ You can also write your own matcher: a function
 
 ## The sayings sphere
 
-Spec: [docs/sphere-layout-spec.md](docs/sphere-layout-spec.md). Stage one
-(relatedness from tags) is built; stage two (relatedness from meaning) is next.
+Spec: [docs/sphere-layout-spec.md](docs/sphere-layout-spec.md). Both stages
+and the comparison are built.
 
 ```
-python sayings.py sphere run --n 15 --open      # 15 random sayings; pick any number up to all of them
+python sayings.py sphere run --n 15 --open                  # stage one: by tags; any number up to all sayings
+python sayings.py sphere run --stage meaning --n 15 --open  # stage two: by meaning
+python sayings.py sphere compare --n 20 --open              # both on the same sample, side by side, plus a report
+python sayings.py sphere compare 4 --open                   # compare using run 4's sample and seed
+python sayings.py sphere score --all                        # pre-score every pair with Claude (cached)
 python sayings.py sphere run --ids 11,12,20,5,24 --seed 3
 python sayings.py sphere list
 python sayings.py sphere render 1 --open
@@ -179,7 +186,50 @@ ended up (180° means opposite sides).
 
 In the page, drag to turn, use the wheel to zoom, and click a saying for its
 lens, its neighbours, and the sayings that pull the other way. Lines brighten
-with shared tags; orange dashes run through the globe between counter-sayings.
+with relatedness; orange dashes run through the globe between counter-sayings.
+
+### Stage two: meaning
+
+Relatedness is how close two sayings are in meaning: their insight, their
+mechanism, or the kind of situation they speak to, judged from text and lens and
+ignoring tags. Scorers are pluggable (`--scorer`):
+
+- **`claude`** (default): Claude (`claude-opus-5-5`; override with `SAYINGS_MODEL`)
+  reads the sayings and rates each pair 0–10, up to 200 pairs per request. The
+  API's automatic fallback model is on, in case a request is declined. Scores
+  are cached in `relatedness_cache`, keyed by model and a fingerprint of each
+  saying's text and lens. Repeat layouts are free and work offline, and editing
+  a saying re-scores only its own pairs. Needs `pip install anthropic` and
+  `ANTHROPIC_API_KEY`. A 20-saying sample is 190 pairs (one request). All 79
+  sayings are 3,081 pairs (16 requests). More than 1,000 new pairs needs `--yes`.
+- **`words`**: an offline TF-IDF word-overlap score. It needs nothing, and it is
+  what `claude` falls back to, with a note, when the package, key or network is
+  missing. It sees shared words, not shared ideas, so the page and report carry
+  a warning when it was used.
+
+Anthropic has no embeddings endpoint, so Claude scores pairs directly rather
+than comparing vectors. An embeddings scorer (e.g. Voyage AI) can be added to
+`SCORERS` in `compendium/meaning.py`; it only has to return pair scores from 0 to 1.
+
+Each run records which scorer it used.
+
+### Comparison
+
+`sphere compare` lays out the same sample both ways with the same seed. It then
+writes `export/compare-<id>.md` and `export/compare-<id>.html`. The page shows
+the two globes side by side, turning together; the tags layout is rotated (and
+mirrored if that fits better) to line up with the meaning layout. The report
+gives:
+
+- **Agreement:** rank correlation between the tag and meaning scores over all
+  pairs. Ranks are used because the two scales aren't comparable.
+- **Hidden connections** (gold arcs): pairs in the top 10% by meaning that share
+  no tags. These are the non-obvious neighbours, and candidates for a shared tag.
+- **Possible mis-tags** (purple arcs): pairs sharing at least 40% of their tags
+  but in the bottom 25% by meaning.
+
+The report is computed from the scores, not from positions on the globe:
+positions depend on the random start and on compromises between forces.
 
 **Borrowed from Network Meaning** (`D:\Projects\network-meaning`, read only, not modified):
 - `compendium/geodesic.py` ports the icosahedral marble frame (`MF`) from
@@ -201,6 +251,7 @@ older `sayings.db` is upgraded in place without losing data.
 |---|---|
 | 1 | `sayings`, `tags`, `saying_tags`, `counter_pairs` (the original schema) |
 | 2 | `settings` (key/value, e.g. `default_status`); `layout_runs` (stage, seed, sample, parameters, energy, quality stats); `layout_points` (each saying's relaxed x,y,z and snapped lattice vertex); `layout_edges` (triangulation edges) |
+| 3 | `relatedness_cache` (Claude meaning scores per pair, keyed by model and saying fingerprints); `layout_edges.relatedness` (each edge's score in its run); `comparisons` (tags run, meaning run, report) |
 
 ## Tests
 
@@ -214,7 +265,8 @@ python -m unittest discover tests
 sayings.py            CLI entry point
 compendium/           db (schema, migrations, vocab sync), records (validate/import/search/dedupe/status),
                       review, consult, llm_matcher (--smart), report (export/stats),
-                      sphere (layout), geodesic (lattice), render + sphere_template.html (page), cli
+                      sphere (layout, alignment), meaning (stage two scorers, comparison),
+                      geodesic (lattice), render + sphere_template.html (pages), cli
 compendium/vendor/    three-r128.min.js (from Network Meaning)
 tags.txt              editable tag vocabulary + consult aliases
 seed/                 starter.json (batch 1), batch2.json

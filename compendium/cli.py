@@ -98,28 +98,128 @@ def cmd_sphere(conn, a):
         print(f"Wrote {out}")
         return _maybe_open(out, a.open)
 
+    if a.action == "score":
+        return _sphere_score(conn, a)
+    if a.action == "compare":
+        return _sphere_compare(conn, a)
+
     # run
+    seed, ids, how = _sphere_sample(conn, a)
+    if a.stage == "meaning" and not _cost_ok(conn, ids, a):
+        return 1
+    print(f"Laying out {len(ids)} sayings (stage {a.stage}, seed {seed})...")
+    run_id = _layout(conn, a, ids, a.stage, seed, how)
+    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
+    print(f"Wrote {out}")
+    return _maybe_open(out, a.open)
+
+
+def _sphere_sample(conn, a):
+    from . import sphere
     seed = a.seed if a.seed is not None else random.randrange(1_000_000)
     if a.ids:
-        ids = sorted({int(x) for x in a.ids.split(",")})
-        how = "ids"
-    else:
-        ids = sphere.choose_sample(conn, a.n, seed, a.include_candidates)
-        how = f"random {a.n}" + (" incl. candidates" if a.include_candidates else "")
-    print(f"Laying out {len(ids)} sayings (stage {a.stage}, seed {seed})...")
-    run_id = sphere.run_layout(conn, ids, stage=a.stage, seed=seed, sample_how=how, pull=a.pull,
-                               push_counters=a.push_counters, form_weight=a.form_weight,
+        return seed, sorted({int(x) for x in a.ids.split(",")}), "ids"
+    if getattr(a, "all", False):
+        ids = [r[0] for r in conn.execute("SELECT id FROM sayings WHERE status='accepted' ORDER BY id")]
+        return seed, ids, "all accepted"
+    ids = sphere.choose_sample(conn, a.n, seed, a.include_candidates)
+    return seed, ids, f"random {a.n}" + (" incl. candidates" if a.include_candidates else "")
+
+
+def _cost_ok(conn, ids, a):
+    """Meaning scores from Claude cost money; ask for --yes before scoring a lot of new pairs."""
+    from . import meaning
+    if a.scorer != "claude":
+        return True
+    new = meaning.uncached_count(conn, ids)
+    if new > 1000 and not a.yes:
+        requests = -(-new // meaning.PAIRS_PER_REQUEST)
+        print(f"That needs {new} new pair scores from Claude (~{requests} requests). Re-run with --yes to go ahead, "
+              f"or use --scorer words for the free offline scorer.")
+        return False
+    return True
+
+
+def _layout(conn, a, ids, stage, seed, how, related=None, info=None):
+    from . import sphere
+    if stage == "meaning" and related is None:
+        related, info = sphere.stage_relatedness(conn, ids, "meaning", scorer=a.scorer)
+    run_id = sphere.run_layout(conn, ids, stage=stage, seed=seed, sample_how=how, related=related, stage_info=info,
+                               pull=a.pull, push_counters=a.push_counters, form_weight=a.form_weight,
                                restarts=a.restarts, snap=not a.no_snap)
-    st = sphere.load_run(conn, run_id)["stats"]
-    print(f"Run #{run_id} saved.")
+    run = sphere.load_run(conn, run_id)
+    st = run["stats"]
+    from .render import stage_label
+    print(f"Run #{run_id} saved ({stage_label(run)}).")
     print(f"  related pairs sit {st['related_mean_angle']}° apart on average, unrelated {st['unrelated_mean_angle']}°"
           f" (correlation {st['relatedness_vs_angle']})")
     print(f"  closest pair {st['min_angle']}° apart" + (f"; snapping moved points up to {st['max_snap_shift']}°" if 'max_snap_shift' in st else ""))
     if st["counter_angles"]:
         print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
-    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
-    print(f"Wrote {out}")
-    return _maybe_open(out, a.open)
+    return run_id
+
+
+def _sphere_score(conn, a):
+    from . import meaning
+    seed, ids, how = _sphere_sample(conn, a)
+    new = meaning.uncached_count(conn, ids)
+    print(f"{len(ids)} sayings ({how}): {len(ids) * (len(ids) - 1) // 2} pairs, {new} not yet scored by {meaning.MODEL}.")
+    if not new or not _cost_ok(conn, ids, a):
+        return 0
+    try:
+        meaning.claude_scores(conn, ids)
+    except meaning.ScorerUnavailable as e:
+        print(f"Couldn't score with Claude: {e}")
+        return 1
+    print("Done; these scores are cached for offline layouts.")
+
+
+def _sphere_compare(conn, a):
+    from . import meaning, render, sphere
+    if a.run is not None:
+        base = sphere.load_run(conn, a.run)
+        if base is None:
+            print(f"No run #{a.run}.")
+            return 1
+        ids, seed, how = base["sample"], base["seed"], base["sample_how"]
+    else:
+        seed, ids, how = _sphere_sample(conn, a)
+        base = None
+    if not _cost_ok(conn, ids, a):
+        return 1
+    m_scores, m_info = meaning.meaning_relatedness(conn, ids, scorer=a.scorer)
+    t_scores = sphere.tag_relatedness(conn, ids, form_weight=a.form_weight)
+    runs = {}
+    if base is not None:
+        runs[base["stage"]] = base["id"]
+        if base["stage"] == "meaning" and base["params"].get("scorer") != m_info["scorer"]:
+            print(f"Note: run #{base['id']} used the '{base['params'].get('scorer')}' scorer; this comparison uses '{m_info['scorer']}'.")
+    print(f"Comparing tags and meaning on {len(ids)} sayings (seed {seed})...")
+    if "tags" not in runs:
+        runs["tags"] = _layout(conn, a, ids, "tags", seed, how)
+    if "meaning" not in runs:
+        runs["meaning"] = _layout(conn, a, ids, "meaning", seed, how, related=m_scores, info=m_info)
+    rep = meaning.compare(t_scores, m_scores, ids)
+    cid = conn.execute("INSERT INTO comparisons (tags_run, meaning_run, report) VALUES (?,?,?)",
+                       (runs["tags"], runs["meaning"], json.dumps(rep))).lastrowid
+    conn.commit()
+    out_dir = Path(a.out).parent if a.out else Path("export")
+    md = out_dir / f"compare-{cid}.md"
+    md.parent.mkdir(parents=True, exist_ok=True)
+    md.write_text(render.compare_markdown(conn, cid), encoding="utf-8")
+    page = render.write_compare_page(conn, cid, a.out or out_dir / f"compare-{cid}.html")
+    text = lambda i: records.get(conn, i)["text"]
+    print(f"Comparison #{cid}: agreement {rep['agreement']} over {rep['pairs']} pairs.")
+    print(f"  hidden connections (close in meaning, no shared tags): {len(rep['hidden'])}")
+    for h in rep["hidden"][:5]:
+        print(f'    "{text(h["a"])[:50]}"  <->  "{text(h["b"])[:50]}"')
+    print(f"  possible mis-tags (tagged alike, far apart in meaning): {len(rep['mistag'])}")
+    for h in rep["mistag"][:5]:
+        print(f'    "{text(h["a"])[:50]}"  <->  "{text(h["b"])[:50]}"')
+    if m_info["scorer"] == "words":
+        print(f"  ⚠ {render.WORDS_WARNING}")
+    print(f"Wrote {md} and {page}")
+    return _maybe_open(page, a.open)
 
 
 def _maybe_open(path, do_open):
@@ -307,12 +407,17 @@ def build_parser():
     s.set_defaults(func=cmd_settings)
 
     s = sub.add_parser("sphere", help="lay sayings out on a sphere and draw it (see docs/sphere-layout-spec.md)")
-    s.add_argument("action", nargs="?", default="run", choices=("run", "list", "render"))
-    s.add_argument("run", nargs="?", type=int, help="run id (for render)")
+    s.add_argument("action", nargs="?", default="run", choices=("run", "list", "render", "compare", "score"))
+    s.add_argument("run", nargs="?", type=int, help="run id (for render, or compare to reuse a run's sample)")
     s.add_argument("-n", "--n", type=int, default=15, help="how many sayings to place (default 15)")
     s.add_argument("--ids", help="comma-separated saying ids instead of a random sample")
+    s.add_argument("--all", action="store_true", help="use every accepted saying (score, compare)")
     s.add_argument("--seed", type=int, help="random seed (default: new each time; printed so you can repeat it)")
-    s.add_argument("--stage", default="tags", choices=("tags",), help="relatedness measure (stage two comes later)")
+    s.add_argument("--stage", default="tags", choices=("tags", "meaning"),
+                   help="relatedness: shared tags (stage one) or meaning (stage two)")
+    s.add_argument("--scorer", default="claude", choices=("claude", "words"),
+                   help="meaning scorer: Claude (cached; falls back to words if unavailable) or offline word overlap")
+    s.add_argument("--yes", action="store_true", help="go ahead even if Claude must score more than 1,000 new pairs")
     s.add_argument("--pull", type=float, default=sphere_defaults("pull"),
                    help="how strongly related sayings attract (higher = tighter clusters, less even)")
     s.add_argument("--push-counters", type=float, default=sphere_defaults("push_counters"),

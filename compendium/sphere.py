@@ -55,7 +55,17 @@ def tag_relatedness(conn, ids, form_weight=0.0):
     return scores
 
 
-STAGES = {"tags": tag_relatedness}
+STAGES = ("tags", "meaning")
+
+
+def stage_relatedness(conn, ids, stage, form_weight=0.0, scorer="claude", log=None):
+    """Return (scores by id pair, info dict recorded in the run's params)."""
+    if stage == "tags":
+        return tag_relatedness(conn, ids, form_weight=form_weight), {}
+    if stage == "meaning":
+        from . import meaning
+        return meaning.meaning_relatedness(conn, ids, scorer=scorer, log=log)
+    raise ValueError(f"unknown stage {stage!r}; available: {', '.join(STAGES)}")
 
 
 def counter_pairs(conn, ids):
@@ -250,14 +260,21 @@ def choose_sample(conn, n, seed, include_candidates=False):
     return sorted(random.Random(seed).sample(ids, n))
 
 
-def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", **params):
-    """Lay out the given sayings, save the run, and return its id."""
+def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, stage_info=None, **params):
+    """Lay out the given sayings, save the run, and return its id.
+
+    `related` ({(a_id, b_id): 0..1}) can be passed in; otherwise it is computed for
+    the stage. `stage_info` (e.g. which meaning scorer ran) is saved with the params.
+    """
     p = {**DEFAULTS, **params}
     if len(ids) < 4:
         raise ValueError("need at least 4 sayings for a sphere layout")
-    if stage not in STAGES:
-        raise ValueError(f"unknown stage {stage!r}; available: {', '.join(STAGES)}")
-    rel_by_id = STAGES[stage](conn, ids, form_weight=p["form_weight"]) if stage == "tags" else STAGES[stage](conn, ids)
+    ids = list(ids)
+    if related is None:
+        related, stage_info = stage_relatedness(conn, ids, stage, form_weight=p["form_weight"],
+                                                scorer=p.get("scorer", "claude"))
+    p.update(stage_info or {})
+    rel_by_id = related
     index = {sid: k for k, sid in enumerate(ids)}
     related = {(index[a], index[b]): r for (a, b), r in rel_by_id.items()}
     counters = {tuple(sorted((index[a], index[b]))) for a, b in counter_pairs(conn, ids)}
@@ -284,8 +301,11 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", **params):
     run_id = cur.lastrowid
     conn.executemany("INSERT INTO layout_points (run_id, saying_id, x, y, z, vertex) VALUES (?,?,?,?,?,?)",
                      [(run_id, sid, *pt, v) for sid, pt, v in zip(ids, pts, verts)])
-    conn.executemany("INSERT INTO layout_edges (run_id, a_id, b_id) VALUES (?,?,?)",
-                     [(run_id, *sorted((ids[a], ids[b]))) for a, b in edges])
+    edge_rows = []
+    for a, b in edges:
+        x, y = sorted((ids[a], ids[b]))
+        edge_rows.append((run_id, x, y, rel_by_id.get((x, y), 0.0)))
+    conn.executemany("INSERT INTO layout_edges (run_id, a_id, b_id, relatedness) VALUES (?,?,?,?)", edge_rows)
     conn.commit()
     return run_id
 
@@ -300,5 +320,60 @@ def load_run(conn, run_id):
     run["points"] = [dict(r) for r in conn.execute(
         "SELECT saying_id, x, y, z, vertex FROM layout_points WHERE run_id=?", (run_id,))]
     run["edges"] = [tuple(r) for r in conn.execute(
-        "SELECT a_id, b_id FROM layout_edges WHERE run_id=? ORDER BY a_id, b_id", (run_id,))]
+        "SELECT a_id, b_id, relatedness FROM layout_edges WHERE run_id=? ORDER BY a_id, b_id", (run_id,))]
     return run
+
+
+# ---------------------------------------------------------------- aligning two layouts
+
+def _quat_rotate(q, v):
+    w, x, y, z = q
+    # v' = q v q*, written out
+    tx = 2 * (y * v[2] - z * v[1])
+    ty = 2 * (z * v[0] - x * v[2])
+    tz = 2 * (x * v[1] - y * v[0])
+    return (v[0] + w * tx + (y * tz - z * ty),
+            v[1] + w * ty + (z * tx - x * tz),
+            v[2] + w * tz + (x * ty - y * tx))
+
+
+def best_rotation(src, dst):
+    """Unit quaternion (w,x,y,z) rotating src points onto dst with least squared error (Horn, 1987).
+
+    The answer is the top eigenvector of a 4x4 symmetric matrix, found by power iteration
+    after shifting the matrix so its largest eigenvalue is also the largest in size.
+    """
+    S = [[sum(p[i] * q[j] for p, q in zip(src, dst)) for j in range(3)] for i in range(3)]
+    (xx, xy, xz), (yx, yy, yz), (zx, zy, zz) = S
+    N = [[xx + yy + zz, yz - zy, zx - xz, xy - yx],
+         [yz - zy, xx - yy - zz, xy + yx, zx + xz],
+         [zx - xz, xy + yx, -xx + yy - zz, yz + zy],
+         [xy - yx, zx + xz, yz + zy, -xx - yy + zz]]
+    shift = sum(abs(v) for row in N for v in row) + 1.0
+    M = [[N[i][j] + (shift if i == j else 0.0) for j in range(4)] for i in range(4)]
+    q = [1.0, 0.1, 0.2, 0.3]
+    for _ in range(500):
+        nq = [sum(M[i][j] * q[j] for j in range(4)) for i in range(4)]
+        norm = math.sqrt(sum(v * v for v in nq))
+        nq = [v / norm for v in nq]
+        if sum((a - b) ** 2 for a, b in zip(nq, q)) < 1e-24:
+            q = nq
+            break
+        q = nq
+    return tuple(q)
+
+
+def align(src, dst):
+    """Rotate (and if it fits better, mirror) src onto dst. Layouts are only defined up to
+    rotation and reflection, so this is how two runs on the same sample are compared."""
+    best = None
+    for mirror in (False, True):
+        pts = [(-p[0], p[1], p[2]) for p in src] if mirror else list(src)
+        q = best_rotation(pts, dst)
+        moved = [_quat_rotate(q, p) for p in pts]
+        err = sum(sum((a - b) ** 2 for a, b in zip(m, d)) for m, d in zip(moved, dst))
+        if best is None or err < best[1]:
+            best = (moved, err, mirror)
+    moved, err, mirror = best
+    rms_deg = math.degrees(2 * math.asin(min(1.0, math.sqrt(err / len(src)) / 2)))
+    return moved, {"mirrored": mirror, "rms_angle": round(rms_deg, 1)}

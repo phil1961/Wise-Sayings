@@ -325,5 +325,119 @@ class TestSphereLayout(Base):
         self.assertEqual(len(data["lattice"]), 1002)
 
 
+class FakeStream:
+    """Stands in for client.beta.messages.stream(...): answers with scores for the asked pairs."""
+    def __init__(self, owner, kw):
+        self.owner, self.kw = owner, kw
+    def __enter__(self):
+        return self
+    def __exit__(self, *a):
+        return False
+    def get_final_message(self):
+        from types import SimpleNamespace as NS
+        import re
+        asked = re.findall(r"^(\d+)-(\d+)$", self.kw["messages"][0]["content"], re.M)
+        pairs = [(int(a), int(b)) for a, b in asked]
+        self.owner.calls.append(pairs)
+        if self.owner.skip_first and len(self.owner.calls) == 1:
+            pairs = pairs[1:]  # the model "forgets" one pair; the scorer should ask again
+        items = [{"a": a, "b": b, "score": (a + b) % 11} for a, b in pairs]
+        return NS(stop_reason="end_turn", content=[NS(type="text", text=json.dumps({"scores": items}))])
+
+
+class FakeClient:
+    def __init__(self, skip_first=False):
+        from types import SimpleNamespace as NS
+        self.calls, self.skip_first = [], skip_first
+        self.beta = NS(messages=NS(stream=lambda **kw: FakeStream(self, kw)))
+
+
+class TestMeaning(Base):
+    def setUp(self):
+        super().setUp()
+        records.import_records(self.conn, records.load_file(SEED))
+        self.accept_all()
+
+    def test_word_scores_are_in_range_and_stable(self):
+        from compendium import meaning
+        ids = [1, 2, 3, 4, 5, 6]
+        a, b = meaning.word_scores(self.conn, ids), meaning.word_scores(self.conn, ids)
+        self.assertEqual(a, b)
+        self.assertTrue(all(0 < v <= 1 for v in a.values()))
+
+    @unittest.skipUnless(importlib.util.find_spec("anthropic"), "anthropic not installed")
+    def test_claude_scores_cache_retry_and_invalidation(self):
+        from compendium import meaning
+        ids = [1, 2, 3, 4, 5]
+        client = FakeClient(skip_first=True)
+        s = meaning.claude_scores(self.conn, ids, client=client, log=lambda m: None)
+        self.assertEqual(len(s), 10)
+        self.assertEqual(len(client.calls), 2)              # first answer was missing a pair -> one retry
+        self.assertEqual(s[(1, 2)], ((1 + 2) % 11) / 10)
+        self.assertEqual(client.calls[0][0], (1, 2))
+        again = FakeClient()
+        self.assertEqual(meaning.claude_scores(self.conn, ids, client=again, log=lambda m: None), s)
+        self.assertEqual(again.calls, [])                    # everything came from the cache
+        self.conn.execute("UPDATE sayings SET lens = lens || ' (edited)' WHERE id = 3")
+        third = FakeClient()
+        meaning.claude_scores(self.conn, ids, client=third, log=lambda m: None)
+        self.assertEqual(sorted(third.calls[0]), [(1, 3), (2, 3), (3, 4), (3, 5)])  # only saying 3's pairs
+
+    def test_falls_back_to_words_when_claude_unavailable(self):
+        from compendium import meaning
+        class Broken:
+            def __getattr__(self, name):
+                raise meaning.ScorerUnavailable("no key")
+        notes = []
+        scores, info = meaning.meaning_relatedness(self.conn, [1, 2, 3, 4], client=Broken(), log=notes.append)
+        self.assertEqual(info, {"scorer": "words"})
+        self.assertTrue(any("offline" in n for n in notes), notes)
+
+    def test_compare_finds_hidden_and_mistag_pairs(self):
+        from compendium import meaning
+        ids = list(range(1, 11))
+        pairs = [(a, b) for a in ids for b in ids if a < b]
+        tags = {p: 0.5 for p in pairs[:10]}                   # first 10 pairs tagged alike
+        mean = {p: 0.05 for p in pairs}
+        mean[(9, 10)] = 0.95                                   # close in meaning, no shared tags -> hidden
+        mean[pairs[0]] = 0.0                                   # tagged alike, far in meaning -> mis-tag
+        rep = meaning.compare(tags, mean, ids)
+        self.assertIn({"a": 9, "b": 10, "meaning": 0.95, "tags": 0.0}, rep["hidden"])
+        self.assertEqual(rep["mistag"][0]["a"], pairs[0][0])
+        same = meaning.compare(tags, tags, ids)
+        self.assertEqual(same["agreement"], 1.0)
+
+    def test_meaning_run_and_comparison_page(self):
+        from compendium import meaning, render, sphere
+        ids = sphere.choose_sample(self.conn, 10, seed=2)
+        m, info = meaning.meaning_relatedness(self.conn, ids, scorer="words")
+        t_run = sphere.run_layout(self.conn, ids, stage="tags", seed=2, restarts=1)
+        m_run = sphere.run_layout(self.conn, ids, stage="meaning", seed=2, related=m, stage_info=info, restarts=1)
+        run = sphere.load_run(self.conn, m_run)
+        self.assertEqual(run["params"]["scorer"], "words")
+        self.assertTrue(all(r is not None for _, _, r in run["edges"]))
+        rep = meaning.compare(sphere.tag_relatedness(self.conn, ids), m, ids)
+        cid = self.conn.execute("INSERT INTO comparisons (tags_run, meaning_run, report) VALUES (?,?,?)",
+                                (t_run, m_run, json.dumps(rep))).lastrowid
+        html = render.write_compare_page(self.conn, cid, self.dir / "c.html").read_text(encoding="utf-8")
+        data = json.loads(html.split("const DATA = ", 1)[1].split(";\n", 1)[0])
+        self.assertEqual(len(data["views"]), 2)
+        self.assertIn("word-overlap", data["subtitle"])     # the offline warning is on the page
+        self.assertIn("Warning", render.compare_markdown(self.conn, cid))
+
+
+class TestAlign(unittest.TestCase):
+    def test_recovers_rotation_and_mirror(self):
+        import math, random as _r
+        from compendium import sphere
+        rng = _r.Random(3)
+        pts = [sphere.random_point(rng) for _ in range(15)]
+        q = (math.cos(0.6), math.sin(0.6), 0.0, 0.0)
+        dst = [sphere._quat_rotate(q, (-p[0], p[1], p[2])) for p in pts]
+        moved, fit = sphere.align(pts, dst)
+        self.assertTrue(fit["mirrored"])
+        self.assertLess(fit["rms_angle"], 0.01)
+
+
 if __name__ == "__main__":
     unittest.main()

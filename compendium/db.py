@@ -101,6 +101,34 @@ MIGRATIONS = {
         CHECK (a_id < b_id)
     );
     """,
+    3: """
+    -- Stage two: cached meaning scores for a pair of sayings, per scorer and model.
+    -- a_hash/b_hash fingerprint each saying's text+lens; a changed saying is re-scored.
+    CREATE TABLE relatedness_cache (
+        scorer     TEXT NOT NULL,               -- e.g. 'claude'
+        model      TEXT NOT NULL,
+        a_id       INTEGER NOT NULL REFERENCES sayings(id) ON DELETE CASCADE,
+        b_id       INTEGER NOT NULL REFERENCES sayings(id) ON DELETE CASCADE,
+        a_hash     TEXT NOT NULL,
+        b_hash     TEXT NOT NULL,
+        score      REAL NOT NULL,               -- 0..1
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (scorer, model, a_id, b_id),
+        CHECK (a_id < b_id)
+    );
+
+    -- The relatedness score each triangulation edge had in its run (drawn as line brightness).
+    ALTER TABLE layout_edges ADD COLUMN relatedness REAL;
+
+    -- A stage one vs stage two comparison on the same sample.
+    CREATE TABLE comparisons (
+        id          INTEGER PRIMARY KEY,
+        tags_run    INTEGER NOT NULL REFERENCES layout_runs(id) ON DELETE CASCADE,
+        meaning_run INTEGER NOT NULL REFERENCES layout_runs(id) ON DELETE CASCADE,
+        report      TEXT NOT NULL,              -- JSON: agreement, hidden connections, possible mis-tags
+        created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    """,
 }
 
 
