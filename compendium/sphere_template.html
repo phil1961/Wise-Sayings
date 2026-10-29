@@ -232,10 +232,15 @@ function makeView(spec) {
   for (const p of spec.points) {
     const v = (p.vertex != null ? V(...DATA.lattice[p.vertex]) : V(p.x, p.y, p.z)).normalize().multiplyScalar(R);
     pos[p.saying_id] = v;
-    const s = byId[p.saying_id], size = 0.22 + 0.03 * s.impact_score;
+    /* a saying's ball: a third of its former size (Phil, 2026-10-29), still a little bigger for higher impact.
+       An invisible sphere at the old size rides along as its click target, so small balls stay easy to click. */
+    const s = byId[p.saying_id], reach = 0.22 + 0.03 * s.impact_score, size = reach / 3;
     const dot = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 12), new THREE.MeshBasicMaterial());
     dot.position.copy(v.clone().multiplyScalar(1 + size / R));
-    world.add(tag(dot, "form:" + s.form, 1, COL[s.form] || COL.ink, { id: s.id, ids: [s.id], dot: true })); dots.push(dot);
+    world.add(tag(dot, "form:" + s.form, 1, COL[s.form] || COL.ink, { id: s.id, ids: [s.id], dot: true }));
+    const hit = new THREE.Mesh(new THREE.SphereGeometry(reach, 8, 6), new THREE.MeshBasicMaterial({ visible: false }));
+    hit.userData = { id: s.id };
+    dot.add(hit); dot.userData.hit = hit; dots.push(dot);
   }
   /* a consult sphere: the situation is a fixed marker; faint rings mark 30, 60 and 90 degrees from it */
   if (DATA.center) {
@@ -576,7 +581,7 @@ function hookPointer(v) {
     const r = c.getBoundingClientRect();
     ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), v.camera);
     /* on a solid globe the surface is in the way of anything behind it */
-    const targets = v.dots.filter(d => d.visible).concat(solidGlobe() && v.globe.visible ? [v.globe] : []);
+    const targets = v.dots.filter(d => d.visible).map(d => d.userData.hit || d).concat(solidGlobe() && v.globe.visible ? [v.globe] : []);
     const hit = ray.intersectObjects(targets)[0];
     select(hit && hit.object !== v.globe ? hit.object.userData.id : null);
   });
