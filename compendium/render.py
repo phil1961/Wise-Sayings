@@ -67,6 +67,9 @@ def _write(data, out_path, page_title=None, description=None):
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(html, encoding="utf-8")
+    # Keep the folder's page list (sayings-nav.js, read by every page's Pages menu) and index current.
+    from . import pages
+    pages.build(out_path.parent, prefix="sayings-" if out_path.name.startswith("sayings-") else "")
     return out_path
 
 

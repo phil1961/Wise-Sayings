@@ -57,6 +57,20 @@
   #info .hidden { color: var(--hidden); }
   #info .mistag { color: var(--mistag); }
   #hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: var(--dim); font-size: 12px; white-space: nowrap; }
+  /* pages menu: every sayings page links to every other, from the shared list in sayings-nav.js */
+  #nav { top: 12px; left: 50%; transform: translateX(-50%); padding: 4px; display: flex; gap: 4px; z-index: 5; }
+  #nav button, #nav a.btn { background: none; border: 0; color: var(--ink); font: 13px var(--body); padding: 5px 10px; border-radius: 5px; cursor: pointer; text-decoration: none; }
+  #nav button:hover, #nav a.btn:hover { background: #ffffff14; color: #fff; }
+  #nav button:disabled { color: var(--dim); opacity: .4; cursor: default; background: none; }
+  #navMenu { top: 52px; left: 50%; transform: translateX(-50%); width: 460px; max-height: calc(100% - 120px); overflow: auto; z-index: 6; padding: 10px 6px; }
+  #navMenu[hidden] { display: none; }
+  #navMenu h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 10px 10px 4px; }
+  #navMenu h3:first-child { margin-top: 2px; }
+  #navMenu a { display: block; padding: 5px 10px; border-radius: 5px; color: var(--ink); text-decoration: none; font-size: 13px; }
+  #navMenu a:hover { background: #ffffff14; color: #fff; }
+  #navMenu a.here { color: #fff; background: #9db7e826; font-weight: 600; }
+  #navMenu a.here::after { content: "  · you are here"; color: var(--dim); font-weight: 400; }
+  #navMenu .all { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; color: var(--said); }
   /* controls */
   #ctlBtn { bottom: 12px; left: 12px; padding: 6px 12px; color: var(--ink); font: 13px var(--body); cursor: pointer; }
   #ctlBtn:hover { color: #fff; }
@@ -90,6 +104,13 @@
 <button class="panel" id="ctlBtn" title="Controls (C)">◐ Controls</button>
 <div class="panel" id="ctl" hidden></div>
 <div id="hint">drag turns · wheel zooms · click a saying</div>
+<nav class="panel" id="nav" aria-label="Sayings pages">
+  <button id="navPrev" title="Previous page ( [ )">‹</button>
+  <button id="navBtn" aria-expanded="false">☰ Pages</button>
+  <button id="navNext" title="Next page ( ] )">›</button>
+</nav>
+<div class="panel" id="navMenu" hidden></div>
+<script src="sayings-nav.js"></script>
 <script>/*__THREE__*/</script>
 <script>
 const DATA = /*__DATA__*/;
@@ -120,9 +141,11 @@ if (HL.mistag.length) addLayer("mistag", "Possible mis-tags", "Relations", COL.m
 if (DATA.center) { addLayer("situation", "Situation marker", "Situation", COL.situation); addLayer("situationLabel", "Situation label", "Situation", COL.situation); }
 /* meaning axes: rods through the centre, thesis at one end and antithesis at the other */
 const AXES = DATA.axes || [];
-const AXIS_COL = ["#ff6b6b", "#4dabf7", "#ffd43b", "#69db7c", "#da77f2", "#ffa94d"];
-AXES.forEach((a, k) => { a.color = AXIS_COL[k % AXIS_COL.length]; a.scores = a.scores || {}; });
-if (AXES.length) { addLayer("axes", "Meaning axes (rods)", "Meaning axes", "#c9d1d9"); addLayer("axisLabels", "Axis labels", "Meaning axes", "#c9d1d9"); }
+/* one colour and one shape for every axis, so the poles never look like sayings (Phil, 2026-10-29) */
+const AXIS_COLOR = "#8b6a47";        /* twig brown, for the rods and pole cylinders (Phil, 2026-10-29) */
+const AXIS_LABEL_COLOR = "#c8a77c";  /* a lighter tan of the same brown, so the pole names stay readable */
+AXES.forEach(a => { a.color = AXIS_LABEL_COLOR; a.scores = a.scores || {}; });
+if (AXES.length) { addLayer("axes", "Meaning axes (rods and poles)", "Meaning axes", AXIS_COLOR); addLayer("axisLabels", "Axis labels", "Meaning axes", AXIS_LABEL_COLOR); }
 const leanOf = (id, a) => a.scores[String(id)] || 0;
 const isPole = id => typeof id === "string" && id.startsWith("axis:");
 const poleParts = id => { const [, key, side] = id.split(":"); return { a: AXES.find(x => x.key === key), side: side === "+" ? 1 : -1 }; };
@@ -232,19 +255,25 @@ function makeView(spec) {
       ring.computeLineDistances(); world.add(tag(ring, "rings", 0.35, COL.situation));
     }
   }
-  /* meaning axes: one rod through the centre per axis, poking out ~10% of the radius (an inch on a 20-inch globe);
-     the thesis tip is a solid ball, the antithesis tip a hollow one, both clickable */
+  /* meaning axes: a thin rod through the centre per axis; at each end a solid cylinder stands out of the surface
+     along the rod, to 20% of the radius above it (about two inches on a 20-inch globe). Every pole has the same shape and
+     colour (thesis and antithesis differ only in their label), and none can be mistaken for a saying's ball. */
+  const POLE_H = R * 0.2, POLE_R = 0.15;   /* 20% of the radius: about two inches on a 20-inch globe */
   for (const a of AXES) {
-    const d = V(...a.dir).normalize(), len = R * 2.2;
-    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, len, 8), new THREE.MeshBasicMaterial());
+    const d = V(...a.dir).normalize();
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, R * 2, 8), new THREE.MeshBasicMaterial());
     rod.quaternion.setFromUnitVectors(V(0, 1, 0), d);
-    world.add(tag(rod, "axes", 0.85, a.color));
+    world.add(tag(rod, "axes", 0.75, AXIS_COLOR));
     for (const side of [1, -1]) {
-      const id = `axis:${a.key}:${side > 0 ? "+" : "-"}`, tip = d.clone().multiplyScalar(side * R * 1.1);
-      const ball = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 10), new THREE.MeshBasicMaterial({ wireframe: side < 0 }));
-      ball.position.copy(tip);
-      world.add(tag(ball, "axes", 1, a.color, { id, pole: true })); dots.push(ball);
-      pos[id] = tip;
+      const id = `axis:${a.key}:${side > 0 ? "+" : "-"}`, out = d.clone().multiplyScalar(side);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(POLE_R, POLE_R, POLE_H, 20), new THREE.MeshBasicMaterial());
+      pole.quaternion.setFromUnitVectors(V(0, 1, 0), out);
+      pole.position.copy(out.clone().multiplyScalar(R + POLE_H / 2));
+      /* dark rims, so a pole seen end-on still reads as a cylinder, not as a saying's disc */
+      const rims = new THREE.LineSegments(new THREE.EdgesGeometry(pole.geometry, 30), new THREE.LineBasicMaterial());
+      pole.add(tag(rims, "axes", 1, "#4a3523"));   /* darker bark at the rims */
+      world.add(tag(pole, "axes", 1, AXIS_COLOR, { id, pole: true })); dots.push(pole);
+      pos[id] = out.clone().multiplyScalar(R + POLE_H);
     }
   }
   /* triangulation edges: great-circle arcs, brighter with relatedness */
@@ -416,7 +445,7 @@ function buildPanel() {
     `<label class="chk"><input type="checkbox" data-g="spin">Slow spin</label>` +
     `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>` +
     `<h3>Presets</h3><div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>` +
-    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · Esc deselect.</div>`;
+    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · P pages · [ ] previous / next page · Esc deselect.</div>`;
   ctl.innerHTML = html;
   ctl.querySelectorAll(".row").forEach(row => {
     const L = () => look.layers[row.dataset.k];
@@ -560,6 +589,39 @@ addEventListener("keydown", e => {
   else if (e.key === "o" || e.key === "O") setSurface(look.surface >= SOLID ? (look.lastSeeThrough || 0.55) : 1);
   else if (e.key === "Escape") select(null);
 });
+
+/* ---------- pages menu ---------- */
+/* sayings-nav.js (next to the page) sets window.SAYINGS_PAGES; it is rebuilt whenever pages are published,
+   so every page, old or new, lists all the others. Without it the menu offers just the index. */
+{
+  const here = decodeURIComponent(location.pathname.split("/").pop() || "");
+  const list = Array.isArray(window.SAYINGS_PAGES) ? window.SAYINGS_PAGES : [];
+  const at = list.findIndex(p => p.file === here);
+  const menu = $("navMenu"), btn = $("navBtn"), prev = $("navPrev"), next = $("navNext");
+  const go = k => { if (list[k]) location.href = list[k].file; };
+  prev.disabled = at <= 0; next.disabled = at < 0 || at >= list.length - 1;
+  prev.onclick = () => go(at - 1); next.onclick = () => go(at + 1);
+  if (at > 0) prev.title = "Previous ( [ ): " + list[at - 1].title;
+  if (at >= 0 && at < list.length - 1) next.title = "Next ( ] ): " + list[at + 1].title;
+  let html = "", group = null;
+  for (const p of list) {
+    if (p.group !== group) { group = p.group; html += `<h3>${esc(group)}</h3>`; }
+    html += `<a href="${encodeURI(p.file)}"${p.file === here ? ' class="here" aria-current="page"' : ""}>${esc(p.title)}</a>`;
+  }
+  menu.innerHTML = (list.length ? html : `<h3>Pages</h3><a>The page list isn't next to this file yet.</a>`) +
+    `<a class="all" href="sayings-index.html">All pages, with descriptions →</a>`;
+  const show = on => { menu.hidden = !on; btn.setAttribute("aria-expanded", String(on)); };
+  btn.onclick = e => { e.stopPropagation(); show(menu.hidden); };
+  if (decodeURIComponent(location.hash).includes("pages")) show(true);   /* a link can open it: #pages */
+  addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target)) show(false); });
+  addEventListener("keydown", e => {
+    if (e.target.closest && e.target.closest("input, select, textarea")) return;
+    if (e.key === "[") go(at - 1);
+    else if (e.key === "]") go(at + 1);
+    else if (e.key === "p" || e.key === "P") show(menu.hidden);
+    else if (e.key === "Escape") show(false);
+  });
+}
 
 /* ---------- start ---------- */
 DATA.views.forEach(makeView);

@@ -283,8 +283,8 @@ python sayings.py consult "your situation" --sphere --axes --open
 ```
 
 `axes.txt` names up to 6 axes, one per line: `key: Thesis | Antithesis | what it is about`.
-Each axis is a rod through the globe's centre that pokes out about 10% of the
-radius (an inch on a 20-inch globe), with the thesis at one end and the
+Each axis is a rod through the globe's centre whose ends stand out about 20% of
+the radius above the surface (about two inches on a 20-inch globe), with the thesis at one end and the
 antithesis at the opposite end. The rods are exactly equally spaced:
 
 - 4–6 axes use the icosahedron's corner pairs, 63.4° between neighbours. That
@@ -316,7 +316,10 @@ For all 151 sayings that was 50–76° versus 104–130°.
 In the viewer:
 
 - The rods and their labels each have a controls row.
-- The thesis tip is a solid ball, the antithesis a hollow one.
+- Every pole (thesis or antithesis) is the same slim twig-brown cylinder,
+  standing out of the surface along its rod, so no pole can be mistaken for a
+  saying. The label tells the ends apart: upright for the thesis, italic for
+  the antithesis.
 - Click a pole to list the sayings that lean toward it.
 - Each saying's panel shows how it leans.
 - On a solid globe the rods vanish inside, and only the tips show above the
@@ -388,10 +391,17 @@ alongside other projects' demos, which are never touched. After publishing, run
 python tools/build_demos_index.py
 ```
 
-to rebuild https://www.toughguycomputing.com/demos/sayings-index.html, which
-lists only this project's pages, grouped as situation spheres, comparisons and
-plain spheres. Each entry comes from the page's own `<title>` and
+to rebuild https://www.toughguycomputing.com/demos/sayings-index.html and the
+shared page list `sayings-nav.js`. The index lists only this project's pages,
+grouped as situation spheres, comparisons and plain spheres. Each entry comes from the page's own `<title>` and
 `<meta name="description">`, which `compendium/render.py` writes.
+
+Every page has a **Pages** menu at the top (or press `P`) listing all the pages,
+grouped as in the index, with the current one marked. Use ‹ › or `[` `]` for
+the previous and next page. Pages read the list from `sayings-nav.js` when they
+open, so older pages show newly published ones without being redrawn. The
+local `export\` folder gets its own list and index each time a page is written,
+so the menu works there too. `#pages` in a link opens the menu.
 
 ## Database schema versions
 
