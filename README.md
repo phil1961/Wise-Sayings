@@ -231,7 +231,8 @@ versus unrelated ones, the closest pair, and how far apart the counter-sayings
 ended up (180° means opposite sides).
 
 In the page, drag to turn, use the wheel to zoom, and click a saying for its
-lens, its neighbours, and the sayings that pull the other way. Labels are
+lens, its neighbours, and the sayings that pull the other way; click it again
+to close the panel. Labels are
 shortened to about 30 characters; hover over a saying (or the situation marker)
 for a popup with the full text and attribution. The popup rides along with the
 saying as the globe turns, fades as it passes behind a see-through globe, and

@@ -638,7 +638,8 @@ function hookPointer(v) {
   c.addEventListener("pointerup", e => {
     dragging = false; c.classList.remove("drag");
     if (moved > 4) return;
-    select(pick(e));
+    const id = pick(e);
+    select(id != null && id === shared.selected ? null : id);   /* clicking the selected one again closes its panel */
   });
   c.addEventListener("wheel", e => { e.preventDefault(); shared.camDist = Math.min(70, Math.max(13, shared.camDist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
 }
