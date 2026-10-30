@@ -78,12 +78,21 @@
   #navMenu a.here::after { content: "  · you are here"; color: var(--dim); font-weight: 400; }
   #navMenu .all { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; color: var(--said); }
   /* controls */
-  #ctlBtn { bottom: 12px; left: 12px; padding: 6px 12px; color: var(--ink); font: 13px var(--body); cursor: pointer; }
-  #ctlBtn:hover { color: #fff; }
-  #ctl { bottom: 52px; left: 12px; width: 340px; max-height: calc(100% - 220px); overflow: auto; font-size: 12px; box-sizing: border-box; }
-  /* window blinds: the whole panel rolls up to its top edge when closed, and each section folds shut under its heading */
-  #ctl { clip-path: inset(0 0 0 0); transition: clip-path .35s ease, visibility 0s linear 0s; }
-  #ctl.rolled { clip-path: inset(0 0 100% 0); visibility: hidden; pointer-events: none; transition: clip-path .35s ease, visibility 0s linear .35s; }
+  /* the controls panel hangs like a window blind from its top rail (the Controls button) just under the title box;
+     closed, it rolls up into the rail, and each section inside folds shut under its heading */
+  #ctl { top: var(--ctl-top, 150px); left: 12px; width: 340px; max-height: calc(100% - var(--ctl-top, 150px) - 40px); padding: 0;
+         display: flex; flex-direction: column; overflow: hidden; font-size: 12px; box-sizing: border-box; }
+  #ctl #ctlBtn { flex: none; display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 0; padding: 8px 14px;
+                 background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; color: var(--ink); font: 13px var(--body);
+                 cursor: pointer; text-align: left; transition: border-color .35s ease; }
+  #ctl #ctlBtn:hover, #ctl #ctlBtn:focus-visible { color: #fff; outline: none; }
+  #ctl #ctlBtn .chev { display: inline-block; font-size: 14px; line-height: 1; transition: transform .35s ease; }
+  #ctl.rolled #ctlBtn { border-bottom-color: transparent; }
+  #ctl.rolled #ctlBtn .chev { transform: rotate(-90deg); }
+  #ctl .blind { flex: 1 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; transition: grid-template-rows .35s ease; }
+  #ctl.rolled .blind { grid-template-rows: 0fr; }
+  #ctlBody { min-height: 0; overflow: auto; padding: 10px 14px 12px; transition: padding .35s ease, visibility 0s linear 0s; }
+  #ctl.rolled #ctlBody { padding-top: 0; padding-bottom: 0; visibility: hidden; transition: padding .35s ease, visibility 0s linear .35s; }
   #ctl h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 0; padding: 7px 0 5px;
             cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
   #ctl .sec:first-child h3 { border-top: 0; padding-top: 0; }
@@ -94,7 +103,7 @@
   #ctl .sec.shut .slats { grid-template-rows: 0fr; }
   #ctl .slats > .inner { overflow: hidden; min-height: 0; padding-bottom: 6px; transition: opacity .3s ease; }
   #ctl .sec.shut .slats > .inner { opacity: 0; padding-bottom: 0; }
-  @media (prefers-reduced-motion: reduce) { #ctl, #ctl.rolled, #ctl .slats, #ctl .slats > .inner, #ctl h3 .chev { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { #ctl .blind, #ctlBody, #ctl #ctlBtn, #ctl #ctlBtn .chev, #ctl .slats, #ctl .slats > .inner, #ctl h3 .chev { transition: none; } }
   #ctl .row { display: grid; grid-template-columns: 1fr 26px 92px 38px; align-items: center; gap: 6px; margin: 3px 0; }
   #ctl .row label { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ctl .row.off label { color: var(--dim); }
@@ -118,8 +127,7 @@
   <div id="legend"></div>
 </div>
 <div class="panel" id="info" hidden></div>
-<button class="panel" id="ctlBtn" title="Controls (C)">◐ Controls</button>
-<div class="panel" id="ctl"></div>
+<div class="panel" id="ctl"><button id="ctlBtn" title="Controls (C)" aria-expanded="true" aria-controls="ctlBody"><span>◐ Controls</span><span class="chev">▾</span></button><div class="blind"><div id="ctlBody"></div></div></div>
 <div id="hint">drag turns · wheel zooms · click a saying</div>
 <nav class="panel" id="nav" aria-label="Sayings pages">
   <button id="navPrev" title="Previous page ( [ )">‹</button>
@@ -514,7 +522,7 @@ function buildPanel() {
     `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>`);
   html += section("Presets", `<div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>`);
   html += `<div class="note">Click a heading to fold its section. Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · P pages · [ ] previous / next page · Esc deselect.</div>`;
-  ctl.innerHTML = html;
+  $("ctlBody").innerHTML = html;
   ctl.querySelectorAll(".sec > h3").forEach(h => {
     const sec = h.parentElement, flip = () => {
       const shut = sec.classList.toggle("shut");
@@ -555,7 +563,7 @@ function setSurface(v) {
   applyLook();
 }
 function syncPanel() {
-  if (!ctl.firstChild) return;
+  if (!$("ctlBody").firstChild) return;
   ctl.querySelectorAll(".row").forEach(row => {
     const L = look.layers[row.dataset.k], l = layerOf(row.dataset.k);
     row.classList.toggle("off", !L.on);
@@ -574,8 +582,15 @@ function syncPanel() {
   });
   ctl.querySelectorAll("[data-v]").forEach(s => s.textContent = pctTxt(look[s.dataset.v]));
 }
-/* the panel rolls up like a blind (CSS on #ctl.rolled); it starts lowered */
-const rollCtl = open => { open = open ?? ctl.classList.contains("rolled"); ctl.classList.toggle("rolled", !open); ctl.setAttribute("aria-hidden", String(!open)); $("ctlBtn").setAttribute("aria-expanded", String(open)); };
+/* the panel rolls up into its rail, the Controls button (CSS on #ctl.rolled); it starts lowered */
+const rollCtl = open => {
+  open = open ?? ctl.classList.contains("rolled");
+  ctl.classList.toggle("rolled", !open);
+  $("ctlBody").setAttribute("aria-hidden", String(!open)); $("ctlBtn").setAttribute("aria-expanded", String(open));
+};
+/* hang the panel just under the title box, whatever height the title and legend wrap to */
+const hangCtl = () => { const h = $("head"); ctl.style.setProperty("--ctl-top", (h.offsetTop + h.offsetHeight + 10) + "px"); };
+new ResizeObserver(hangCtl).observe($("head")); addEventListener("resize", hangCtl);
 $("ctlBtn").onclick = () => rollCtl();
 
 /* ---------- info panel: one neighbour list per view, so a comparison shows both ---------- */
