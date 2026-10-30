@@ -231,7 +231,11 @@ versus unrelated ones, the closest pair, and how far apart the counter-sayings
 ended up (180° means opposite sides).
 
 In the page, drag to turn, use the wheel to zoom, and click a saying for its
-lens, its neighbours, and the sayings that pull the other way. Lines brighten
+lens, its neighbours, and the sayings that pull the other way. Labels are
+shortened to about 30 characters; hover over a saying (or the situation marker)
+for a popup with the full text and attribution. The popup rides along with the
+saying as the globe turns, fades as it passes behind a see-through globe, and
+disappears once the globe hides it. Lines brighten
 with relatedness; orange dashes run through the globe between counter-sayings.
 
 **Defaults.** A page opens with its controls panel showing and a 96%-opaque

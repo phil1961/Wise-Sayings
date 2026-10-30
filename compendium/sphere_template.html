@@ -30,6 +30,12 @@
   .lbl.center { font: italic 15px var(--display); color: #fff; max-width: 320px; transform: translate(-50%, -160%); }
   .lbl.axis { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .05em; transform: translate(-50%, -50%); }
   .lbl.axis.anti { font-style: italic; font-weight: 500; }
+  /* hover popup: the full saying, riding just above its (shortened) label as the globe turns */
+  .tip { position: absolute; left: 0; top: 0; pointer-events: none; max-width: 320px; padding: 7px 10px; border-radius: 6px;
+         background: var(--panel); border: 1px solid var(--line); color: var(--ink); font: italic 14px/1.35 var(--display);
+         box-shadow: 0 2px 10px #0008; z-index: 2; }
+  .tip[hidden] { display: none; }
+  .tip .who { display: block; margin-top: 3px; font: 11px var(--body); color: var(--dim); }
   #info .lean { font-size: 12px; margin-top: 6px; }
   #info .lean b { font-weight: 600; }
   .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
@@ -213,13 +219,14 @@ const arc = (a, b, lift) => { /* great-circle arc by spherical interpolation */
   }
   return pts;
 };
-const short = t => t.length > 42 ? t.slice(0, 40).replace(/\s+\S*$/, "") + "…" : t;
+/* labels are short; hovering a saying shows the whole text in a popup (see renderTip) */
+const short = t => t.length > 32 ? t.slice(0, 30).replace(/\s+\S*$/, "") + "…" : t;
 /* tag a drawn object with its layer, its own base opacity and colour, and the sayings it depends on */
 const tag = (obj, layer, base, color, extra) => { obj.userData = { ...obj.userData, layer, base, color, ...extra }; obj.material.transparent = true; return obj; };
 
 function makeView(spec) {
   const el = document.createElement("div"); el.className = "view";
-  el.innerHTML = `<canvas></canvas><div class="labels"></div>` + (DATA.views.length > 1 ? `<div class="title">${esc(spec.title)}</div>` : "");
+  el.innerHTML = `<canvas></canvas><div class="labels"></div><div class="tip" hidden></div>` + (DATA.views.length > 1 ? `<div class="title">${esc(spec.title)}</div>` : "");
   $("views").appendChild(el);
   const canvas = el.querySelector("canvas"), labelsEl = el.querySelector(".labels");
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -309,7 +316,7 @@ function makeView(spec) {
     world.add(tag(new THREE.Line(new THREE.BufferGeometry().setFromPoints(arc(pos[h.a], pos[h.b], 1.03)), new THREE.LineBasicMaterial()),
       kind, 0.9, COL[kind], { ids: [h.a, h.b], link: true }));
   }
-  const view = { spec, canvas, labelsEl, renderer, scene, camera, world, pos, dots, globe };
+  const view = { spec, canvas, labelsEl, tipEl: el.querySelector(".tip"), hover: null, renderer, scene, camera, world, pos, dots, globe };
   hookPointer(view);
   views.push(view);
   return view;
@@ -434,6 +441,32 @@ function renderLabels(v) {
       place(el, sp);
     }
   }
+}
+
+/* the hover popup: placed every frame, so it rides along with its saying as the globe turns. Behind a
+   see-through globe it fades with the globe's opacity; once the globe hides the saying (solid, or nearly),
+   it goes away and stays gone until the pointer finds another saying. */
+function renderTip(v) {
+  const t = v.tipEl, id = v.hover;
+  const hide = () => { t.hidden = true; v.hover = null; t.dataset.id = ""; };
+  if (id == null || !v.pos[id] || !sayingOn(id)) return hide();
+  const camPos = v.camera.position.clone(), wp = v.pos[id].clone().applyMatrix4(v.world.matrixWorld), sp = wp.clone().project(v.camera);
+  if (sp.z > 1 || Math.abs(sp.x) > 1.05 || Math.abs(sp.y) > 1.05) return hide();
+  const back = wp.distanceTo(camPos) > camPos.length();
+  const seen = !back || !look.layers.globe.on ? 1 : solidGlobe() ? 0 : 1 - look.surface;
+  if (seen < 0.1) return hide();
+  if (t.dataset.id !== String(id)) {   /* fill only when the hovered saying changes */
+    const s = id === 0 ? { text: DATA.center.text, who: "your situation" } : byId[id];
+    t.innerHTML = `${esc(s.text)}<span class="who">${esc(s.who)}</span>`;
+    t.dataset.id = String(id);
+  }
+  t.hidden = false;
+  t.style.opacity = String(seen);
+  const w = v.canvas.clientWidth, h = v.canvas.clientHeight, x = (sp.x + 1) / 2 * w, y = (1 - sp.y) / 2 * h;
+  const tw = t.offsetWidth, th = t.offsetHeight;
+  let top = y - 30 - th;                 /* just above the saying's label */
+  if (top < 6) top = y + 14;             /* no room above: hang it below the ball */
+  t.style.transform = `translate(${Math.round(Math.min(Math.max(x - tw / 2, 6), w - tw - 6))}px, ${Math.round(Math.min(top, h - th - 6))}px)`;
 }
 
 /* ---------- the controls panel ---------- */
@@ -578,9 +611,25 @@ function turnTo(id) { /* bring a saying (as placed in the last view) round to fa
 function hookPointer(v) {
   let dragging = false, moved = 0, last = [0, 0];
   const c = v.canvas, ray = new THREE.Raycaster();
-  c.addEventListener("pointerdown", e => { dragging = true; moved = 0; last = [e.clientX, e.clientY]; c.setPointerCapture(e.pointerId); c.classList.add("drag"); });
+  /* what is under the pointer: a saying, the situation (0), a pole id, or null. On a solid globe the
+     surface is in the way of anything behind it. */
+  const pick = e => {
+    const r = c.getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), v.camera);
+    const targets = v.dots.filter(d => d.visible).map(d => d.userData.hit || d).concat(solidGlobe() && v.globe.visible ? [v.globe] : []);
+    const hit = ray.intersectObjects(targets)[0];
+    return hit && hit.object !== v.globe ? hit.object.userData.id : null;
+  };
+  c.addEventListener("pointerdown", e => { dragging = true; moved = 0; last = [e.clientX, e.clientY]; c.setPointerCapture(e.pointerId); c.style.cursor = ""; c.classList.add("drag"); });
+  c.addEventListener("pointerleave", () => { v.hover = null; });
   c.addEventListener("pointermove", e => {
-    if (!dragging) return;
+    if (!dragging) {   /* hovering: a saying (or the situation) gets the full-text popup; poles already show their whole label */
+      if (e.pointerType === "touch") return;
+      const id = pick(e);
+      v.hover = id != null && !isPole(id) ? id : null;
+      c.style.cursor = id != null ? "pointer" : "";
+      return;
+    }
     const dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
     shared.targetQ = null;
     shared.q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), dx * 0.008)).premultiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), dy * 0.008));
@@ -589,12 +638,7 @@ function hookPointer(v) {
   c.addEventListener("pointerup", e => {
     dragging = false; c.classList.remove("drag");
     if (moved > 4) return;
-    const r = c.getBoundingClientRect();
-    ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), v.camera);
-    /* on a solid globe the surface is in the way of anything behind it */
-    const targets = v.dots.filter(d => d.visible).map(d => d.userData.hit || d).concat(solidGlobe() && v.globe.visible ? [v.globe] : []);
-    const hit = ray.intersectObjects(targets)[0];
-    select(hit && hit.object !== v.globe ? hit.object.userData.id : null);
+    select(pick(e));
   });
   c.addEventListener("wheel", e => { e.preventDefault(); shared.camDist = Math.min(70, Math.max(13, shared.camDist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
 }
@@ -645,7 +689,7 @@ if (DATA.views.length > 1) shared.camDist = 34;
 /* a consult sphere opens with the situation tilted toward you, and its slow spin turns about the situation */
 const spinAxis = DATA.center ? V(...DATA.center.pos).normalize() : null;
 if (DATA.center) shared.q.setFromUnitVectors(spinAxis, V(0, 0.3, 0.95).normalize());
-$("hint").textContent = "drag turns · wheel zooms · click a saying · C controls · O solid" + (DATA.views.length > 1 ? " · both globes turn together" : "");
+$("hint").textContent = "drag turns · wheel zooms · hover a saying for its full text · click for more · C controls · O solid" + (DATA.views.length > 1 ? " · both globes turn together" : "");
 buildPanel();
 /* links can open the panel (#controls) or apply a preset (#preset=Tensions) */
 {
@@ -667,7 +711,7 @@ function tick() {
   for (const v of views) {
     v.camera.position.set(0, 0, shared.camDist); v.camera.lookAt(0, 0, 0);
     v.world.quaternion.copy(shared.q);
-    v.renderer.render(v.scene, v.camera); renderLabels(v);
+    v.renderer.render(v.scene, v.camera); renderLabels(v); renderTip(v);
   }
 }
 tick();
