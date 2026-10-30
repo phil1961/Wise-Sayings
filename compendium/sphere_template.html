@@ -102,7 +102,7 @@
 </div>
 <div class="panel" id="info" hidden></div>
 <button class="panel" id="ctlBtn" title="Controls (C)">◐ Controls</button>
-<div class="panel" id="ctl" hidden></div>
+<div class="panel" id="ctl"></div>
 <div id="hint">drag turns · wheel zooms · click a saying</div>
 <nav class="panel" id="nav" aria-label="Sayings pages">
   <button id="navPrev" title="Previous page ( [ )">‹</button>
@@ -155,19 +155,25 @@ const layerOf = k => LAYERS.find(l => l.key === k);
 /* ---------- the look: settings, defaults, presets, persistence ---------- */
 /* surface: the globe's opacity, 0 (clear glass) to 1 (solid: hides the far side and whatever is inside). */
 const FILTER_DEFAULTS = { edgeMin: 0, relMin: 0, pulledIn: true, labelMode: "all", dotScale: 1, focus: true, spin: !reduce, bg: COL.ground,
-  surface: 0.55, lastSeeThrough: 0.55 };
+  surface: 1, lastSeeThrough: 0.55 };
 const SOLID = 0.995;
-const defaultLook = () => ({ layers: Object.fromEntries(LAYERS.map(l => [l.key, { on: true, gain: 1, color: null }])), ...FILTER_DEFAULTS });
+/* Pages open on a solid globe with only the sayings, their labels, the situation and the meaning axes
+   showing; the structure and the chords through the inside start off (Phil, 2026-10-29). */
+const OFF_BY_DEFAULT = ["lattice", "mesh", "rings", "counters", "hidden", "mistag"];
+const defaultLook = () => ({ layers: Object.fromEntries(LAYERS.map(l => [l.key, { on: !OFF_BY_DEFAULT.includes(l.key), gain: 1, color: null }])), ...FILTER_DEFAULTS });
+const ALL_ON = Object.fromEntries(OFF_BY_DEFAULT.map(k => [k, { on: true }]));
 const PRESETS = {
   "Default": {},
-  "Sayings": { layers: { globe: { gain: 0.6 }, lattice: { on: false }, mesh: { gain: 0.5 }, rings: { gain: 0.6 } } },
-  "Tensions": { layers: { lattice: { on: false }, mesh: { on: false }, rings: { on: false }, counters: { gain: 2 }, hidden: { gain: 1.6 }, mistag: { gain: 1.6 } } },
-  "Structure": { layers: { mesh: { gain: 1.8 }, lattice: { gain: 1.6 }, labels: { on: false } } },
-  "Clean": { layers: { lattice: { on: false }, mesh: { gain: 0.4 }, rings: { on: false } }, labelMode: "front" },
-  "Solid": { surface: 1, layers: { mesh: { gain: 1.3 } } },
-  "Glass": { surface: 0.12, layers: { lattice: { gain: 0.6 } } },
+  "Everything": { surface: 0.55, layers: ALL_ON },
+  "Sayings": { surface: 0.55, layers: { globe: { gain: 0.6 }, mesh: { on: true, gain: 0.5 }, rings: { on: true, gain: 0.6 } } },
+  "Tensions": { surface: 0.3, layers: { counters: { on: true, gain: 2 }, hidden: { on: true, gain: 1.6 }, mistag: { on: true, gain: 1.6 } } },
+  "Structure": { surface: 0.55, layers: { mesh: { on: true, gain: 1.8 }, lattice: { on: true, gain: 1.6 }, labels: { on: false } } },
+  "Clean": { surface: 0.55, layers: { mesh: { on: true, gain: 0.4 } }, labelMode: "front" },
+  "Solid": { surface: 1, layers: { mesh: { on: true, gain: 1.3 } } },
+  "Glass": { surface: 0.12, layers: { ...ALL_ON, lattice: { on: true, gain: 0.6 } } },
 };
-const STORE = "sayings-sphere-look-v1";
+/* v2: the defaults changed, so looks saved under the old defaults are not carried over */
+const STORE = "sayings-sphere-look-v2";
 function withOverrides(base, over) {
   const out = { ...base, layers: { ...base.layers } };
   for (const [k, v] of Object.entries(over || {})) {

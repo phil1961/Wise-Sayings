@@ -234,7 +234,13 @@ In the page, drag to turn, use the wheel to zoom, and click a saying for its
 lens, its neighbours, and the sayings that pull the other way. Lines brighten
 with relatedness; orange dashes run through the globe between counter-sayings.
 
-**Controls** (button at bottom left, or press `C`). Every kind of element on
+**Defaults.** A page opens with its controls panel showing and a solid globe
+with only the sayings, their labels, the situation and the meaning axes on. The
+lattice, mesh, distance rings and the chords through the inside (counter-sayings,
+hidden connections, mis-tags) start off; switch them on in the panel, or use the
+Everything or Tensions preset.
+
+**Controls** (open at load; the button at bottom left or `C` hides them). Every kind of element on
 the page has its own row: an on/off switch, a colour picker (double-click to
 reset), and a slider from 0% (invisible) to 200%. Below 100% the element dims,
 and above it brightens: more opaque, and gently toward white. The rows are:
@@ -265,7 +271,7 @@ Below the rows:
   - fade what isn't linked to the selected saying;
   - slow spin;
   - background colour.
-- Presets: Default, Sayings (quiet structure), Tensions (only sayings and the
+- Presets: Default (solid, minimal), Everything (all on, see-through), Sayings (quiet structure), Tensions (only sayings and the
   lines between opposites), Structure (mesh and lattice up, labels off), Clean, Solid, Glass.
 
 Clicking a form in the legend toggles it. `L` toggles labels, `O` toggles a
