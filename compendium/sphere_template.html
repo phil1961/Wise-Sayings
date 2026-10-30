@@ -81,9 +81,20 @@
   #ctlBtn { bottom: 12px; left: 12px; padding: 6px 12px; color: var(--ink); font: 13px var(--body); cursor: pointer; }
   #ctlBtn:hover { color: #fff; }
   #ctl { bottom: 52px; left: 12px; width: 340px; max-height: calc(100% - 220px); overflow: auto; font-size: 12px; box-sizing: border-box; }
-  #ctl[hidden] { display: none; }
-  #ctl h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 12px 0 6px; }
-  #ctl h3:first-child { margin-top: 0; }
+  /* window blinds: the whole panel rolls up to its top edge when closed, and each section folds shut under its heading */
+  #ctl { clip-path: inset(0 0 0 0); transition: clip-path .35s ease, visibility 0s linear 0s; }
+  #ctl.rolled { clip-path: inset(0 0 100% 0); visibility: hidden; pointer-events: none; transition: clip-path .35s ease, visibility 0s linear .35s; }
+  #ctl h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 0; padding: 7px 0 5px;
+            cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
+  #ctl .sec:first-child h3 { border-top: 0; padding-top: 0; }
+  #ctl h3:hover, #ctl h3:focus-visible { color: var(--ink); outline: none; }
+  #ctl h3 .chev { display: inline-block; width: 12px; font-size: 14px; line-height: 1; text-align: center; transition: transform .3s ease; }
+  #ctl .sec.shut h3 .chev { transform: rotate(-90deg); }
+  #ctl .slats { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .3s ease; }
+  #ctl .sec.shut .slats { grid-template-rows: 0fr; }
+  #ctl .slats > .inner { overflow: hidden; min-height: 0; padding-bottom: 6px; transition: opacity .3s ease; }
+  #ctl .sec.shut .slats > .inner { opacity: 0; padding-bottom: 0; }
+  @media (prefers-reduced-motion: reduce) { #ctl, #ctl.rolled, #ctl .slats, #ctl .slats > .inner, #ctl h3 .chev { transition: none; } }
   #ctl .row { display: grid; grid-template-columns: 1fr 26px 92px 38px; align-items: center; gap: 6px; margin: 3px 0; }
   #ctl .row label { display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ctl .row.off label { color: var(--dim); }
@@ -472,19 +483,27 @@ function renderTip(v) {
 /* ---------- the controls panel ---------- */
 const ctl = $("ctl");
 const pctTxt = g => Math.round(g * 100) + "%";
+/* folded sections, remembered for every sphere page (like the look, but kept apart from it so presets leave them alone) */
+const BLINDS = "sayings-sphere-blinds-v1";
+const shutSecs = new Set((() => { try { return JSON.parse(localStorage.getItem(BLINDS)) || []; } catch (e) { return []; } })());
+const section = (name, body) =>
+  `<section class="sec${shutSecs.has(name) ? " shut" : ""}" data-sec="${esc(name)}">` +
+  `<h3 role="button" tabindex="0" aria-expanded="${!shutSecs.has(name)}"><span class="chev">▾</span>${esc(name)}</h3>` +
+  `<div class="slats"><div class="inner">${body}</div></div></section>`;
 function buildPanel() {
-  let html = "", group = null;
+  const groups = [];   /* [name, html] in LAYERS order */
   for (const l of LAYERS) {
-    if (l.group !== group) { group = l.group; html += `<h3>${group}</h3>`; }
+    if (!groups.length || groups[groups.length - 1][0] !== l.group) groups.push([l.group, ""]);
     /* the globe's slider is opacity (0 = clear glass, 100% = solid); every other slider dims or brightens */
     const slider = l.key === "globe"
       ? `<input type="range" min="0" max="100" step="5" data-f="surface" title="Opacity: 0% clear glass, 100% solid (hides the far side). Key O toggles solid.">`
       : `<input type="range" min="0" max="200" step="5" data-f="gain" title="Dim or brighten">`;
-    html += `<div class="row" data-k="${l.key}"><label><input type="checkbox" data-f="on">${esc(l.key === "globe" ? "Globe surface" : l.label)}</label>` +
+    groups[groups.length - 1][1] += `<div class="row" data-k="${l.key}"><label><input type="checkbox" data-f="on">${esc(l.key === "globe" ? "Globe surface" : l.label)}</label>` +
       `<input type="color" data-f="color" title="Colour (double-click to reset)">${slider}<span class="val"></span></div>`;
+    if (l.key === "globe") groups[groups.length - 1][1] += `<div class="note" style="margin:0 0 4px">At 100% the globe is solid: you see only the near side, with nothing behind it showing through (counter chords run inside, so they're hidden too).</div>`;
   }
-  html += `<div class="note" style="margin-top:2px">Globe at 100% is solid: you see only the near side, with nothing behind it showing through (counter chords run inside, so they're hidden too).</div>`;
-  html += `<h3>Filters</h3>` +
+  let html = groups.map(([name, body]) => section(name, body)).join("");
+  html += section("Filters",
     `<div class="frow"><span>Hide mesh links weaker than</span><input type="range" min="0" max="100" step="5" data-g="edgeMin"><span class="val" data-v="edgeMin"></span></div>` +
     (DATA.center ? `<div class="frow"><span>Hide sayings less relevant than</span><input type="range" min="0" max="100" step="5" data-g="relMin"><span class="val" data-v="relMin"></span></div>` +
       `<label class="chk"><input type="checkbox" data-g="pulledIn">Show pulled-in counter-sayings</label>` : "") +
@@ -492,10 +511,20 @@ function buildPanel() {
     `<div class="frow"><span>Saying size</span><input type="range" min="50" max="200" step="10" data-g="dotScale"><span class="val" data-v="dotScale"></span></div>` +
     `<label class="chk"><input type="checkbox" data-g="focus">Fade what isn't linked to the selected saying</label>` +
     `<label class="chk"><input type="checkbox" data-g="spin">Slow spin</label>` +
-    `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>` +
-    `<h3>Presets</h3><div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>` +
-    `<div class="note">Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · P pages · [ ] previous / next page · Esc deselect.</div>`;
+    `<div class="frow"><span>Background</span><input type="color" data-g="bg"><span></span></div>`);
+  html += section("Presets", `<div class="presets">${Object.keys(PRESETS).map(p => `<button data-p="${p}">${p}</button>`).join("")}</div>`);
+  html += `<div class="note">Click a heading to fold its section. Settings are remembered for every sphere page. Keys: C controls · L labels · O solid / see-through · P pages · [ ] previous / next page · Esc deselect.</div>`;
   ctl.innerHTML = html;
+  ctl.querySelectorAll(".sec > h3").forEach(h => {
+    const sec = h.parentElement, flip = () => {
+      const shut = sec.classList.toggle("shut");
+      h.setAttribute("aria-expanded", String(!shut));
+      shut ? shutSecs.add(sec.dataset.sec) : shutSecs.delete(sec.dataset.sec);
+      try { localStorage.setItem(BLINDS, JSON.stringify([...shutSecs])); } catch (e) {}
+    };
+    h.onclick = flip;
+    h.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } };
+  });
   ctl.querySelectorAll(".row").forEach(row => {
     const L = () => look.layers[row.dataset.k];
     row.querySelector("[data-f=on]").onchange = e => { L().on = e.target.checked; applyLook(); };
@@ -545,7 +574,9 @@ function syncPanel() {
   });
   ctl.querySelectorAll("[data-v]").forEach(s => s.textContent = pctTxt(look[s.dataset.v]));
 }
-$("ctlBtn").onclick = () => { ctl.hidden = !ctl.hidden; };
+/* the panel rolls up like a blind (CSS on #ctl.rolled); it starts lowered */
+const rollCtl = open => { open = open ?? ctl.classList.contains("rolled"); ctl.classList.toggle("rolled", !open); ctl.setAttribute("aria-hidden", String(!open)); $("ctlBtn").setAttribute("aria-expanded", String(open)); };
+$("ctlBtn").onclick = () => rollCtl();
 
 /* ---------- info panel: one neighbour list per view, so a comparison shows both ---------- */
 const info = $("info");
@@ -645,7 +676,7 @@ function hookPointer(v) {
 }
 addEventListener("keydown", e => {
   if (e.target.closest && e.target.closest("input, select, textarea")) return;
-  if (e.key === "c" || e.key === "C") ctl.hidden = !ctl.hidden;
+  if (e.key === "c" || e.key === "C") rollCtl();
   else if (e.key === "l" || e.key === "L") { look.layers.labels.on = !look.layers.labels.on; applyLook(); }
   else if (e.key === "o" || e.key === "O") setSurface(look.surface >= SOLID ? (look.lastSeeThrough || 0.55) : 1);
   else if (e.key === "Escape") select(null);
@@ -697,7 +728,7 @@ buildPanel();
   const h = decodeURIComponent(location.hash);
   const p = (h.match(/preset=([A-Za-z]+)/) || [])[1];
   if (p && PRESETS[p]) look = withOverrides(defaultLook(), PRESETS[p]);
-  if (h.includes("controls")) ctl.hidden = false;
+  if (h.includes("controls")) rollCtl(true);
 }
 applyLook();
 function resize() { for (const v of views) { const w = v.canvas.clientWidth, h = v.canvas.clientHeight; v.renderer.setSize(w, h, false); v.camera.aspect = w / h; v.camera.updateProjectionMatrix(); } }

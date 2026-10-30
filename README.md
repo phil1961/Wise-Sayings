@@ -246,7 +246,10 @@ lattice, distance rings and the chords through the inside (counter-sayings,
 hidden connections, mis-tags) start off; switch them on in the panel, or use the
 Everything or Tensions preset.
 
-**Controls** (open at load; the button at bottom left or `C` hides them). Every kind of element on
+**Controls** (open at load; the button at bottom left or `C` rolls the panel up
+like a blind, and again lowers it). Each section folds shut when you click its
+heading (▾), and the folded sections are remembered for every sphere page.
+Every kind of element on
 the page has its own row: an on/off switch, a colour picker (double-click to
 reset), and a slider from 0% (invisible) to 200%. Below 100% the element dims,
 and above it brightens: more opaque, and gently toward white. The rows are:
