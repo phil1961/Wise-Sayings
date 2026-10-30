@@ -10,15 +10,22 @@ Design spec: [docs/design-spec.md](docs/design-spec.md).
 
 ## Setup
 
-Python 3.9+ only. No packages to install, no server, no network. Everything
-lives in this folder: copy it anywhere and it works.
+Python 3.9+ only. No packages to install and no server. Everything lives in
+this folder: copy it anywhere and it works. The only features that use the
+network are the optional Claude ones (see below); everything else runs offline.
 
 ```
 python sayings.py --help
 ```
 
-The database (`sayings.db`) is created on first use. The tag vocabulary is
-`tags.txt`; edit it freely, and it is re-read on every command.
+The database (`sayings.db`) is committed with the repo: it holds the collection,
+the saved layouts, and the cached Claude scores (which cost watcher calls to
+redo), so don't delete it casually. If it is missing, an empty one is created on
+first use. The tag vocabulary is `tags.txt`; edit it freely, and it is re-read
+on every command.
+
+Generated files (`export/`, `review.md`) are written relative to the folder you
+run the command from, so run commands from this folder.
 
 ### AI calls go through claude_watcher
 
@@ -42,8 +49,9 @@ Code under his subscription, so calls aren't billed per token. The client is
   stall on a permission prompt; at worst it times out after about 5½ minutes.
 - If the watcher can't be reached, each feature falls back to its offline method
   and says so.
-- `SAYINGS_TRANSPORT=api` switches to the Anthropic SDK and an
-  `ANTHROPIC_API_KEY` instead (`pip install anthropic`).
+- `SAYINGS_TRANSPORT=api` switches `consult --smart` and the meaning scores to
+  the Anthropic SDK and an `ANTHROPIC_API_KEY` instead (`pip install anthropic`).
+  Meaning-axis ratings always go through the watcher.
 
 ## The no-fabrication rule
 
@@ -246,8 +254,9 @@ lattice, distance rings and the chords through the inside (counter-sayings,
 hidden connections, mis-tags) start off; switch them on in the panel, or use the
 Everything or Tensions preset.
 
-**Controls** (open at load; the button at bottom left or `C` rolls the panel up
-like a blind, and again lowers it). Each section folds shut when you click its
+**Controls** (open at load, hanging just under the title box). The Controls
+button is the panel's top rail: click it, or press `C`, and the panel rolls up
+into the rail like a blind; again lowers it. Each section folds shut when you click its
 heading (▾), and the folded sections are remembered for every sphere page.
 Every kind of element on
 the page has its own row: an on/off switch, a colour picker (double-click to
@@ -305,7 +314,9 @@ antithesis at the opposite end. The rods are exactly equally spaced:
 - 4–6 axes use the icosahedron's corner pairs, 63.4° between neighbours. That
   is the same icosahedron the lattice is built from, so every pole is a lattice
   point.
-- 1–3 axes use x, y and z.
+- 1–3 axes use x, y and z. The y axis runs through the north pole, where a
+  situation sphere puts the situation, so with 2 or 3 axes the situation moves
+  to the lattice point farthest from every pole instead.
 
 The axes in use:
 
@@ -428,9 +439,9 @@ older `sayings.db` is upgraded in place without losing data.
 |---|---|
 | 1 | `sayings`, `tags`, `saying_tags`, `counter_pairs` (the original schema) |
 | 2 | `settings` (key/value, e.g. `default_status`); `layout_runs` (stage, seed, sample, parameters, energy, quality stats); `layout_points` (each saying's relaxed x,y,z and snapped lattice vertex); `layout_edges` (triangulation edges) |
-| 5 | `axis_scores` (each saying's −2..+2 rating on each meaning axis, per model, keyed by axis and saying fingerprints) |
-| 4 | `layout_runs.center` (for a consult sphere: the situation, each saying's relevance, matched tags, the situation's position and lattice vertex; edges to the situation use id 0) |
 | 3 | `relatedness_cache` (Claude meaning scores per pair, keyed by model and saying fingerprints); `layout_edges.relatedness` (each edge's score in its run); `comparisons` (tags run, meaning run, report) |
+| 4 | `layout_runs.center` (for a consult sphere: the situation, each saying's relevance, matched tags, the situation's position and lattice vertex; edges to the situation use id 0) |
+| 5 | `axis_scores` (each saying's −2..+2 rating on each meaning axis, per model, keyed by axis and saying fingerprints) |
 
 ## Tests
 
@@ -442,14 +453,20 @@ python -m unittest discover tests
 
 ```
 sayings.py            CLI entry point
+sayings.db            the collection, saved layouts and cached Claude scores (committed)
 compendium/           db (schema, migrations, vocab sync), records (validate/import/search/dedupe/status),
                       review, consult, llm_matcher (--smart), report (export/stats),
                       sphere (layout, alignment), meaning (stage two scorers, comparison),
-                      geodesic (lattice), render + sphere_template.html (pages), cli
+                      axes (meaning axes: file, directions, Claude ratings), watcher (claude_watcher client),
+                      geodesic (lattice), render + sphere_template.html (pages),
+                      pages (index page and Pages-menu list), cli
 compendium/vendor/    three-r128.min.js (from Network Meaning)
 tags.txt              editable tag vocabulary + consult aliases
-seed/                 starter.json (batch 1), batch2.json
+axes.txt              editable meaning axes (up to 6)
+seed/                 starter.json (batch 1), batch2.json, batch3.json, batch3b.json, additions.json
 docs/                 design-spec.md, sphere-layout-spec.md
+tools/                build_demos_index.py (rebuild the published index and page list)
+review.md             the last review export (python sayings.py review export)
 export/               generated pages and exports (not committed)
 tests/                unittest suite
 ```

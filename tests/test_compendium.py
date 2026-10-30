@@ -317,6 +317,17 @@ class TestSphereLayout(Base):
         self.assertTrue(all(x > 150 for x in st["counter_angles"]), st["counter_angles"])
         self.assertGreater(st["min_angle"], 10)
 
+    def test_ids_are_checked_before_layout(self):
+        import contextlib, io
+        from compendium import cli
+        for ids, expect in (("1,2,999,3", "#999"), ("1,x,3", "'x'")):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = cli.main(["--db", str(self.dir / "t.db"), "sphere", "run", "--ids", ids, "--out", str(self.dir / "x.html")])
+            self.assertEqual(code, 1)
+            self.assertIn(expect, err.getvalue())
+        self.assertEqual(cli._parse_ids(self.conn, "#3, 1,1"), [1, 3])
+
     def test_sample_size_is_checked(self):
         from compendium import sphere
         with self.assertRaises(ValueError):
@@ -563,6 +574,26 @@ class TestConsultSphere(Base):
         data = json.loads(html.split("const DATA = ", 1)[1].split(";\n", 1)[0])
         self.assertEqual(data["center"]["text"], "a test situation")
         self.assertEqual(data["title"], "Around your situation")
+
+    def test_situation_moves_off_an_axis_pole(self):
+        from compendium import axes, geodesic, sphere
+        lat = geodesic.vertices()
+        six = axes.for_layout(axes.load(), {a["key"]: {} for a in axes.load()})
+        self.assertEqual(sphere.situation_vertex(six), geodesic.nearest(sphere.NORTH))   # 6 axes: north is clear
+        for n in (2, 3):                                     # x, y, z axes: y's pole is the north pole
+            ax = axes.for_layout(axes.load()[:n], {a["key"]: {} for a in axes.load()[:n]})
+            v = sphere.situation_vertex(ax)
+            self.assertNotEqual(v, geodesic.nearest(sphere.NORTH))
+            for a in ax:
+                d = geodesic.normalize(a["dir"])
+                for q in (d, tuple(-c for c in d)):
+                    self.assertGreaterEqual(sphere.angle(lat[v], q), sphere.POLE_CLEARANCE)
+        ids = list(range(1, 13))
+        ax = axes.for_layout(axes.load()[:3], {a["key"]: {i: 1 for i in ids} for a in axes.load()[:3]})
+        run = sphere.load_run(self.conn, sphere.run_layout(
+            self.conn, ids, seed=1, restarts=1, axes=ax,
+            center={"text": "t", "relevance": {i: 1.0 for i in ids}, "matched": [], "pulled_in": []}))
+        self.assertEqual(run["center"]["vertex"], sphere.situation_vertex(ax))
 
     def test_consult_sphere_command(self):
         from compendium import cli, sphere

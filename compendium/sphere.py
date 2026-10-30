@@ -11,7 +11,7 @@ Only the relatedness measure differs between stages. A relatedness function is
 
     relatedness(conn, ids) -> {(a_id, b_id): score}   with a_id < b_id, score in 0..1
 
-Stage one ('tags') is tag overlap. Stage two ('meaning') will plug in the same way.
+Stage one ('tags') is tag overlap (tag_relatedness below). Stage two ('meaning') is in meaning.py.
 """
 
 import json
@@ -268,6 +268,26 @@ def choose_sample(conn, n, seed, include_candidates=False):
 
 CENTER_ID = 0          # the situation's id in layout_edges (saying ids start at 1)
 NORTH = (0.0, 1.0, 0.0)
+POLE_CLEARANCE = 15.0  # degrees: the situation never sits closer than this to an axis pole
+
+
+def situation_vertex(axes=None):
+    """Lattice vertex for a consult sphere's situation: the one nearest the north pole, unless a meaning-axis
+    pole is on or near it. With 1-3 axes the axes run along x, y and z, so the y axis's thesis pole IS the
+    north pole. Then the situation goes to the vertex farthest from every pole instead."""
+    north = geodesic.nearest(NORTH)
+    if not axes:
+        return north
+    poles = []
+    for ax in axes:
+        d = geodesic.normalize(ax["dir"])
+        poles += [d, (-d[0], -d[1], -d[2])]
+    lat = geodesic.vertices()
+    clearance = lambda v: min(angle(lat[v], q) for q in poles)
+    if clearance(north) >= POLE_CLEARANCE:
+        return north
+    # farthest from every pole; ties go to the vertex nearest north, so the choice is stable
+    return max(range(len(lat)), key=lambda v: (round(clearance(v), 6), _dot(lat[v], NORTH)))
 
 
 def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, stage_info=None,
@@ -279,7 +299,8 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
 
     `center` makes a consult sphere: {"text": situation, "relevance": {id: 0..1},
     "matched": [tags]}. The situation is held fixed at the lattice vertex nearest the
-    north pole, and each saying is pulled toward it with strength
+    north pole (or, if an axis pole is there, the vertex farthest from the poles: see situation_vertex),
+    and each saying is pulled toward it with strength
     pull * center_pull * relevance, so the most relevant sayings gather around it.
 
     `axes` adds meaning axes (compendium.axes.for_layout): for each axis a fixed thesis pole at
@@ -300,10 +321,17 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
     related = {(index[a], index[b]): r for (a, b), r in rel_by_id.items()}
     counters = {tuple(sorted((index[a], index[b]))) for a, b in counter_pairs(conn, ids)}
 
+    # One list of points goes through the relaxation, indexed like this:
+    #   0 .. n-1            the sayings, in `ids` order (index[sid] gives a saying's slot)
+    #   n                   the situation, if `center` is given (held fixed)
+    #   base + 2k, base+2k+1  axis k's thesis and antithesis poles (held fixed, never repel)
+    # with base = n, or n + 1 when there is a situation. `related`, `fixed`, `no_repel` and the
+    # slices of `pts` below all rely on this order.
     n = len(ids)
+    base = n + (1 if center is not None else 0)
     fixed, center_vertex, center_pos = (), None, None
     if center is not None:
-        center_vertex = geodesic.nearest(NORTH)
+        center_vertex = situation_vertex(axes)
         center_pos = geodesic.vertices()[center_vertex]
         for sid, rel in center["relevance"].items():
             if sid in index and rel > 0:
@@ -312,7 +340,6 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
 
     anchors, pole_vertices = [], []
     if axes:
-        base = n + (1 if center is not None else 0)
         for k, ax in enumerate(axes):
             d = geodesic.normalize(ax["dir"])
             thesis, anti = base + 2 * k, base + 2 * k + 1
@@ -323,7 +350,7 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
                 if sid in index and s:
                     related[(index[sid], thesis if s > 0 else anti)] = p["axis_pull"] * abs(s) / 2
         fixed = tuple(fixed) + tuple(range(base, base + len(anchors)))
-    no_repel = frozenset(range(len(ids) + (1 if center is not None else 0), len(ids) + (1 if center is not None else 0) + len(anchors)))
+    no_repel = frozenset(range(base, base + len(anchors)))
 
     rng = random.Random(seed)
     best = None
@@ -334,7 +361,7 @@ def run_layout(conn, ids, stage="tags", seed=0, sample_how="ids", related=None, 
             best = (pts, e)
     pts, energy = best
 
-    edges = hull_edges(convex_hull(pts[:n + (1 if center is not None else 0)]))  # sayings (+ situation), not the poles
+    edges = hull_edges(convex_hull(pts[:base]))  # sayings (+ situation), not the poles
     saying_pts = pts[:n]
     taken = ([center_vertex] if center else []) + pole_vertices
     verts = geodesic.snap(saying_pts, taken=taken) if p["snap"] else [None] * n

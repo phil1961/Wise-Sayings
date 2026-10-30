@@ -119,11 +119,25 @@ def cmd_sphere(conn, a):
     return _maybe_open(out, a.open)
 
 
+def _parse_ids(conn, text):
+    """--ids "3,5,12" -> [3, 5, 12], checked here so a typo fails with a clear message, not deep in a layout."""
+    parts = [x.strip().lstrip("#") for x in text.split(",") if x.strip()]
+    bad = [x for x in parts if not x.isdigit()]
+    if bad:
+        raise ValueError(f"--ids takes saying ids separated by commas, e.g. --ids 3,5,12 (not {', '.join(map(repr, bad))})")
+    ids = sorted({int(x) for x in parts})
+    known = {r[0] for r in conn.execute(f"SELECT id FROM sayings WHERE id IN ({','.join('?' * len(ids))})", ids)}
+    unknown = [i for i in ids if i not in known]
+    if unknown:
+        raise ValueError(f"no saying with id {', '.join(f'#{i}' for i in unknown)} (see: python sayings.py search --status all)")
+    return ids
+
+
 def _sphere_sample(conn, a):
     from . import sphere
     seed = a.seed if a.seed is not None else random.randrange(1_000_000)
     if a.ids:
-        return seed, sorted({int(x) for x in a.ids.split(",")}), "ids"
+        return seed, _parse_ids(conn, a.ids), "ids"
     if getattr(a, "all", False):
         ids = [r[0] for r in conn.execute("SELECT id FROM sayings WHERE status='accepted' ORDER BY id")]
         return seed, ids, "all accepted"
@@ -456,11 +470,11 @@ def build_parser():
     p.add_argument("--vocab", default=str(db.DEFAULT_VOCAB), help="tag vocabulary (default: tags.txt)")
     sub = p.add_subparsers(dest="command", required=True)
 
-    s = sub.add_parser("import", help="import a JSON or CSV batch as candidates")
+    s = sub.add_parser("import", help="import a JSON or CSV batch (status from the default_status setting)")
     s.add_argument("file")
     s.set_defaults(func=cmd_import)
 
-    s = sub.add_parser("add", help="add one saying as a candidate")
+    s = sub.add_parser("add", help="add one saying (status from the default_status setting)")
     s.add_argument("--text", required=True)
     s.add_argument("--form", required=True, choices=FORMS)
     s.add_argument("--by", help="attribution (omit if anonymous)")
