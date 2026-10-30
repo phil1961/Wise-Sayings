@@ -234,9 +234,10 @@ In the page, drag to turn, use the wheel to zoom, and click a saying for its
 lens, its neighbours, and the sayings that pull the other way. Lines brighten
 with relatedness; orange dashes run through the globe between counter-sayings.
 
-**Defaults.** A page opens with its controls panel showing and a solid globe
-with only the sayings, their labels, the situation and the meaning axes on. The
-lattice, mesh, distance rings and the chords through the inside (counter-sayings,
+**Defaults.** A page opens with its controls panel showing and a 96%-opaque
+grey-green globe (rgb 71, 81, 71) with the sayings, their labels, the triangle
+mesh, the situation and the meaning axes on. The
+lattice, distance rings and the chords through the inside (counter-sayings,
 hidden connections, mis-tags) start off; switch them on in the panel, or use the
 Everything or Tensions preset.
 
@@ -271,7 +272,7 @@ Below the rows:
   - fade what isn't linked to the selected saying;
   - slow spin;
   - background colour.
-- Presets: Default (solid, minimal), Everything (all on, see-through), Sayings (quiet structure), Tensions (only sayings and the
+- Presets: Default (96% opaque, minimal), Everything (all on, see-through), Sayings (quiet structure), Tensions (only sayings and the
   lines between opposites), Structure (mesh and lattice up, labels off), Clean, Solid, Glass.
 
 Clicking a form in the legend toggles it. `L` toggles labels, `O` toggles a
