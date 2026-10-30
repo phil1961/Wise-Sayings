@@ -10,6 +10,11 @@ from pathlib import Path
 from . import CONFIDENCES, FORMS, STATUSES, consult as consult_mod, db, records, report, review
 
 
+# Default output places sit in this project folder, like sayings.db and tags.txt, so a command run from
+# another folder doesn't scatter files there. Paths you pass (--out, --out-dir, a review file) are used as given.
+EXPORT = db.ROOT / "export"
+
+
 def _print_import_result(res):
     if res["errors"]:
         print("Import aborted; nothing was added. Fix these and re-run:")
@@ -94,7 +99,7 @@ def cmd_sphere(conn, a):
         if a.run is None:
             print("Give a run id: python sayings.py sphere render 3")
             return 1
-        out = render.write_page(conn, a.run, a.out or Path("export") / f"sphere-{a.run}.html")
+        out = render.write_page(conn, a.run, a.out or EXPORT / f"sphere-{a.run}.html")
         print(f"Wrote {out}")
         return _maybe_open(out, a.open)
 
@@ -114,7 +119,7 @@ def cmd_sphere(conn, a):
         return 1
     print(f"Laying out {len(ids)} sayings (stage {a.stage}, seed {seed})...")
     run_id = _layout(conn, a, ids, a.stage, seed, how, axes=ax)
-    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
+    out = render.write_page(conn, run_id, a.out or EXPORT / f"sphere-{run_id}.html")
     print(f"Wrote {out}")
     return _maybe_open(out, a.open)
 
@@ -246,8 +251,10 @@ def _sphere_score(conn, a):
     seed, ids, how = _sphere_sample(conn, a)
     new = meaning.uncached_count(conn, ids)
     print(f"{len(ids)} sayings ({how}): {len(ids) * (len(ids) - 1) // 2} pairs, {new} not yet scored by {meaning.MODEL}.")
-    if not new or not _cost_ok(conn, ids, a):
+    if not new:
         return 0
+    if not _cost_ok(conn, ids, a):
+        return 1   # refused (too many calls, or too few left today): not a success
     try:
         meaning.claude_scores(conn, ids)
     except meaning.ScorerUnavailable as e:
@@ -288,7 +295,7 @@ def _sphere_compare(conn, a):
     cid = conn.execute("INSERT INTO comparisons (tags_run, meaning_run, report) VALUES (?,?,?)",
                        (runs["tags"], runs["meaning"], json.dumps(rep))).lastrowid
     conn.commit()
-    out_dir = Path(a.out).parent if a.out else Path("export")
+    out_dir = Path(a.out).parent if a.out else EXPORT
     md = out_dir / f"compare-{cid}.md"
     md.parent.mkdir(parents=True, exist_ok=True)
     md.write_text(render.compare_markdown(conn, cid), encoding="utf-8")
@@ -387,7 +394,7 @@ def _consult_sphere(conn, a, matcher):
     if st["counter_angles"]:
         print(f"  counter-sayings apart: {', '.join(f'{x}°' for x in st['counter_angles'])} (180° = opposite sides)")
     _print_axis_stats(st)
-    out = render.write_page(conn, run_id, a.out or Path("export") / f"sphere-{run_id}.html")
+    out = render.write_page(conn, run_id, a.out or EXPORT / f"sphere-{run_id}.html")
     print(f"Wrote {out}")
     return _maybe_open(out, a.open)
 
@@ -491,7 +498,7 @@ def build_parser():
 
     s = sub.add_parser("review", help="export candidates for review, or apply decisions")
     s.add_argument("action", choices=("export", "apply"))
-    s.add_argument("file", nargs="?", default="review.md")
+    s.add_argument("file", nargs="?", default=str(db.ROOT / "review.md"))
     s.add_argument("--status", default="candidate", choices=STATUSES,
                    help="which records to export (default: candidate)")
     s.set_defaults(func=cmd_review)
@@ -532,7 +539,7 @@ def build_parser():
 
     s = sub.add_parser("export", help="export the compendium to markdown and/or JSON")
     s.add_argument("--format", choices=("md", "json", "both"), default="both")
-    s.add_argument("--out-dir", default="export")
+    s.add_argument("--out-dir", default=str(EXPORT))
     s.add_argument("--status", default="accepted", choices=STATUSES + ("all",))
     s.set_defaults(func=cmd_export)
 

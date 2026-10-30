@@ -122,6 +122,17 @@ class TestReview(Base):
         self.assertEqual(problems, [])
         self.assertEqual(records.get(self.conn, 2)["review_note"], "too familiar")
 
+    def test_decision_without_note_keeps_the_old_note(self):
+        records.import_records(self.conn, [base()])
+        records.set_status(self.conn, [1], "candidate", note="check the source")
+        path = self.dir / "r.md"
+        review.export_candidates(self.conn, path)
+        head, rest = path.read_text(encoding="utf-8").split("## #1 ", 1)
+        path.write_text(head + "## #1 " + rest.replace("Decision: ", "Decision: accept", 1), encoding="utf-8")
+        review.apply_decisions(self.conn, path)
+        row = self.conn.execute("SELECT status, review_note FROM sayings WHERE id=1").fetchone()
+        self.assertEqual((row["status"], row["review_note"]), ("accepted", "check the source"))
+
     def test_blank_decisions_are_skipped(self):
         records.import_records(self.conn, [base()])
         path = self.dir / "review.md"
@@ -328,6 +339,20 @@ class TestSphereLayout(Base):
             self.assertIn(expect, err.getvalue())
         self.assertEqual(cli._parse_ids(self.conn, "#3, 1,1"), [1, 3])
 
+    def test_default_outputs_land_in_the_project_folder(self):
+        from compendium import cli
+        p = cli.build_parser()
+        self.assertEqual(Path(p.parse_args(["export"]).out_dir), ROOT / "export")
+        self.assertEqual(Path(p.parse_args(["review", "export"]).file), ROOT / "review.md")
+        self.assertEqual(cli.EXPORT, ROOT / "export")
+
+    def test_sphere_score_refusal_is_a_failure(self):
+        import contextlib, io
+        from compendium import cli, meaning
+        with mock.patch.object(meaning, "CALLS_WITHOUT_ASKING", 0), contextlib.redirect_stdout(io.StringIO()):
+            code = cli.main(["--db", str(self.dir / "t.db"), "sphere", "score", "--ids", "1,2,3,4"])
+        self.assertEqual(code, 1)   # needs --yes; refused, so not a success
+
     def test_sample_size_is_checked(self):
         from compendium import sphere
         with self.assertRaises(ValueError):
@@ -483,6 +508,17 @@ class TestWatcher(Base):
         with mock.patch.dict(os.environ, {"WATCHER_TOKEN": "t", "WATCHER_URL": "http://w/ask"}):
             with self.assertRaises(_watcher.WatcherUnavailable):
                 _watcher.ask("hi", "claude-opus-5-5")
+
+    def test_reply_without_json_is_unavailable_not_a_crash(self):
+        class Resp:
+            def __enter__(s): return s
+            def __exit__(s, *a): return False
+            def read(s): return b"<html>502 Bad Gateway</html>"
+        with mock.patch.dict(os.environ, {"WATCHER_TOKEN": "t"}), \
+                mock.patch("urllib.request.urlopen", lambda req, timeout: Resp()):
+            with self.assertRaises(_watcher.WatcherUnavailable) as cm:
+                _watcher.ask("hi", "claude-opus-5-5")
+        self.assertIn("without its JSON", str(cm.exception))
 
     def test_token_from_env_file_and_busy_retry(self):
         env = self.dir / ".env"

@@ -91,9 +91,13 @@ def ask(prompt, model, schema=None, timeout_s=300, log=None):
                                      headers={"content-type": "application/json", "x-watcher-token": token})
         try:
             with urllib.request.urlopen(req, timeout=timeout_s + 60) as r:
-                out = json.loads(r.read())
-            if not out.get("ok"):
-                raise WatcherUnavailable(out.get("message") or "the watcher said no")
+                body = r.read()
+            try:
+                out = json.loads(body)
+            except ValueError:   # e.g. a proxy's HTML error page
+                raise WatcherUnavailable(f"the watcher answered without its JSON ({body[:80]!r}); it may be down")
+            if not isinstance(out, dict) or not out.get("ok"):
+                raise WatcherUnavailable((isinstance(out, dict) and out.get("message")) or "the watcher said no")
             return out.get("raw"), out.get("usage") or {}
         except urllib.error.HTTPError as e:
             try:

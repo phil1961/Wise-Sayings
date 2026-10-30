@@ -81,7 +81,8 @@ def apply_decisions(conn, path):
         if status is None:
             problems.append(f"#{sid}: unrecognized decision {value!r} (use accept or reject)")
             continue
-        cur = conn.execute("UPDATE sayings SET status=?, review_note=? WHERE id=?", (status, note, sid))
+        cur = conn.execute("UPDATE sayings SET status=?, review_note=COALESCE(?, review_note) WHERE id=?",
+                           (status, note, sid))   # no note on the line keeps the old one, as set-status does
         if cur.rowcount == 0:
             problems.append(f"#{sid}: no such saying")
             continue

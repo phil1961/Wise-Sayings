@@ -24,8 +24,9 @@ redo), so don't delete it casually. If it is missing, an empty one is created on
 first use. The tag vocabulary is `tags.txt`; edit it freely, and it is re-read
 on every command.
 
-Generated files (`export/`, `review.md`) are written relative to the folder you
-run the command from, so run commands from this folder.
+Generated files go to this folder by default (`export/`, `review.md`), whatever
+folder you run the command from. A path you give yourself (`--out`,
+`--out-dir`, a review file) is used as given.
 
 ### AI calls go through claude_watcher
 
